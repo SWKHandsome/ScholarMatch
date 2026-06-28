@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AcademicResult;
 use App\Models\IncomeCategory;
+use App\Models\RecommendationLog;
 use App\Models\Scholarship;
 use App\Models\ScholarshipRule;
 use App\Models\StudentProfile;
@@ -90,6 +91,29 @@ class ScholarshipRecommendationService
             'error' => null,
             'recommendations' => $recommendations,
         ];
+    }
+
+    public function storeRecommendationLogs(User $user, array $recommendations): void
+    {
+        foreach ($recommendations as $recommendation) {
+            if (!isset($recommendation['scholarship']) || !$recommendation['scholarship'] instanceof Scholarship) {
+                continue;
+            }
+
+            RecommendationLog::updateOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'scholarship_id' => $recommendation['scholarship']->id,
+                ],
+                [
+                    'score' => (int) ($recommendation['score'] ?? 0),
+                    'status' => $recommendation['status'] ?? 'Not Suitable',
+                    'failed_hard_rules' => $recommendation['failed_hard_rules'] ?? [],
+                    'explanation' => $recommendation['explanation'] ?? [],
+                    'score_breakdown' => $recommendation['score_breakdown'] ?? [],
+                ]
+            );
+        }
     }
 
     public function checkHardRules(

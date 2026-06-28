@@ -18,6 +18,10 @@ class RecommendationController extends Controller
         $user = Auth::user();
         $result = $this->recommendationService->getRecommendations($user);
 
+        if (empty($result['error'])) {
+            $this->recommendationService->storeRecommendationLogs($user, $result['recommendations'] ?? []);
+        }
+
         return view('student.recommendations.index', [
             'error' => $result['error'],
             'recommendations' => $result['recommendations'],
