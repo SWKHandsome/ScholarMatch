@@ -58,6 +58,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('scholarships.rules', AdminScholarshipRuleController::class)->except(['show', 'destroy']);
     Route::resource('income-categories', AdminIncomeCategoryController::class)->except(['create', 'edit', 'show']);
     Route::get('recommendation-logs', [AdminRecommendationLogController::class, 'index'])->name('recommendation-logs.index');
+Route::get('recommendation-logs/{recommendationLog}', [AdminRecommendationLogController::class, 'show'])->name('recommendation-logs.show');
 });
 
 require __DIR__.'/auth.php';
