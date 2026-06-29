@@ -1,6 +1,4 @@
-@extends('layouts.guest')
-
-@section('content')
+<x-guest-layout>
 <div class="min-h-screen bg-background">
     <!-- Hero Section -->
     <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5">
@@ -152,4 +150,4 @@
         </div>
     </section>
 </div>
-@endsection
+</x-guest-layout>
