@@ -2,6 +2,7 @@
     'recommendation',
     'showSaveButton' => true,
     'showDetailLink' => true,
+    'showApplyButton' => true,
 ])
 
 <?php
@@ -18,7 +19,12 @@ $failedRules = $recommendation['failed_hard_rules'] ?? [];
 <div class="card p-5 flex flex-col h-full">
     <div class="flex items-start justify-between gap-4 mb-4">
         <div class="flex-1 min-w-0">
-            <h3 class="text-lg font-semibold text-on-surface truncate">{{ $scholarship->name }}</h3>
+            <h3 class="text-lg font-semibold text-on-surface truncate">
+                <a href="{{ route('student.recommendations.show', $scholarship) }}"
+                    class="hover:text-primary hover:underline transition-colors">
+                    {{ $scholarship->name }}
+                </a>
+            </h3>
             <p class="text-sm text-on-surface-variant mt-1">{{ $scholarship->provider }}</p>
         </div>
         <!-- Score Circle -->
@@ -116,7 +122,12 @@ $failedRules = $recommendation['failed_hard_rules'] ?? [];
 
     <!-- Actions -->
     <div class="mt-auto flex flex-wrap gap-2 pt-4 border-t border-outline-variant">
-        @if($showDetailLink && $scholarship->application_link)
+        <a href="{{ route('student.recommendations.show', $scholarship) }}"
+            class="flex-1 btn btn-ghost text-center text-sm">
+            View Details
+        </a>
+
+        @if($showApplyButton && $scholarship->application_link)
             <a href="{{ $scholarship->application_link }}" target="_blank" rel="noopener noreferrer"
                 class="flex-1 btn btn-primary text-center text-sm">
                 Apply Now

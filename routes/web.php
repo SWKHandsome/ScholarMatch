@@ -45,6 +45,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
     Route::patch('/academic-result', [StudentAcademicResultController::class, 'update'])->name('academic-result.update');
 
     Route::get('/recommendations', [StudentRecommendationController::class, 'index'])->name('recommendations');
+    Route::get('/recommendations/{scholarship}', [StudentRecommendationController::class, 'show'])->name('recommendations.show');
 
     Route::get('/saved-scholarships', [StudentSavedScholarshipController::class, 'index'])->name('saved-scholarships.index');
     Route::post('/saved-scholarships', [StudentSavedScholarshipController::class, 'store'])->name('saved-scholarships.store');
