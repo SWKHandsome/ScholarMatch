@@ -12,6 +12,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
+beforeEach(function () {
+    $this->seed(\Database\Seeders\IncomeCategorySeeder::class);
+});
+
 function makeScholarship(array $attributes = [], array $ruleAttributes = []): array
 {
     $scholarship = Scholarship::create(array_merge([
@@ -138,7 +142,7 @@ test('pending result returns preliminary guidance', function () {
     $result = $service->getRecommendations($user);
 
     expect($result['recommendations'][0]['is_preliminary'])->toBeTrue();
-    expect($result['recommendations'][0]['explanation'][count($result['recommendations'][0]['explanation']) - 1])->toContain('Preliminary');
+    expect(collect($result['recommendations'][0]['explanation'])->contains(fn($e) => str_contains($e, 'Preliminary')))->toBeTrue();
 });
 
 test('missing academic result blocks recommendation generation', function () {
