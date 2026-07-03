@@ -13,12 +13,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(\Database\Seeders\IncomeCategorySeeder::class);
+    seedIncomeCategories();
 });
 
-function makeScholarship(array $attributes = [], array $ruleAttributes = []): array
+function makeUnitScholarship(array $attributes = [], array $ruleAttributes = []): array
 {
-    $scholarship = Scholarship::create(array_merge([
+    $scholarship = \App\Models\Scholarship::create(array_merge([
         'name' => 'Test Scholarship',
         'provider' => 'Test Provider',
         'description' => 'Test description',
@@ -28,7 +28,7 @@ function makeScholarship(array $attributes = [], array $ruleAttributes = []): ar
         'is_active' => true,
     ], $attributes));
 
-    $rule = ScholarshipRule::create(array_merge([
+    $rule = \App\Models\ScholarshipRule::create(array_merge([
         'scholarship_id' => $scholarship->id,
         'required_nationality' => 'Malaysian',
         'required_study_level' => 'Undergraduate',
@@ -49,11 +49,11 @@ function makeScholarship(array $attributes = [], array $ruleAttributes = []): ar
     return [$scholarship->fresh(['rule']), $rule->fresh()];
 }
 
-function makeStudent(array $profileAttributes = [], array $academicAttributes = []): User
+function makeUnitStudent(array $profileAttributes = [], array $academicAttributes = []): User
 {
     $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
 
-    StudentProfile::create(array_merge([
+    \App\Models\StudentProfile::create(array_merge([
         'user_id' => $user->id,
         'nationality' => 'Malaysian',
         'state' => 'Selangor',
@@ -64,7 +64,7 @@ function makeStudent(array $profileAttributes = [], array $academicAttributes = 
         'field_of_study' => 'Engineering',
     ], $profileAttributes));
 
-    AcademicResult::create(array_merge([
+    \App\Models\AcademicResult::create(array_merge([
         'user_id' => $user->id,
         'education_level' => 'Undergraduate',
         'spm_as' => null,
@@ -77,8 +77,8 @@ function makeStudent(array $profileAttributes = [], array $academicAttributes = 
 }
 
 test('eligible recommendation is scored and persisted', function () {
-    [$scholarship] = makeScholarship();
-    $user = makeStudent();
+    [$scholarship] = makeUnitScholarship();
+    $user = makeUnitStudent();
 
     $service = app(ScholarshipRecommendationService::class);
     $result = $service->getRecommendations($user);
@@ -97,8 +97,8 @@ test('eligible recommendation is scored and persisted', function () {
 });
 
 test('expired scholarship is not suitable', function () {
-    makeScholarship(['deadline' => now()->subDay()->toDateString()]);
-    $user = makeStudent();
+    makeUnitScholarship(['deadline' => now()->subDay()->toDateString()]);
+    $user = makeUnitStudent();
 
     $service = app(ScholarshipRecommendationService::class);
     $result = $service->getRecommendations($user);
@@ -108,8 +108,8 @@ test('expired scholarship is not suitable', function () {
 });
 
 test('t20 student fails b40 hard rule', function () {
-    makeScholarship([], ['income_rule_type' => 'hard']);
-    $user = makeStudent([
+    makeUnitScholarship([], ['income_rule_type' => 'hard']);
+    $user = makeUnitStudent([
         'household_income' => 8000,
         'income_category' => 'T20',
     ]);
@@ -122,8 +122,8 @@ test('t20 student fails b40 hard rule', function () {
 });
 
 test('non malaysian student fails nationality hard rule', function () {
-    makeScholarship([], ['income_rule_type' => 'hard']);
-    $user = makeStudent([
+    makeUnitScholarship([], ['income_rule_type' => 'hard']);
+    $user = makeUnitStudent([
         'nationality' => 'Singaporean',
     ]);
 
@@ -135,8 +135,8 @@ test('non malaysian student fails nationality hard rule', function () {
 });
 
 test('pending result returns preliminary guidance', function () {
-    makeScholarship();
-    $user = makeStudent([], ['result_status' => 'pending']);
+    makeUnitScholarship();
+    $user = makeUnitStudent([], ['result_status' => 'pending']);
 
     $service = app(ScholarshipRecommendationService::class);
     $result = $service->getRecommendations($user);
@@ -186,8 +186,8 @@ test('missing student profile blocks recommendation generation', function () {
 });
 
 test('score breakdown totals to final score', function () {
-    makeScholarship();
-    $user = makeStudent([
+    makeUnitScholarship();
+    $user = makeUnitStudent([
         'field_of_study' => 'Business',
         'institution_type' => 'Private University',
     ]);
@@ -201,12 +201,12 @@ test('score breakdown totals to final score', function () {
 });
 
 test('soft scoring lowers the result for partial match', function () {
-    makeScholarship([], [
+    makeUnitScholarship([], [
         'income_rule_type' => 'soft',
         'field_rule_type' => 'soft',
         'institution_rule_type' => 'soft',
     ]);
-    $user = makeStudent([
+    $user = makeUnitStudent([
         'field_of_study' => 'Business',
         'institution_type' => 'Public University',
     ]);
@@ -219,8 +219,8 @@ test('soft scoring lowers the result for partial match', function () {
 });
 
 test('matching cgpa receives academic score', function () {
-    [$scholarship, $rule] = makeScholarship(['deadline' => now()->addMonth()->toDateString()]);
-    $user = makeStudent([], ['cgpa' => 3.80]);
+    [$scholarship, $rule] = makeUnitScholarship(['deadline' => now()->addMonth()->toDateString()]);
+    $user = makeUnitStudent([], ['cgpa' => 3.80]);
 
     $service = app(ScholarshipRecommendationService::class);
     $academicScore = (new ReflectionClass($service))->getMethod('calculateSoftScore');
