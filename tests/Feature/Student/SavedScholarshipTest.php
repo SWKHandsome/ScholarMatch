@@ -3,7 +3,7 @@
 use App\Models\AcademicResult;
 use App\Models\SavedScholarship;
 use App\Models\Scholarship;
-use App.Models\ScholarshipRule;
+use App\Models\ScholarshipRule;
 use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

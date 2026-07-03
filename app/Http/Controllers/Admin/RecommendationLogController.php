@@ -30,27 +30,6 @@ class RecommendationLogController extends Controller
     {
         $recommendationLog->load(['user', 'scholarship']);
 
-        return response()->json([
-            'id' => $recommendationLog->id,
-            'student' => [
-                'id' => $recommendationLog->user->id,
-                'name' => $recommendationLog->user->name,
-                'email' => $recommendationLog->user->email,
-            ],
-            'scholarship' => [
-                'id' => $recommendationLog->scholarship->id,
-                'name' => $recommendationLog->scholarship->name,
-                'provider' => $recommendationLog->scholarship->provider,
-                'award_type' => $recommendationLog->scholarship->award_type,
-                'deadline' => $recommendationLog->scholarship->deadline?->format('M d, Y'),
-                'application_link' => $recommendationLog->scholarship->application_link,
-            ],
-            'score' => $recommendationLog->score,
-            'status' => $recommendationLog->status,
-            'failed_hard_rules' => $recommendationLog->failed_hard_rules ?? [],
-            'explanation' => $recommendationLog->explanation ?? [],
-            'score_breakdown' => $recommendationLog->score_breakdown ?? [],
-            'created_at' => $recommendationLog->created_at->format('M d, Y H:i'),
-        ]);
+        return view('admin.recommendation-logs.show', compact('recommendationLog'));
     }
 }

@@ -78,12 +78,7 @@
                 </table>
             </div>
 
-            @if($categories->hasPages())
-                <div class="px-4 py-3 border-t border-outline-variant">
-                    {{ $categories->links() }}
-                </div>
-            @endif
-        </div>
+                    </div>
     @endif
 </div>
 

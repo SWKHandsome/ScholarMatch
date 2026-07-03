@@ -37,7 +37,7 @@
         <div class="card p-5 border-l-4 border-info">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-on-surface-variant">Registered Students</p>
+                    <p class="text-sm text-on-surface-variant">Total Students</p>
                     <p class="text-3xl font-bold text-on-surface mt-1">{{ $totalStudents ?? \App\Models\User::where('role', 'student')->count() }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-info/10 flex items-center justify-center">
@@ -49,7 +49,7 @@
         <div class="card p-5 border-l-4 border-warning">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-sm text-on-surface-variant">Recommendation Logs</p>
+                    <p class="text-sm text-on-surface-variant">Total Recommendations</p>
                     <p class="text-3xl font-bold text-on-surface mt-1">{{ $totalLogs ?? \App\Models\RecommendationLog::count() }}</p>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-warning/10 flex items-center justify-center">
