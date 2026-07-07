@@ -48,13 +48,12 @@ class ScholarshipRuleController extends Controller
             ->with('success', 'Scholarship rules saved successfully.');
     }
 
-    public function edit(Scholarship $scholarship)
+    public function edit(Scholarship $scholarship, ScholarshipRule $rule)
     {
-        $rule = $scholarship->rule;
         return view('admin.rules.edit', compact('scholarship', 'rule'));
     }
 
-    public function update(Request $request, Scholarship $scholarship)
+    public function update(Request $request, Scholarship $scholarship, ScholarshipRule $rule)
     {
         $validated = $request->validate([
             'required_nationality' => ['nullable', 'string', 'max:255'],
