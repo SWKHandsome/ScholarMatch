@@ -114,7 +114,7 @@ test('recommendations detail shows not suitable details for failed hard rule', f
 
     $response->assertOk();
     $response->assertSee('Not Suitable');
-    $response->assertSee('income_category');
+    $response->assertSee('income category');
 });
 
 test('recommendations detail requires student role', function () {

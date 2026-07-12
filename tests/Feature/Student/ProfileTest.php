@@ -23,7 +23,7 @@ test('student can view profile edit page', function () {
 test('student can create profile with all fields', function () {
     $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
 
-    $response = $this->actingAs($user)->post(route('student.profile.update'), [
+    $response = $this->actingAs($user)->patch(route('student.profile.update'), [
         'nationality' => 'Malaysian',
         'state' => 'Selangor',
         'household_income' => 2500,
@@ -32,14 +32,14 @@ test('student can create profile with all fields', function () {
         'field_of_study' => 'Engineering',
     ]);
 
-    $response->assertRedirect(route('student.profile.edit'));
+    $response->assertRedirect(route('student.dashboard'));
     $response->assertSessionHas('success');
 
     $profile = StudentProfile::where('user_id', $user->id)->first();
     expect($profile)->not->toBeNull();
     expect($profile->nationality)->toBe('Malaysian');
     expect($profile->state)->toBe('Selangor');
-    expect($profile->household_income)->toBe(2500);
+    expect((float)$profile->household_income)->toBe(2500.0);
     expect($profile->number_of_dependents)->toBe(3);
     expect($profile->institution_type)->toBe('Public University');
     expect($profile->field_of_study)->toBe('Engineering');
@@ -49,7 +49,7 @@ test('student can create profile with all fields', function () {
 test('profile creation auto-classifies income category', function () {
     $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
 
-    $this->actingAs($user)->post(route('student.profile.update'), [
+    $this->actingAs($user)->patch(route('student.profile.update'), [
         'nationality' => 'Malaysian',
         'state' => 'Kuala Lumpur',
         'household_income' => 5000,
@@ -65,7 +65,7 @@ test('profile creation auto-classifies income category', function () {
 test('profile creation classifies T20 for high income', function () {
     $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
 
-    $this->actingAs($user)->post(route('student.profile.update'), [
+    $this->actingAs($user)->patch(route('student.profile.update'), [
         'nationality' => 'Malaysian',
         'state' => 'Penang',
         'household_income' => 10000,
@@ -92,7 +92,7 @@ test('student can update existing profile', function () {
         'field_of_study' => 'Science',
     ]);
 
-    $response = $this->actingAs($user)->post(route('student.profile.update'), [
+    $response = $this->actingAs($user)->patch(route('student.profile.update'), [
         'nationality' => 'Malaysian',
         'state' => 'Kuala Lumpur',
         'household_income' => 4000,
@@ -101,12 +101,12 @@ test('student can update existing profile', function () {
         'field_of_study' => 'Engineering',
     ]);
 
-    $response->assertRedirect(route('student.profile.edit'));
+    $response->assertRedirect(route('student.dashboard'));
     $response->assertSessionHas('success');
 
     $profile = $user->fresh()->studentProfile;
     expect($profile->state)->toBe('Kuala Lumpur');
-    expect($profile->household_income)->toBe(4000);
+    expect((float)$profile->household_income)->toBe(4000.0);
     expect($profile->income_category)->toBe('M40');
     expect($profile->field_of_study)->toBe('Engineering');
 });
@@ -114,7 +114,7 @@ test('student can update existing profile', function () {
 test('profile validation requires all fields', function () {
     $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
 
-    $response = $this->actingAs($user)->post(route('student.profile.update'), [
+    $response = $this->actingAs($user)->patch(route('student.profile.update'), [
         'nationality' => '',
         'state' => '',
         'household_income' => '',
@@ -136,7 +136,7 @@ test('profile validation requires all fields', function () {
 test('profile validation requires numeric household income', function () {
     $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
 
-    $response = $this->actingAs($user)->post(route('student.profile.update'), [
+    $response = $this->actingAs($user)->patch(route('student.profile.update'), [
         'nationality' => 'Malaysian',
         'state' => 'Selangor',
         'household_income' => 'abc',
@@ -151,7 +151,7 @@ test('profile validation requires numeric household income', function () {
 test('profile validation requires non-negative dependents', function () {
     $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
 
-    $response = $this->actingAs($user)->post(route('student.profile.update'), [
+    $response = $this->actingAs($user)->patch(route('student.profile.update'), [
         'nationality' => 'Malaysian',
         'state' => 'Selangor',
         'household_income' => 2500,

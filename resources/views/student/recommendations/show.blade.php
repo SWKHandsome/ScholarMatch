@@ -106,7 +106,7 @@
                     @foreach($recommendation['failed_hard_rules'] as $rule)
                         <li class="text-sm text-on-surface-variant flex items-center gap-2">
                             <svg class="w-4 h-4 text-error flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                            <span class="capitalize">{{ str_replace">{{ str_replace('_', ' ', $rule) }}</span>
+                            <span class="capitalize">{{ str_replace('_', ' ', $rule) }}</span>
                         </li>
                     @endforeach
                 </ul>

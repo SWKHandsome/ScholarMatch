@@ -29,7 +29,7 @@ test('student can view academic result edit page', function () {
 test('student can create SPM academic result with As and credits', function () {
     $user = makeStudent();
 
-    $response = $this->actingAs($user)->post(route('student.academic-result.update'), [
+    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
         'education_level' => 'SPM',
         'spm_as' => 8,
         'spm_credits' => 6,
@@ -37,7 +37,7 @@ test('student can create SPM academic result with As and credits', function () {
         'result_status' => 'official',
     ]);
 
-    $response->assertRedirect(route('student.academic-result.edit'));
+    $response->assertRedirect(route('student.dashboard'));
     $response->assertSessionHas('success');
 
     $result = AcademicResult::where('user_id', $user->id)->first();
@@ -52,7 +52,7 @@ test('student can create SPM academic result with As and credits', function () {
 test('student can create undergraduate academic result with CGPA', function () {
     $user = makeStudent();
 
-    $response = $this->actingAs($user)->post(route('student.academic-result.update'), [
+    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
         'education_level' => 'Undergraduate',
         'spm_as' => null,
         'spm_credits' => null,
@@ -60,13 +60,13 @@ test('student can create undergraduate academic result with CGPA', function () {
         'result_status' => 'official',
     ]);
 
-    $response->assertRedirect(route('student.academic-result.edit'));
+    $response->assertRedirect(route('student.dashboard'));
     $response->assertSessionHas('success');
 
     $result = AcademicResult::where('user_id', $user->id)->first();
     expect($result)->not->toBeNull();
     expect($result->education_level)->toBe('Undergraduate');
-    expect($result->cgpa)->toBe(3.75);
+    expect((float) $result->cgpa)->toBe(3.75);
     expect($result->spm_as)->toBeNull();
     expect($result->spm_credits)->toBeNull();
 });
@@ -74,7 +74,7 @@ test('student can create undergraduate academic result with CGPA', function () {
 test('student can create academic result with pending status', function () {
     $user = makeStudent();
 
-    $response = $this->actingAs($user)->post(route('student.academic-result.update'), [
+    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
         'education_level' => 'Foundation',
         'spm_as' => null,
         'spm_credits' => null,
@@ -82,7 +82,7 @@ test('student can create academic result with pending status', function () {
         'result_status' => 'pending',
     ]);
 
-    $response->assertRedirect(route('student.academic-result.edit'));
+    $response->assertRedirect(route('student.dashboard'));
     $response->assertSessionHas('success');
 
     $result = AcademicResult::where('user_id', $user->id)->first();
@@ -92,16 +92,7 @@ test('student can create academic result with pending status', function () {
 test('student can update existing academic result', function () {
     $user = makeStudent();
 
-    AcademicResult::create([
-        'user_id' => $user->id,
-        'education_level' => 'SPM',
-        'spm_as' => 5,
-        'spm_credits' => 4,
-        'cgpa' => null,
-        'result_status' => 'official',
-    ]);
-
-    $response = $this->actingAs($user)->post(route('student.academic-result.update'), [
+    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
         'education_level' => 'Undergraduate',
         'spm_as' => null,
         'spm_credits' => null,
@@ -109,19 +100,19 @@ test('student can update existing academic result', function () {
         'result_status' => 'official',
     ]);
 
-    $response->assertRedirect(route('student.academic-result.edit'));
+    $response->assertRedirect(route('student.dashboard'));
     $response->assertSessionHas('success');
 
     $result = $user->fresh()->academicResult;
     expect($result->education_level)->toBe('Undergraduate');
-    expect($result->cgpa)->toBe(3.50);
+    expect((float) $result->cgpa)->toBe(3.50);
     expect($result->spm_as)->toBeNull();
 });
 
 test('academic result validation requires education level', function () {
     $user = makeStudent();
 
-    $response = $this->actingAs($user)->post(route('student.academic-result.update'), [
+    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
         'education_level' => '',
         'spm_as' => 8,
         'spm_credits' => 6,
@@ -134,7 +125,7 @@ test('academic result validation requires education level', function () {
 test('SPM requires SPM As or credits', function () {
     $user = makeStudent();
 
-    $response = $this->actingAs($user)->post(route('student.academic-result.update'), [
+    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
         'education_level' => 'SPM',
         'spm_as' => null,
         'spm_credits' => null,
@@ -148,7 +139,7 @@ test('SPM requires SPM As or credits', function () {
 test('non-SPM requires CGPA when status is official', function () {
     $user = makeStudent();
 
-    $response = $this->actingAs($user)->post(route('student.academic-result.update'), [
+    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
         'education_level' => 'Undergraduate',
         'spm_as' => null,
         'spm_credits' => null,
@@ -162,7 +153,7 @@ test('non-SPM requires CGPA when status is official', function () {
 test('non-SPM allows missing CGPA when status is pending', function () {
     $user = makeStudent();
 
-    $response = $this->actingAs($user)->post(route('student.academic-result.update'), [
+    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
         'education_level' => 'Undergraduate',
         'spm_as' => null,
         'spm_credits' => null,
@@ -170,7 +161,7 @@ test('non-SPM allows missing CGPA when status is pending', function () {
         'result_status' => 'pending',
     ]);
 
-    $response->assertRedirect(route('student.academic-result.edit'));
+    $response->assertRedirect(route('student.dashboard'));
     $response->assertSessionHas('success');
 
     $result = AcademicResult::where('user_id', $user->id)->first();
@@ -180,7 +171,7 @@ test('non-SPM allows missing CGPA when status is pending', function () {
 test('CGPA must be between 0 and 4', function () {
     $user = makeStudent();
 
-    $response = $this->actingAs($user)->post(route('student.academic-result.update'), [
+    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
         'education_level' => 'Undergraduate',
         'cgpa' => 5.0,
         'result_status' => 'official',
@@ -192,7 +183,7 @@ test('CGPA must be between 0 and 4', function () {
 test('SPM As must be between 0 and 12', function () {
     $user = makeStudent();
 
-    $response = $this->actingAs($user)->post(route('student.academic-result.update'), [
+    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
         'education_level' => 'SPM',
         'spm_as' => 13,
         'spm_credits' => 6,
@@ -205,7 +196,7 @@ test('SPM As must be between 0 and 12', function () {
 test('SPM credits must be between 0 and 12', function () {
     $user = makeStudent();
 
-    $response = $this->actingAs($user)->post(route('student.academic-result.update'), [
+    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
         'education_level' => 'SPM',
         'spm_as' => 8,
         'spm_credits' => 13,
