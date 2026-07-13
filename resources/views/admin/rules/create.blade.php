@@ -4,8 +4,7 @@
 <div class="max-w-4xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-on-surface">Add Scholarship Rules</h1>
-            <p class="text-on-surface-variant mt-1">{{ $scholarship->name }}</p>
+            <h1 class="text-2xl font-bold text-on-surface">Add Rules for: {{ $scholarship->name }}</h1>
         </div>
         <a href="{{ route('admin.scholarships.index') }}" class="btn btn-outline">Back to Scholarships</a>
     </div>
@@ -133,7 +132,7 @@
             </div>
 
             <div>
-                <label for="max_household_income" class="label">Maximum Household Income (RM/month)</label>
+                <label for="max_household_income" class="label">Max Household Income (RM/month)</label>
                 <input type="number" id="max_household_income" name="max_household_income" step="0.01" min="0" class="input @error('max_household_income') input-error @enderror"
                     value="{{ old('max_household_income') }}" placeholder="e.g., 3169.00">
                 @error('max_household_income')

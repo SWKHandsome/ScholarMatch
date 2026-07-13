@@ -24,17 +24,18 @@ class SavedScholarshipController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'scholarship_id' => ['required', 'exists:scholarships,id'],
+            'scholarship_id' => ['required', 'exists:scholarships,id', 'unique:saved_scholarships,scholarship_id,user_id,' . Auth::id() . ',user_id'],
         ]);
 
         $user = Auth::user();
 
-        SavedScholarship::firstOrCreate([
+        SavedScholarship::create([
             'user_id' => $user->id,
             'scholarship_id' => $request->scholarship_id,
         ]);
 
-        return back()->with('success', 'Scholarship saved successfully.');
+        return redirect()->route('student.saved-scholarships.index')
+            ->with('success', 'Scholarship saved successfully.');
     }
 
     public function destroy(Scholarship $scholarship)
@@ -45,6 +46,7 @@ class SavedScholarshipController extends Controller
             ->where('scholarship_id', $scholarship->id)
             ->delete();
 
-        return back()->with('success', 'Scholarship removed from saved list.');
+        return redirect()->route('student.saved-scholarships.index')
+            ->with('success', 'Scholarship removed from saved list.');
     }
 }

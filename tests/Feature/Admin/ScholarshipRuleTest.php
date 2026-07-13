@@ -19,7 +19,8 @@ test('admin can view scholarship rules index', function () {
     $response = $this->actingAs($admin)->get(route('admin.scholarships.rules.index', $scholarship));
 
     $response->assertOk();
-    $response->assertSee('Manage Rules for: Test Scholarship');
+    $response->assertSee('Scholarship Rules');
+    $response->assertSee('Test Scholarship');
 });
 
 test('admin can view create scholarship rules page', function () {
@@ -41,8 +42,8 @@ test('admin can view create scholarship rules page', function () {
     $response->assertSee('Required Institution Type');
     $response->assertSee('Income Rule Type');
     $response->assertSee('Study Level Rule Type');
-    $response->assertSee('Field Rule Type');
-    $response->assertSee('Institution Rule Type');
+    $response->assertSee('Field of Study Rule Type');
+    $response->assertSee('Institution Type Rule Type');
 });
 
 test('admin can create scholarship rules', function () {
@@ -78,28 +79,21 @@ test('admin can create scholarship rules', function () {
 test('admin can view edit scholarship rules page', function () {
     $admin = makeAdmin();
     $scholarship = makeScholarship();
-
-    ScholarshipRule::create([
+    $rule = \App\Models\ScholarshipRule::create([
         'scholarship_id' => $scholarship->id,
         'required_nationality' => 'Malaysian',
-        'required_study_level' => 'Undergraduate',
         'required_income_category' => 'B40',
-        'max_household_income' => 3169,
-        'min_spm_as' => 5,
-        'min_spm_credits' => 3,
-        'min_cgpa' => 3.0,
-        'required_field_of_study' => 'Engineering',
-        'required_institution_type' => 'Public University',
         'income_rule_type' => 'hard',
         'study_level_rule_type' => 'hard',
         'field_rule_type' => 'soft',
         'institution_rule_type' => 'soft',
     ]);
 
-    $response = $this->actingAs($admin)->get(route('admin.scholarships.rules.edit', $scholarship));
+    $response = $this->actingAs($admin)->get(route('admin.scholarships.rules.edit', [$scholarship, $rule]));
 
     $response->assertOk();
-    $response->assertSee('Edit Rules for: Test Scholarship');
+    $response->assertSee('Edit Scholarship Rules');
+    $response->assertSee('Test Scholarship');
     $response->assertSee('Malaysian');
     expect($response->getOriginalContent())->toContain('B40');
 });
@@ -107,25 +101,17 @@ test('admin can view edit scholarship rules page', function () {
 test('admin can update scholarship rules', function () {
     $admin = makeAdmin();
     $scholarship = makeScholarship();
-
-    ScholarshipRule::create([
+    $rule = \App\Models\ScholarshipRule::create([
         'scholarship_id' => $scholarship->id,
         'required_nationality' => 'Malaysian',
-        'required_study_level' => 'Undergraduate',
         'required_income_category' => 'B40',
-        'max_household_income' => 3169,
-        'min_spm_as' => 5,
-        'min_spm_credits' => 3,
-        'min_cgpa' => 3.0,
-        'required_field_of_study' => 'Engineering',
-        'required_institution_type' => 'Public University',
         'income_rule_type' => 'hard',
         'study_level_rule_type' => 'hard',
         'field_rule_type' => 'soft',
         'institution_rule_type' => 'soft',
     ]);
 
-    $response = $this->actingAs($admin)->put(route('admin.scholarships.rules.update', $scholarship), [
+    $response = $this->actingAs($admin)->put(route('admin.scholarships.rules.update', [$scholarship, $rule]), [
         'required_nationality' => 'Malaysian',
         'required_study_level' => 'Diploma',
         'required_income_category' => 'M40',

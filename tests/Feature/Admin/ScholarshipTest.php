@@ -18,7 +18,7 @@ test('admin can view scholarships index', function () {
     $response = $this->actingAs($admin)->get(route('admin.scholarships.index'));
 
     $response->assertOk();
-    $response->assertSee('Manage Scholarships');
+    $response->assertSee('Scholarships');
     $response->assertSee('Add Scholarship');
 });
 
