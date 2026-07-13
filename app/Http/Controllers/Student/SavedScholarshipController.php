@@ -7,6 +7,7 @@ use App\Models\SavedScholarship;
 use App\Models\Scholarship;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class SavedScholarshipController extends Controller
 {
@@ -24,7 +25,11 @@ class SavedScholarshipController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'scholarship_id' => ['required', 'exists:scholarships,id', 'unique:saved_scholarships,scholarship_id,user_id,' . Auth::id() . ',user_id'],
+            'scholarship_id' => [
+                'required',
+                'exists:scholarships,id',
+                Rule::unique('saved_scholarships')->where(fn ($query) => $query->where('user_id', Auth::id())),
+            ],
         ]);
 
         $user = Auth::user();

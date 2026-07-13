@@ -79,15 +79,7 @@ test('admin can create scholarship rules', function () {
 test('admin can view edit scholarship rules page', function () {
     $admin = makeAdmin();
     $scholarship = makeScholarship();
-    $rule = \App\Models\ScholarshipRule::create([
-        'scholarship_id' => $scholarship->id,
-        'required_nationality' => 'Malaysian',
-        'required_income_category' => 'B40',
-        'income_rule_type' => 'hard',
-        'study_level_rule_type' => 'hard',
-        'field_rule_type' => 'soft',
-        'institution_rule_type' => 'soft',
-    ]);
+    $rule = $scholarship->rule;
 
     $response = $this->actingAs($admin)->get(route('admin.scholarships.rules.edit', [$scholarship, $rule]));
 
@@ -95,21 +87,13 @@ test('admin can view edit scholarship rules page', function () {
     $response->assertSee('Edit Scholarship Rules');
     $response->assertSee('Test Scholarship');
     $response->assertSee('Malaysian');
-    expect($response->getOriginalContent())->toContain('B40');
+    $response->assertSee('B40');
 });
 
 test('admin can update scholarship rules', function () {
     $admin = makeAdmin();
     $scholarship = makeScholarship();
-    $rule = \App\Models\ScholarshipRule::create([
-        'scholarship_id' => $scholarship->id,
-        'required_nationality' => 'Malaysian',
-        'required_income_category' => 'B40',
-        'income_rule_type' => 'hard',
-        'study_level_rule_type' => 'hard',
-        'field_rule_type' => 'soft',
-        'institution_rule_type' => 'soft',
-    ]);
+    $rule = $scholarship->rule;
 
     $response = $this->actingAs($admin)->put(route('admin.scholarships.rules.update', [$scholarship, $rule]), [
         'required_nationality' => 'Malaysian',

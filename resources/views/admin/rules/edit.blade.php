@@ -10,7 +10,7 @@
         <a href="{{ route('admin.scholarships.rules.index', $scholarship) }}" class="btn btn-outline">View Rules</a>
     </div>
 
-    <form method="POST" action="{{ route('admin.scholarships.rules.update', $scholarship) }}" class="card p-6 space-y-6">
+    <form method="POST" action="{{ route('admin.scholarships.rules.update', [$scholarship, $rule]) }}" class="card p-6 space-y-6">
         @csrf
         @method('PATCH')
 
