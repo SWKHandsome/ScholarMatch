@@ -11,6 +11,7 @@ use App\Models\StudentProfile;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class ScholarshipRecommendationService
 {
@@ -34,63 +35,72 @@ class ScholarshipRecommendationService
         }
 
         $incomeCategory = IncomeCategory::classifyIncome((float) $profile->household_income);
-        $profile->income_category = $incomeCategory;
-        $profile->save();
 
-        $scholarships = Scholarship::where('is_active', true)
-            ->with('rule')
-            ->get();
+        $cacheKey = sprintf(
+            'recommendations_user_%d_profile_%s_academic_%s',
+            $user->id,
+            $profile->updated_at->timestamp ?? 'none',
+            $academicResult->updated_at->timestamp ?? 'none'
+        );
 
-        $recommendations = [];
+        return Cache::remember($cacheKey, 1800, function () use ($user, $profile, $academicResult, $incomeCategory) {
+            $scholarships = Cache::remember('active_scholarships_with_rules', 3600, function () {
+                return Scholarship::where('is_active', true)
+                    ->with('rule')
+                    ->get();
+            });
 
-        foreach ($scholarships as $scholarship) {
-            $rule = $scholarship->rule;
+            $recommendations = [];
 
-            if (!$rule) {
-                continue;
-            }
+            foreach ($scholarships as $scholarship) {
+                $rule = $scholarship->rule;
 
-            $hardCheck = $this->checkHardRules($profile, $academicResult, $rule, $scholarship);
+                if (!$rule) {
+                    continue;
+                }
 
-            if (!empty($hardCheck['failed'])) {
+                $hardCheck = $this->checkHardRules($profile, $academicResult, $rule, $scholarship);
+
+                if (!empty($hardCheck['failed'])) {
+                    $recommendations[] = [
+                        'scholarship' => $scholarship,
+                        'score' => 0,
+                        'status' => 'Not Suitable',
+                        'failed_hard_rules' => $hardCheck['failed'],
+                        'explanation' => $hardCheck['explanations'],
+                        'score_breakdown' => [
+                            'academic' => 0,
+                            'field' => 0,
+                            'institution' => 0,
+                            'income' => 0,
+                        ],
+                        'is_preliminary' => $academicResult->result_status === 'pending',
+                    ];
+                    continue;
+                }
+
+                $softScore = $this->calculateSoftScore($profile, $academicResult, $rule);
+                $totalScore = array_sum($softScore['breakdown']);
+                $status = $this->classifyStatus($totalScore);
+
                 $recommendations[] = [
                     'scholarship' => $scholarship,
-                    'score' => 0,
-                    'status' => 'Not Suitable',
-                    'failed_hard_rules' => $hardCheck['failed'],
-                    'explanation' => $hardCheck['explanations'],
-                    'score_breakdown' => [
-                        'academic' => 0,
-                        'field' => 0,
-                        'institution' => 0,
-                        'income' => 0,
-                    ],
+                    'score' => $totalScore,
+                    'status' => $status,
+                    'failed_hard_rules' => [],
+                    'explanation' => array_merge($hardCheck['explanations'], $softScore['explanations']),
+                    'score_breakdown' => $softScore['breakdown'],
                     'is_preliminary' => $academicResult->result_status === 'pending',
                 ];
-                continue;
             }
 
-            $softScore = $this->calculateSoftScore($profile, $academicResult, $rule);
-            $totalScore = array_sum($softScore['breakdown']);
-            $status = $this->classifyStatus($totalScore);
+            usort($recommendations, fn($a, $b) => $b['score'] <=> $a['score']);
 
-            $recommendations[] = [
-                'scholarship' => $scholarship,
-                'score' => $totalScore,
-                'status' => $status,
-                'failed_hard_rules' => [],
-                'explanation' => array_merge($hardCheck['explanations'], $softScore['explanations']),
-                'score_breakdown' => $softScore['breakdown'],
-                'is_preliminary' => $academicResult->result_status === 'pending',
+            return [
+                'error' => null,
+                'recommendations' => $recommendations,
             ];
-        }
-
-        usort($recommendations, fn($a, $b) => $b['score'] <=> $a['score']);
-
-        return [
-            'error' => null,
-            'recommendations' => $recommendations,
-        ];
+        });
     }
 
     public function storeRecommendationLogs(User $user, array $recommendations): void
