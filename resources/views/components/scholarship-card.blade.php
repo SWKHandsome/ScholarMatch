@@ -8,7 +8,20 @@
 <?php
 $status = $recommendation['status'] ?? 'Not Suitable';
 $score = $recommendation['score'] ?? 0;
-$scholarship = $recommendation['scholarship'] ?? null;
+// Support both old (Eloquent model) and new (array data) structures
+$scholarshipData = $recommendation['scholarship_data'] ?? null;
+$scholarshipModel = $recommendation['scholarship'] ?? null;
+$scholarship = $scholarshipData ?: $scholarshipModel;
+$isArray = is_array($scholarship);
+
+// Helper to safely get value from array or object
+$get = function($key, $default = '') use ($scholarship, $isArray) {
+    if ($isArray) {
+        return $scholarship[$key] ?? $default;
+    }
+    return $scholarship->$key ?? $default;
+};
+
 $explanations = $recommendation['explanation'] ?? [];
 $breakdown = $recommendation['score_breakdown'] ?? [];
 $isPreliminary = $recommendation['is_preliminary'] ?? false;
@@ -20,12 +33,12 @@ $failedRules = $recommendation['failed_hard_rules'] ?? [];
     <div class="flex items-start justify-between gap-4 mb-4">
         <div class="flex-1 min-w-0">
             <h3 class="text-lg font-semibold text-on-surface truncate">
-                <a href="{{ route('student.recommendations.show', $scholarship) }}"
+                <a href="{{ route('student.recommendations.show', $get('id')) }}"
                     class="hover:text-primary hover:underline transition-colors">
-                    {{ $scholarship->name }}
+                    {{ $get('name') }}
                 </a>
             </h3>
-            <p class="text-sm text-on-surface-variant mt-1">{{ $scholarship->provider }}</p>
+            <p class="text-sm text-on-surface-variant mt-1">{{ $get('provider_name') }}</p>
         </div>
         <!-- Score Circle -->
         <div class="flex-shrink-0 progress-circle w-16 h-16">
@@ -60,23 +73,26 @@ $failedRules = $recommendation['failed_hard_rules'] ?? [];
         @if($isPreliminary)
             <span class="badge badge-info">Preliminary</span>
         @endif
-        @if($scholarship->deadline && \Carbon\Carbon::parse($scholarship->deadline)->isPast())
+        @php
+            $deadline = $get('deadline');
+        @endphp
+        @if($deadline && \Carbon\Carbon::parse($deadline)->isPast())
             <span class="badge badge-error">Expired</span>
         @endif
     </div>
 
     <!-- Description -->
-    <p class="text-sm text-on-surface-variant mb-4 line-clamp-2">{{ $scholarship->description }}</p>
+    <p class="text-sm text-on-surface-variant mb-4 line-clamp-2">{{ $get('description') }}</p>
 
     <!-- Award Type & Deadline -->
     <div class="mb-4 flex flex-wrap items-center gap-4 text-sm text-on-surface-variant">
         <span class="flex items-center gap-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            {{ $scholarship->award_type }}
+            {{ $get('award_type') }}
         </span>
         <span class="flex items-center gap-1">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            Deadline: {{ \Carbon\Carbon::parse($scholarship->deadline)->format('M d, Y') }}
+            Deadline: {{ \Carbon\Carbon::parse($deadline)->format('M d, Y') }}
         </span>
     </div>
 
@@ -89,7 +105,7 @@ $failedRules = $recommendation['failed_hard_rules'] ?? [];
             <span>View Explanation ({{ count($explanations) }})</span>
             <svg class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
         </button>
-        <div class="mt-2 space-y-1 hidden" style="display: none;">
+        <div class="mt-2 space-y-1 hidden">
             @foreach($explanations as $explanation)
                 <p class="text-sm text-on-surface-variant flex items-start gap-2">
                     <svg class="w-4 h-4 mt-0.5 flex-shrink-0
@@ -122,26 +138,32 @@ $failedRules = $recommendation['failed_hard_rules'] ?? [];
 
     <!-- Actions -->
     <div class="mt-auto flex flex-wrap gap-2 pt-4 border-t border-outline-variant">
-        <a href="{{ route('student.recommendations.show', $scholarship) }}"
+        <a href="{{ route('student.recommendations.show', $get('id')) }}"
             class="flex-1 btn btn-ghost text-center text-sm">
             View Details
         </a>
 
-        @if($showApplyButton && $scholarship->application_link)
-            <a href="{{ $scholarship->application_link }}" target="_blank" rel="noopener noreferrer"
+        @php
+            $applicationLink = $get('application_link');
+        @endphp
+        @if($showApplyButton && $applicationLink)
+            <a href="{{ $applicationLink }}" target="_blank" rel="noopener noreferrer"
                 class="flex-1 btn btn-primary text-center text-sm">
                 Apply Now
             </a>
         @endif
 
+        @php
+            $scholarshipId = $get('id');
+        @endphp
         @if($showSaveButton)
             <form action="{{ route('student.saved-scholarships.store') }}" method="POST" class="flex-1">
                 @csrf
-                <input type="hidden" name="scholarship_id" value="{{ $scholarship->id }}">
+                <input type="hidden" name="scholarship_id" value="{{ $scholarshipId }}">
                 <button type="submit"
                     class="w-full btn btn-outline text-center text-sm"
-                    {{ auth()->user()->savedScholarships()->where('scholarship_id', $scholarship->id)->exists() ? 'disabled' : '' }}>
-                    {{ auth()->user()->savedScholarships()->where('scholarship_id', $scholarship->id)->exists() ? 'Saved' : 'Save' }}
+                    {{ auth()->user()->savedScholarships()->where('scholarship_id', $scholarshipId)->exists() ? 'disabled' : '' }}>
+                    {{ auth()->user()->savedScholarships()->where('scholarship_id', $scholarshipId)->exists() ? 'Saved' : 'Save' }}
                 </button>
             </form>
         @endif

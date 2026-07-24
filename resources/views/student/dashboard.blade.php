@@ -130,3 +130,14 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function toggleExplanation(btn) {
+    const panel = btn.nextElementSibling;
+    const icon = btn.querySelector('svg');
+    panel.classList.toggle('hidden');
+    icon.classList.toggle('rotate-180');
+}
+</script>
+@endpush

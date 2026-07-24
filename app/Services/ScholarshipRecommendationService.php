@@ -63,7 +63,8 @@ class ScholarshipRecommendationService
 
                 if (!empty($hardCheck['failed'])) {
                     $recommendations[] = [
-                        'scholarship' => $scholarship,
+                        'scholarship_id' => $scholarship->id,
+                        'scholarship_data' => $this->extractScholarshipData($scholarship),
                         'score' => 0,
                         'status' => 'Not Suitable',
                         'failed_hard_rules' => $hardCheck['failed'],
@@ -84,7 +85,8 @@ class ScholarshipRecommendationService
                 $status = $this->classifyStatus($totalScore);
 
                 $recommendations[] = [
-                    'scholarship' => $scholarship,
+                    'scholarship_id' => $scholarship->id,
+                    'scholarship_data' => $this->extractScholarshipData($scholarship),
                     'score' => $totalScore,
                     'status' => $status,
                     'failed_hard_rules' => [],
@@ -103,17 +105,56 @@ class ScholarshipRecommendationService
         });
     }
 
+    /**
+     * Extract only the necessary scholarship data for caching (avoids Eloquent serialization issues).
+     */
+    private function extractScholarshipData(Scholarship $scholarship): array
+    {
+        return [
+            'id' => $scholarship->id,
+            'name' => $scholarship->name,
+            'slug' => $scholarship->slug,
+            'description' => $scholarship->description,
+            'amount' => $scholarship->amount,
+            'deadline' => $scholarship->deadline?->toDateString(),
+            'provider_name' => $scholarship->provider_name,
+            'provider_logo' => $scholarship->provider_logo,
+            'is_active' => $scholarship->is_active,
+            'quota' => $scholarship->quota,
+            'study_levels' => $scholarship->study_levels,
+            'fields_of_study' => $scholarship->fields_of_study,
+            'institution_types' => $scholarship->institution_types,
+            'nationalities' => $scholarship->nationalities,
+            'income_categories' => $scholarship->income_categories,
+        ];
+    }
+
+    /**
+     * Load the full Scholarship model from cached ID.
+     */
+    public function loadScholarshipFromRecommendation(array $recommendation): ?Scholarship
+    {
+        if (empty($recommendation['scholarship_id'])) {
+            return null;
+        }
+
+        return Scholarship::with('rule')->find($recommendation['scholarship_id']);
+    }
+
     public function storeRecommendationLogs(User $user, array $recommendations): void
     {
         foreach ($recommendations as $recommendation) {
-            if (!isset($recommendation['scholarship']) || !$recommendation['scholarship'] instanceof Scholarship) {
+            // Support both old format (Eloquent model) and new format (array data)
+            $scholarshipId = $recommendation['scholarship_id'] ?? ($recommendation['scholarship']?->id ?? null);
+
+            if (!$scholarshipId) {
                 continue;
             }
 
             RecommendationLog::updateOrCreate(
                 [
                     'user_id' => $user->id,
-                    'scholarship_id' => $recommendation['scholarship']->id,
+                    'scholarship_id' => $scholarshipId,
                 ],
                 [
                     'score' => (int) ($recommendation['score'] ?? 0),
