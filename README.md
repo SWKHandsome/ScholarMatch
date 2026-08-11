@@ -1,58 +1,155 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ScholarMatch
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**ScholarMatch** is a web-based scholarship recommendation platform for Malaysian students. It matches a student's academic results and socioeconomic profile with scholarship eligibility rules, then provides transparent recommendations with clear explanations.
 
-## About Laravel
+Built as a Final Year Project (FYP), ScholarMatch focuses on making scholarship discovery more accessible, especially for students who need financial support but find eligibility criteria difficult to compare across multiple sources.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Key features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Student registration, login, and role-based access control
+- Student profile management for nationality, state, household income, income category, field of study, and institution type
+- Academic-result management for SPM, STPM, Foundation, Matriculation, Diploma, and Undergraduate students
+- Automatic B40, M40, and T20 income-category classification
+- Scholarship, scholarship-rule, and income-threshold management for administrators
+- Explainable recommendations classified as **Eligible**, **Partially Eligible**, or **Not Suitable**
+- Saved scholarships for students
+- Recommendation logs for administrators
+- Seeded sample data and test accounts for local demonstrations
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## How recommendations work
 
-## Learning Laravel
+ScholarMatch uses a two-phase recommendation engine:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+1. **Hard eligibility filtering:** Strict requirements are checked first, such as nationality, income category, maximum household income, study level, application deadline, field of study, and institution type. Failing any applicable hard rule results in **Not Suitable**.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+2. **Soft scoring and ranking:** Scholarships that pass hard rules are scored out of 100 and ordered from highest to lowest match.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+| Criterion | Maximum score |
+| --- | ---: |
+| Academic-result match | 40 |
+| Field-of-study match | 25 |
+| Institution-type match | 20 |
+| Income-priority match | 15 |
 
-## Agentic Development
+| Score | Recommendation status |
+| --- | --- |
+| 80–100 | Eligible |
+| 50–79 | Partially Eligible |
+| 0–49 | Not Suitable |
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Each recommendation includes its score breakdown, failed hard rules (if any), and human-readable explanations. Results with pending academic outcomes are marked as preliminary guidance.
+
+## Technology stack
+
+- PHP 8.3+
+- Laravel 13
+- MySQL
+- Blade templates
+- Tailwind CSS
+- Vite
+- Pest PHP for automated tests
+
+## User roles
+
+### Student
+
+- Maintain a personal and academic profile
+- View explainable scholarship recommendations
+- Review scholarship details
+- Save and remove scholarships
+
+### Administrator
+
+- Manage scholarship listings and active status
+- Create and update eligibility rules
+- Manage income categories and thresholds
+- Review generated recommendation logs
+
+## Local installation
+
+### Prerequisites
+
+- PHP 8.3 or later
+- Composer
+- Node.js and npm
+- MySQL
+
+### Setup
 
 ```bash
-composer require laravel/boost --dev
+git clone <your-repository-url>
+cd ScholarMatch
 
-php artisan boost:install
+composer install
+npm install
+
+copy .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Configure the database credentials in `.env`, then migrate and seed the application:
 
-## Contributing
+```bash
+php artisan migrate:fresh --seed
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Build the frontend assets and start the application:
 
-## Code of Conduct
+```bash
+npm run build
+php artisan serve
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
 
-## Security Vulnerabilities
+For frontend development, run the Vite development server in another terminal:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+npm run dev
+```
+
+## Seeded accounts
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Administrator | `admin@scholarmatch.test` | `password` |
+| Student | `student@scholarmatch.test` | `password` |
+
+These accounts are intended for local development and demonstration only. Change credentials before any non-local deployment.
+
+## Testing
+
+Run the automated test suite with:
+
+```bash
+php artisan test
+```
+
+The test suite covers the recommendation engine and main student/admin workflows, including hard-rule failures, score calculation, recommendation classification, missing profile data, pending results, and access control.
+
+## Project structure
+
+```text
+app/
+├── Http/Controllers/       # Student, admin, authentication, and profile controllers
+├── Models/                 # Eloquent models and relationships
+└── Services/
+    └── ScholarshipRecommendationService.php
+
+database/
+├── migrations/             # Database schema
+└── seeders/                # Demo accounts, categories, scholarships, and rules
+
+resources/views/            # Blade pages, layouts, and reusable components
+tests/                      # Pest unit and feature tests
+```
+
+## Documentation
+
+- [Product Requirements Document](PRD.md)
+- [Architecture Document](ARCHITECTURE.md)
+- [Design System](DESIGN.md)
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project was developed for academic purposes as a Final Year Project.
