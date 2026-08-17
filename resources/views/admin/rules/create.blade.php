@@ -150,17 +150,21 @@
             </h3>
 
             <div>
-                <label for="required_field_of_study" class="label">Required Field of Study</label>
-                <select id="required_field_of_study" name="required_field_of_study" class="input @error('required_field_of_study') input-error @enderror">
-                    <option value="">Any field of study</option>
+                <span class="label">Supported Fields of Study</span>
+                <input type="hidden" name="field_selection_submitted" value="1">
+                <div class="grid sm:grid-cols-2 gap-2 rounded-lg border border-outline-variant p-3">
                     @foreach(config('scholarship.fields_of_study') as $field)
-                        <option value="{{ $field }}" {{ old('required_field_of_study') === $field ? 'selected' : '' }}>{{ $field }}</option>
+                        <label class="flex items-center gap-2 text-sm text-on-surface cursor-pointer">
+                            <input type="checkbox" name="required_fields_of_study[]" value="{{ $field }}" class="rounded border-outline-variant text-primary focus:ring-primary"
+                                {{ in_array($field, old('required_fields_of_study', []), true) ? 'checked' : '' }}>
+                            {{ $field }}
+                        </label>
                     @endforeach
-                </select>
-                @error('required_field_of_study')
+                </div>
+                @error('required_fields_of_study.*')
                     <p class="mt-1 text-sm text-error">{{ $message }}</p>
                 @enderror
-                <p class="mt-1 text-sm text-on-surface-variant">Leave empty to accept all fields of study.</p>
+                <p class="mt-1 text-sm text-on-surface-variant">Select every field accepted by this scholarship. Leave all unselected to accept any field.</p>
             </div>
 
             <div>

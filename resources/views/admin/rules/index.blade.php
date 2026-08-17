@@ -123,8 +123,12 @@
                 <div class="p-5 grid sm:grid-cols-3 gap-4">
                     <div class="sm:col-span-1 font-medium text-on-surface-variant">Required Field of Study</div>
                     <div class="sm:col-span-2">
-                        @if($rule->required_field_of_study)
-                            <span class="badge badge-info">{{ $rule->required_field_of_study }}</span>
+                        @if($rule->supportedFieldsOfStudy())
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($rule->supportedFieldsOfStudy() as $field)
+                                    <span class="badge badge-info">{{ $field }}</span>
+                                @endforeach
+                            </div>
                         @else
                             <span class="text-on-surface-variant">Not specified (any field)</span>
                         @endif

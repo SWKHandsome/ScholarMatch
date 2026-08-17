@@ -20,6 +20,7 @@ class ScholarshipRule extends Model
         'min_spm_credits',
         'min_cgpa',
         'required_field_of_study',
+        'required_fields_of_study',
         'required_institution_type',
         'income_rule_type',
         'study_level_rule_type',
@@ -34,10 +35,24 @@ class ScholarshipRule extends Model
         'min_spm_as' => 'integer',
         'min_spm_credits' => 'integer',
         'rule_payload' => 'array',
+        'required_fields_of_study' => 'array',
     ];
 
     public function scholarship(): BelongsTo
     {
         return $this->belongsTo(Scholarship::class);
+    }
+
+    /**
+     * Use the new multi-field setting when available, while retaining support
+     * for scholarship rules created before this feature was added.
+     */
+    public function supportedFieldsOfStudy(): array
+    {
+        if (! empty($this->required_fields_of_study)) {
+            return $this->required_fields_of_study;
+        }
+
+        return $this->required_field_of_study ? [$this->required_field_of_study] : [];
     }
 }

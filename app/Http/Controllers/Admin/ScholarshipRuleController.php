@@ -33,6 +33,8 @@ class ScholarshipRuleController extends Controller
             'min_spm_credits' => ['nullable', 'integer', 'min:0', 'max:12'],
             'min_cgpa' => ['nullable', 'numeric', 'min:0', 'max:4'],
             'required_field_of_study' => ['nullable', Rule::in(config('scholarship.fields_of_study'))],
+            'required_fields_of_study' => ['nullable', 'array'],
+            'required_fields_of_study.*' => [Rule::in(config('scholarship.fields_of_study'))],
             'required_institution_type' => ['nullable', 'string', 'max:255'],
             'income_rule_type' => ['required', 'in:hard,soft,none'],
             'study_level_rule_type' => ['required', 'in:hard,soft,none'],
@@ -40,6 +42,7 @@ class ScholarshipRuleController extends Controller
             'institution_rule_type' => ['required', 'in:hard,soft,none'],
         ]);
 
+        $validated = $this->normaliseSupportedFields($request, $validated);
         $validated['scholarship_id'] = $scholarship->id;
         ScholarshipRule::updateOrCreate(
             ['scholarship_id' => $scholarship->id],
@@ -67,6 +70,8 @@ class ScholarshipRuleController extends Controller
             'min_spm_credits' => ['nullable', 'integer', 'min:0', 'max:12'],
             'min_cgpa' => ['nullable', 'numeric', 'min:0', 'max:4'],
             'required_field_of_study' => ['nullable', Rule::in(config('scholarship.fields_of_study'))],
+            'required_fields_of_study' => ['nullable', 'array'],
+            'required_fields_of_study.*' => [Rule::in(config('scholarship.fields_of_study'))],
             'required_institution_type' => ['nullable', 'string', 'max:255'],
             'income_rule_type' => ['required', 'in:hard,soft,none'],
             'study_level_rule_type' => ['required', 'in:hard,soft,none'],
@@ -74,6 +79,7 @@ class ScholarshipRuleController extends Controller
             'institution_rule_type' => ['required', 'in:hard,soft,none'],
         ]);
 
+        $validated = $this->normaliseSupportedFields($request, $validated);
         $rule = $scholarship->rule ?? new ScholarshipRule(['scholarship_id' => $scholarship->id]);
         $rule->fill($validated);
         $rule->save();
@@ -81,5 +87,15 @@ class ScholarshipRuleController extends Controller
 
         return redirect()->route('admin.scholarships.rules.index', $scholarship)
             ->with('success', 'Scholarship rules updated successfully.');
+    }
+
+    private function normaliseSupportedFields(Request $request, array $validated): array
+    {
+        if ($request->boolean('field_selection_submitted')) {
+            $validated['required_fields_of_study'] = $validated['required_fields_of_study'] ?? [];
+            $validated['required_field_of_study'] = null;
+        }
+
+        return $validated;
     }
 }

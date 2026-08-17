@@ -148,6 +148,19 @@ test('student receives field and institution points after passing hard rules', f
     expect($result['recommendations'][0]['score'])->toBe(100);
 });
 
+test('student matches one of several supported scholarship fields', function () {
+    makeUnitScholarship([], [
+        'required_fields_of_study' => ['Business', 'Engineering'],
+        'field_rule_type' => 'hard',
+    ]);
+    $user = makeUnitStudent();
+
+    $result = app(ScholarshipRecommendationService::class)->getRecommendations($user);
+
+    expect($result['recommendations'][0]['status'])->toBe('Eligible');
+    expect($result['recommendations'][0]['score_breakdown']['field'])->toBe(25);
+});
+
 test('non malaysian student fails nationality hard rule', function () {
     makeUnitScholarship([], ['income_rule_type' => 'hard']);
     $user = makeUnitStudent([

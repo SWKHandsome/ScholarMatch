@@ -254,9 +254,11 @@ class ScholarshipRecommendationService
         }
 
         if ($rule->field_rule_type === 'hard') {
-            if ($rule->required_field_of_study && $profile->field_of_study !== $rule->required_field_of_study) {
+            $supportedFields = $rule->supportedFieldsOfStudy();
+
+            if ($supportedFields && !in_array($profile->field_of_study, $supportedFields, true)) {
                 $failed[] = 'field_of_study';
-                $explanations[] = "This scholarship requires {$rule->required_field_of_study} field of study.";
+                $explanations[] = 'This scholarship requires one of these fields of study: ' . implode(', ', $supportedFields) . '.';
             } else {
                 $explanations[] = 'Your field of study matches the scholarship requirement.';
             }
@@ -360,15 +362,17 @@ class ScholarshipRecommendationService
 
     private function calculateFieldScore(StudentProfile $profile, ScholarshipRule $rule): array
     {
-        if (!$rule->required_field_of_study) {
+        $supportedFields = $rule->supportedFieldsOfStudy();
+
+        if (!$supportedFields) {
             return ['score' => 25, 'explanation' => 'No specific field of study required.'];
         }
 
-        if ($profile->field_of_study === $rule->required_field_of_study) {
+        if (in_array($profile->field_of_study, $supportedFields, true)) {
             return ['score' => 25, 'explanation' => "Your field of study ({$profile->field_of_study}) matches the scholarship requirement."];
         }
 
-        return ['score' => 0, 'explanation' => "Your field of study ({$profile->field_of_study}) does not match the required field ({$rule->required_field_of_study})."];
+        return ['score' => 0, 'explanation' => "Your field of study ({$profile->field_of_study}) does not match the supported fields (" . implode(', ', $supportedFields) . ').'];
     }
 
     private function calculateInstitutionScore(StudentProfile $profile, ScholarshipRule $rule): array

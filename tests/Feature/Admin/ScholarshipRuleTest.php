@@ -38,7 +38,7 @@ test('admin can view create scholarship rules page', function () {
     $response->assertSee('Min SPM As');
     $response->assertSee('Min SPM Credits');
     $response->assertSee('Min CGPA');
-    $response->assertSee('Required Field of Study');
+    $response->assertSee('Supported Fields of Study');
     $response->assertSee('Required Institution Type');
     $response->assertSee('Income Rule Type');
     $response->assertSee('Study Level Rule Type');
@@ -74,6 +74,26 @@ test('admin can create scholarship rules', function () {
     expect($rule->required_nationality)->toBe('Malaysian');
     expect($rule->income_rule_type)->toBe('hard');
     expect($rule->study_level_rule_type)->toBe('hard');
+});
+
+test('admin can select multiple supported fields for a scholarship', function () {
+    $admin = makeAdmin();
+    $scholarship = makeScholarship();
+
+    $response = $this->actingAs($admin)->post(route('admin.scholarships.rules.store', $scholarship), [
+        'field_selection_submitted' => true,
+        'required_fields_of_study' => ['Computer Science', 'Engineering'],
+        'income_rule_type' => 'none',
+        'study_level_rule_type' => 'none',
+        'field_rule_type' => 'soft',
+        'institution_rule_type' => 'none',
+    ]);
+
+    $response->assertRedirect(route('admin.scholarships.rules.index', $scholarship));
+
+    $rule = $scholarship->fresh()->rule;
+    expect($rule->required_fields_of_study)->toBe(['Computer Science', 'Engineering']);
+    expect($rule->required_field_of_study)->toBeNull();
 });
 
 test('admin can view edit scholarship rules page', function () {
