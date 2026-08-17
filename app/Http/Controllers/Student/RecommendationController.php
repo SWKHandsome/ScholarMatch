@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Models\RecommendationLog;
 use App\Models\Scholarship;
 use App\Services\ScholarshipRecommendationService;
 use Illuminate\Http\Request;
@@ -30,30 +29,23 @@ class RecommendationController extends Controller
         ]);
     }
 
-    public function show(Scholarship $scholarship)
+    public function show(int $scholarship)
     {
         $user = Auth::user();
+        $scholarship = Scholarship::with('rule')->find($scholarship);
 
-        // Try to get from RecommendationLog (historical, faster)
-        $log = RecommendationLog::where('user_id', $user->id)
-            ->where('scholarship_id', $scholarship->id)
-            ->first();
+        if (! $scholarship) {
+            return redirect()->route('student.recommendations')
+                ->with('warning', 'This scholarship is no longer available. Your recommendations have been refreshed.');
+        }
 
-        if ($log) {
-            $recommendation = [
-                'scholarship' => $scholarship,
-                'score' => $log->score,
-                'status' => $log->status,
-                'failed_hard_rules' => $log->failed_hard_rules ?? [],
-                'explanation' => $log->explanation ?? [],
-                'score_breakdown' => $log->score_breakdown ?? [],
-                'is_preliminary' => $user->academicResult?->result_status === 'pending',
-            ];
-        } else {
-            // Fallback: run engine for this single scholarship
-            $result = $this->recommendationService->getRecommendations($user);
-            $recommendation = collect($result['recommendations'] ?? [])
-                ->firstWhere('scholarship.id', $scholarship->id);
+        // Always use the current evaluation so changed rules and failed requirements are accurate.
+        $result = $this->recommendationService->getRecommendations($user);
+        $recommendation = collect($result['recommendations'] ?? [])
+            ->first(fn ($item) => ($item['scholarship_id'] ?? null) === $scholarship->id);
+
+        if ($recommendation) {
+            $recommendation['scholarship'] = $scholarship;
         }
 
         if (!$recommendation) {

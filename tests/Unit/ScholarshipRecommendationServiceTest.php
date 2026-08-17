@@ -121,6 +121,33 @@ test('t20 student fails b40 hard rule', function () {
     expect($result['recommendations'][0]['failed_hard_rules'])->toContain('income_category');
 });
 
+test('b40 student receives income points after passing a hard income rule', function () {
+    makeUnitScholarship([], ['income_rule_type' => 'hard']);
+    $user = makeUnitStudent();
+
+    $service = app(ScholarshipRecommendationService::class);
+    $result = $service->getRecommendations($user);
+
+    expect($result['recommendations'][0]['status'])->toBe('Eligible');
+    expect($result['recommendations'][0]['score_breakdown']['income'])->toBe(15);
+    expect($result['recommendations'][0]['score'])->toBe(100);
+});
+
+test('student receives field and institution points after passing hard rules', function () {
+    makeUnitScholarship([], [
+        'field_rule_type' => 'hard',
+        'institution_rule_type' => 'hard',
+    ]);
+    $user = makeUnitStudent();
+
+    $result = app(ScholarshipRecommendationService::class)->getRecommendations($user);
+
+    expect($result['recommendations'][0]['status'])->toBe('Eligible');
+    expect($result['recommendations'][0]['score_breakdown']['field'])->toBe(25);
+    expect($result['recommendations'][0]['score_breakdown']['institution'])->toBe(20);
+    expect($result['recommendations'][0]['score'])->toBe(100);
+});
+
 test('non malaysian student fails nationality hard rule', function () {
     makeUnitScholarship([], ['income_rule_type' => 'hard']);
     $user = makeUnitStudent([

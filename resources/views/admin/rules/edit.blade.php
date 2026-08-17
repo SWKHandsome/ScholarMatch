@@ -153,8 +153,12 @@
 
             <div>
                 <label for="required_field_of_study" class="label">Required Field of Study</label>
-                <input type="text" id="required_field_of_study" name="required_field_of_study" class="input @error('required_field_of_study') input-error @enderror"
-                    value="{{ old('required_field_of_study', $rule->required_field_of_study) }}" placeholder="e.g., Engineering, Medicine, Business, Computer Science">
+                <select id="required_field_of_study" name="required_field_of_study" class="input @error('required_field_of_study') input-error @enderror">
+                    <option value="">Any field of study</option>
+                    @foreach(config('scholarship.fields_of_study') as $field)
+                        <option value="{{ $field }}" {{ old('required_field_of_study', $rule->required_field_of_study) === $field ? 'selected' : '' }}>{{ $field }}</option>
+                    @endforeach
+                </select>
                 @error('required_field_of_study')
                     <p class="mt-1 text-sm text-error">{{ $message }}</p>
                 @enderror

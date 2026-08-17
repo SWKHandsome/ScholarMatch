@@ -9,42 +9,55 @@
 
     <!-- Filters -->
     <div class="card p-4 mb-6">
-        <form method="GET" action="{{ route('admin.recommendation-logs.index') }}" class="grid sm:grid-cols-4 gap-4">
-            <div>
-                <label for="status" class="label">Status</label>
-                <select id="status" name="status" class="input">
-                    <option value="">All Statuses</option>
-                    <option value="Eligible" {{ request('status') === 'Eligible' ? 'selected' : '' }}>Eligible</option>
-                    <option value="Partially Eligible" {{ request('status') === 'Partially Eligible' ? 'selected' : '' }}>Partially Eligible</option>
-                    <option value="Not Suitable" {{ request('status') === 'Not Suitable' ? 'selected' : '' }}>Not Suitable</option>
-                </select>
+        <form method="GET" action="{{ route('admin.recommendation-logs.index') }}" class="space-y-4">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label for="status" class="label">Status</label>
+                    <select id="status" name="status" class="input" onchange="this.form.submit()">
+                        <option value="">All Statuses</option>
+                        <option value="Eligible" {{ request('status') === 'Eligible' ? 'selected' : '' }}>Eligible</option>
+                        <option value="Partially Eligible" {{ request('status') === 'Partially Eligible' ? 'selected' : '' }}>Partially Eligible</option>
+                        <option value="Not Suitable" {{ request('status') === 'Not Suitable' ? 'selected' : '' }}>Not Suitable</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="scholarship_id" class="label">Scholarship</label>
+                    <select id="scholarship_id" name="scholarship_id" class="input" onchange="this.form.submit()">
+                        <option value="">All Scholarships</option>
+                        @foreach($scholarships as $scholarship)
+                            <option value="{{ $scholarship->id }}" {{ request('scholarship_id') == $scholarship->id ? 'selected' : '' }}>
+                                {{ $scholarship->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label for="date_from" class="label">From Date</label>
+                    <input type="date" id="date_from" name="date_from" class="input" value="{{ request('date_from') }}" onchange="this.form.submit()">
+                </div>
+
+                <div>
+                    <label for="date_to" class="label">To Date</label>
+                    <input type="date" id="date_to" name="date_to" class="input" value="{{ request('date_to') }}" onchange="this.form.submit()">
+                </div>
             </div>
 
-            <div>
-                <label for="scholarship_id" class="label">Scholarship</label>
-                <select id="scholarship_id" name="scholarship_id" class="input">
-                    <option value="">All Scholarships</option>
-                    @foreach($scholarships as $scholarship)
-                        <option value="{{ $scholarship->id }}" {{ request('scholarship_id') == $scholarship->id ? 'selected' : '' }}>
-                            {{ $scholarship->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
-                <label for="date_from" class="label">From Date</label>
-                <input type="date" id="date_from" name="date_from" class="input" value="{{ request('date_from') }}">
-            </div>
-
-            <div>
-                <label for="date_to" class="label">To Date</label>
-                <input type="date" id="date_to" name="date_to" class="input" value="{{ request('date_to') }}">
+            <div class="flex flex-col sm:flex-row sm:items-end gap-4">
+                <div class="flex-1">
+                    <label for="search" class="label">Search</label>
+                    <input type="search" id="search" name="search" class="input" value="{{ request('search') }}" placeholder="Search by student name, email, or scholarship...">
+                </div>
+                <div class="flex flex-wrap gap-3 sm:flex-nowrap">
+                    <button type="submit" class="btn btn-primary inline-flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35m1.35-5.15a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"></path></svg>
+                        Search
+                    </button>
+                    <a href="{{ route('admin.recommendation-logs.index') }}" class="btn btn-outline inline-flex items-center justify-center">Clear Filters</a>
+                </div>
             </div>
         </form>
-        <div class="mt-4 flex justify-end">
-            <a href="{{ route('admin.recommendation-logs.index') }}" class="btn btn-outline">Clear Filters</a>
-        </div>
     </div>
 
     @if($logs->isEmpty())

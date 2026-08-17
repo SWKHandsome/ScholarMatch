@@ -36,6 +36,18 @@ test('dashboard shows complete profile and academic when both exist', function (
     $response->assertSee('Update Result');
 });
 
+test('dashboard displays a success message from the session', function () {
+    $user = makeStudent();
+
+    $response = $this->actingAs($user)
+        ->withSession(['success' => 'Academic result updated successfully.'])
+        ->get(route('student.dashboard'));
+
+    $response->assertOk();
+    $response->assertSee('Academic result updated successfully.');
+    $response->assertDontSee("{{ session('success') }}", false);
+});
+
 test('dashboard shows saved scholarships count', function () {
     $user = makeStudent();
     $scholarship = makeScholarship();

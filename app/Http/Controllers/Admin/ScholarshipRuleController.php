@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Scholarship;
 use App\Models\ScholarshipRule;
+use App\Services\ScholarshipRecommendationService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ScholarshipRuleController extends Controller
 {
@@ -30,7 +32,7 @@ class ScholarshipRuleController extends Controller
             'min_spm_as' => ['nullable', 'integer', 'min:0', 'max:12'],
             'min_spm_credits' => ['nullable', 'integer', 'min:0', 'max:12'],
             'min_cgpa' => ['nullable', 'numeric', 'min:0', 'max:4'],
-            'required_field_of_study' => ['nullable', 'string', 'max:255'],
+            'required_field_of_study' => ['nullable', Rule::in(config('scholarship.fields_of_study'))],
             'required_institution_type' => ['nullable', 'string', 'max:255'],
             'income_rule_type' => ['required', 'in:hard,soft,none'],
             'study_level_rule_type' => ['required', 'in:hard,soft,none'],
@@ -43,6 +45,7 @@ class ScholarshipRuleController extends Controller
             ['scholarship_id' => $scholarship->id],
             $validated
         );
+        ScholarshipRecommendationService::invalidateCatalogCache();
 
         return redirect()->route('admin.scholarships.rules.index', $scholarship)
             ->with('success', 'Scholarship rules saved successfully.');
@@ -63,7 +66,7 @@ class ScholarshipRuleController extends Controller
             'min_spm_as' => ['nullable', 'integer', 'min:0', 'max:12'],
             'min_spm_credits' => ['nullable', 'integer', 'min:0', 'max:12'],
             'min_cgpa' => ['nullable', 'numeric', 'min:0', 'max:4'],
-            'required_field_of_study' => ['nullable', 'string', 'max:255'],
+            'required_field_of_study' => ['nullable', Rule::in(config('scholarship.fields_of_study'))],
             'required_institution_type' => ['nullable', 'string', 'max:255'],
             'income_rule_type' => ['required', 'in:hard,soft,none'],
             'study_level_rule_type' => ['required', 'in:hard,soft,none'],
@@ -74,6 +77,7 @@ class ScholarshipRuleController extends Controller
         $rule = $scholarship->rule ?? new ScholarshipRule(['scholarship_id' => $scholarship->id]);
         $rule->fill($validated);
         $rule->save();
+        ScholarshipRecommendationService::invalidateCatalogCache();
 
         return redirect()->route('admin.scholarships.rules.index', $scholarship)
             ->with('success', 'Scholarship rules updated successfully.');

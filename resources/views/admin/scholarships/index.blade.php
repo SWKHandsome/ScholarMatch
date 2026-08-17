@@ -13,12 +13,36 @@
         </a>
     </div>
 
+    <form action="{{ route('admin.scholarships.index') }}" method="GET" class="card p-4 mb-6">
+        <div class="flex flex-col sm:flex-row gap-3">
+            <label for="search" class="sr-only">Search scholarships</label>
+            <input
+                id="search"
+                name="search"
+                type="search"
+                value="{{ request('search') }}"
+                placeholder="Search scholarship name or provider..."
+                class="input flex-1"
+            >
+            <button type="submit" class="btn btn-primary sm:min-w-28">Search</button>
+            @if(request()->filled('search'))
+                <a href="{{ route('admin.scholarships.index') }}" class="btn btn-outline sm:min-w-28">Clear</a>
+            @endif
+        </div>
+    </form>
+
     @if($scholarships->isEmpty())
         <div class="card p-10 text-center">
             <svg class="w-16 h-16 mx-auto text-on-surface-variant/50 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-            <h3 class="text-lg font-medium text-on-surface mb-1">No Scholarships Yet</h3>
-            <p class="text-on-surface-variant mb-6">Create your first scholarship to get started.</p>
-            <a href="{{ route('admin.scholarships.create') }}" class="btn btn-primary">Add Scholarship</a>
+            @if(request()->filled('search'))
+                <h3 class="text-lg font-medium text-on-surface mb-1">No Matching Scholarships</h3>
+                <p class="text-on-surface-variant mb-6">Try a different scholarship name or provider.</p>
+                <a href="{{ route('admin.scholarships.index') }}" class="btn btn-outline">Clear Search</a>
+            @else
+                <h3 class="text-lg font-medium text-on-surface mb-1">No Scholarships Yet</h3>
+                <p class="text-on-surface-variant mb-6">Create your first scholarship to get started.</p>
+                <a href="{{ route('admin.scholarships.create') }}" class="btn btn-primary">Add Scholarship</a>
+            @endif
         </div>
     @else
         <div class="card overflow-hidden">

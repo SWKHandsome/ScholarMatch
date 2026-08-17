@@ -148,6 +148,21 @@ test('profile validation requires numeric household income', function () {
     $response->assertSessionHasErrors('household_income');
 });
 
+test('profile field of study must be one of the available options', function () {
+    $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
+
+    $response = $this->actingAs($user)->patch(route('student.profile.update'), [
+        'nationality' => 'Malaysian',
+        'state' => 'Selangor',
+        'household_income' => 2500,
+        'number_of_dependents' => 3,
+        'institution_type' => 'Public University',
+        'field_of_study' => 'Unlisted Field',
+    ]);
+
+    $response->assertSessionHasErrors('field_of_study');
+});
+
 test('profile validation requires non-negative dependents', function () {
     $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
 

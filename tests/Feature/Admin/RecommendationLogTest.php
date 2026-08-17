@@ -38,6 +38,62 @@ test('admin can view recommendation logs index', function () {
     $response->assertSee('85');
 });
 
+test('admin can filter recommendation logs by status', function () {
+    $admin = makeAdmin();
+    $student = makeStudent();
+    $scholarship = makeScholarship();
+
+    RecommendationLog::create([
+        'user_id' => $student->id,
+        'scholarship_id' => $scholarship->id,
+        'score' => 85,
+        'status' => 'Eligible',
+    ]);
+
+    RecommendationLog::create([
+        'user_id' => $student->id,
+        'scholarship_id' => $scholarship->id,
+        'score' => 55,
+        'status' => 'Partially Eligible',
+    ]);
+
+    $response = $this->actingAs($admin)->get(route('admin.recommendation-logs.index', [
+        'status' => 'Partially Eligible',
+    ]));
+
+    $response->assertOk();
+    $response->assertSee('55');
+    $response->assertDontSee('85');
+});
+
+test('admin can search recommendation logs by student or scholarship', function () {
+    $admin = makeAdmin();
+    $student = makeStudent();
+    $student->update(['name' => 'Aisha Ahmad', 'email' => 'aisha@example.test']);
+    $scholarship = makeScholarship(['name' => 'Future Leaders Scholarship']);
+
+    RecommendationLog::create([
+        'user_id' => $student->id,
+        'scholarship_id' => $scholarship->id,
+        'score' => 88,
+        'status' => 'Eligible',
+    ]);
+
+    $studentSearch = $this->actingAs($admin)->get(route('admin.recommendation-logs.index', [
+        'search' => 'aisha@example.test',
+    ]));
+
+    $studentSearch->assertOk();
+    $studentSearch->assertSee('88');
+
+    $scholarshipSearch = $this->actingAs($admin)->get(route('admin.recommendation-logs.index', [
+        'search' => 'Future Leaders',
+    ]));
+
+    $scholarshipSearch->assertOk();
+    $scholarshipSearch->assertSee('Future Leaders Scholarship');
+});
+
 test('admin can view recommendation log detail', function () {
     $admin = makeAdmin();
     $student = makeStudent();

@@ -15,6 +15,10 @@ use Illuminate\Support\Facades\Cache;
 
 class ScholarshipRecommendationService
 {
+    private const ACTIVE_SCHOLARSHIPS_CACHE_KEY = 'active_scholarships_with_rules_v4';
+    private const CATALOG_VERSION_CACHE_KEY = 'recommendation_catalog_version';
+    private const RECOMMENDATION_ALGORITHM_VERSION = 'v3';
+
     public function getRecommendations(User $user): array
     {
         $profile = $user->studentProfile;
@@ -37,18 +41,16 @@ class ScholarshipRecommendationService
         $incomeCategory = IncomeCategory::classifyIncome((float) $profile->household_income);
 
         $cacheKey = sprintf(
-            'recommendations_user_%d_profile_%s_academic_%s',
+            'recommendations_%s_user_%d_profile_%s_academic_%s_catalog_%s',
+            self::RECOMMENDATION_ALGORITHM_VERSION,
             $user->id,
             $profile->updated_at->timestamp ?? 'none',
-            $academicResult->updated_at->timestamp ?? 'none'
+            $academicResult->updated_at->timestamp ?? 'none',
+            $this->catalogVersion()
         );
 
         return Cache::remember($cacheKey, 1800, function () use ($user, $profile, $academicResult, $incomeCategory) {
-            $scholarships = Cache::remember('active_scholarships_with_rules', 3600, function () {
-                return Scholarship::where('is_active', true)
-                    ->with('rule')
-                    ->get();
-            });
+            $scholarships = $this->getActiveScholarships($this->catalogVersion());
 
             $recommendations = [];
 
@@ -106,6 +108,40 @@ class ScholarshipRecommendationService
     }
 
     /**
+     * Make all cached recommendation results stale after scholarship data changes.
+     */
+    public static function invalidateCatalogCache(): void
+    {
+        Cache::forever(self::CATALOG_VERSION_CACHE_KEY, uniqid('catalog_', true));
+    }
+
+    /**
+     * Return a valid collection of scholarship models, rebuilding an invalid cache entry when needed.
+     */
+    private function getActiveScholarships(string $catalogVersion): Collection
+    {
+        $cacheKey = self::ACTIVE_SCHOLARSHIPS_CACHE_KEY . '_' . $catalogVersion;
+        $scholarships = Cache::get($cacheKey);
+
+        if (! $scholarships instanceof Collection || $scholarships->contains(
+            fn ($scholarship) => ! ($scholarship instanceof Scholarship)
+        )) {
+            $scholarships = Scholarship::where('is_active', true)
+                ->with('rule')
+                ->get();
+
+            Cache::put($cacheKey, $scholarships, 3600);
+        }
+
+        return $scholarships;
+    }
+
+    private function catalogVersion(): string
+    {
+        return (string) Cache::get(self::CATALOG_VERSION_CACHE_KEY, 'initial');
+    }
+
+    /**
      * Extract only the necessary scholarship data for caching (avoids Eloquent serialization issues).
      */
     private function extractScholarshipData(Scholarship $scholarship): array
@@ -115,10 +151,12 @@ class ScholarshipRecommendationService
             'name' => $scholarship->name,
             'slug' => $scholarship->slug,
             'description' => $scholarship->description,
+            'award_type' => $scholarship->award_type,
             'amount' => $scholarship->amount,
             'deadline' => $scholarship->deadline?->toDateString(),
-            'provider_name' => $scholarship->provider_name,
+            'provider_name' => $scholarship->provider,
             'provider_logo' => $scholarship->provider_logo,
+            'application_link' => $scholarship->application_link,
             'is_active' => $scholarship->is_active,
             'quota' => $scholarship->quota,
             'study_levels' => $scholarship->study_levels,
@@ -256,7 +294,10 @@ class ScholarshipRecommendationService
         $breakdown['academic'] = $academicScore['score'];
         $explanations[] = $academicScore['explanation'];
 
-        if ($rule->field_rule_type === 'soft') {
+        // A passed hard rule is still a positive match. The hard check above has
+        // already stopped any student who does not meet it, so award the same
+        // points as a matching soft preference.
+        if (in_array($rule->field_rule_type, ['hard', 'soft'], true)) {
             $fieldScore = $this->calculateFieldScore($profile, $rule);
             $breakdown['field'] = $fieldScore['score'];
             $explanations[] = $fieldScore['explanation'];
@@ -264,7 +305,7 @@ class ScholarshipRecommendationService
             $explanations[] = 'Field of study matching is not a scoring criterion for this scholarship.';
         }
 
-        if ($rule->institution_rule_type === 'soft') {
+        if (in_array($rule->institution_rule_type, ['hard', 'soft'], true)) {
             $institutionScore = $this->calculateInstitutionScore($profile, $rule);
             $breakdown['institution'] = $institutionScore['score'];
             $explanations[] = $institutionScore['explanation'];
@@ -272,7 +313,7 @@ class ScholarshipRecommendationService
             $explanations[] = 'Institution type matching is not a scoring criterion for this scholarship.';
         }
 
-        if ($rule->income_rule_type === 'soft') {
+        if (in_array($rule->income_rule_type, ['hard', 'soft'], true)) {
             $incomeScore = $this->calculateIncomeScore($profile, $rule);
             $breakdown['income'] = $incomeScore['score'];
             $explanations[] = $incomeScore['explanation'];

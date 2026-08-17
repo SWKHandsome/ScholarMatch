@@ -4,13 +4,26 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Scholarship;
+use App\Services\ScholarshipRecommendationService;
 use Illuminate\Http\Request;
 
 class ScholarshipController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $scholarships = Scholarship::with('rule')->latest()->paginate(15);
+        $search = trim((string) $request->input('search'));
+
+        $scholarships = Scholarship::with('rule')
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('provider', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
         return view('admin.scholarships.index', compact('scholarships'));
     }
 
@@ -32,6 +45,7 @@ class ScholarshipController extends Controller
         ]);
 
         Scholarship::create($validated);
+        ScholarshipRecommendationService::invalidateCatalogCache();
 
         return redirect()->route('admin.scholarships.index')
             ->with('success', 'Scholarship created successfully.');
@@ -55,6 +69,7 @@ class ScholarshipController extends Controller
         ]);
 
         $scholarship->update($validated);
+        ScholarshipRecommendationService::invalidateCatalogCache();
 
         return redirect()->route('admin.scholarships.index')
             ->with('success', 'Scholarship updated successfully.');
@@ -63,6 +78,7 @@ class ScholarshipController extends Controller
     public function destroy(Scholarship $scholarship)
     {
         $scholarship->delete();
+        ScholarshipRecommendationService::invalidateCatalogCache();
 
         return redirect()->route('admin.scholarships.index')
             ->with('success', 'Scholarship deleted successfully.');

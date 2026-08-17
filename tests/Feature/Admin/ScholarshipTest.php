@@ -22,6 +22,30 @@ test('admin can view scholarships index', function () {
     $response->assertSee('Add Scholarship');
 });
 
+test('admin can search scholarships by name or provider', function () {
+    $admin = makeAdmin();
+    Scholarship::factory()->create([
+        'name' => 'Engineering Excellence Award',
+        'provider' => 'Future Scholars Foundation',
+    ]);
+    Scholarship::factory()->create([
+        'name' => 'Business Achievement Grant',
+        'provider' => 'Different Provider',
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.scholarships.index', ['search' => 'Engineering']))
+        ->assertOk()
+        ->assertSee('Engineering Excellence Award')
+        ->assertDontSee('Business Achievement Grant');
+
+    $this->actingAs($admin)
+        ->get(route('admin.scholarships.index', ['search' => 'Future Scholars']))
+        ->assertOk()
+        ->assertSee('Engineering Excellence Award')
+        ->assertDontSee('Business Achievement Grant');
+});
+
 test('admin can view create scholarship page', function () {
     $admin = makeAdmin();
 

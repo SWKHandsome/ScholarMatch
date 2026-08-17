@@ -155,6 +155,21 @@ test('scholarship rules validation requires valid rule types', function () {
     $response->assertSessionHasErrors('income_rule_type');
 });
 
+test('scholarship required field must be one of the available options', function () {
+    $admin = makeAdmin();
+    $scholarship = makeScholarship();
+
+    $response = $this->actingAs($admin)->post(route('admin.scholarships.rules.store', $scholarship), [
+        'required_field_of_study' => 'Unlisted Field',
+        'income_rule_type' => 'none',
+        'study_level_rule_type' => 'none',
+        'field_rule_type' => 'none',
+        'institution_rule_type' => 'none',
+    ]);
+
+    $response->assertSessionHasErrors('required_field_of_study');
+});
+
 test('scholarship rules require admin role', function () {
     $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
     $scholarship = makeScholarship();

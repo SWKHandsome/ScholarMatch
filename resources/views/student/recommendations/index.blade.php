@@ -7,6 +7,12 @@
         <p class="text-on-surface-variant mt-1">Your personalized matches based on academic and socioeconomic criteria.</p>
     </div>
 
+    @if(session('warning'))
+        <div class="card p-4 mb-6 bg-warning/5 border-warning/20 text-warning">
+            {{ session('warning') }}
+        </div>
+    @endif
+
     @if($error)
         <div class="card p-6 bg-warning/5 border-warning/20 mb-8">
             <div class="flex items-center gap-3">

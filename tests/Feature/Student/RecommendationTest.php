@@ -115,6 +115,31 @@ test('recommendations detail shows not suitable details for failed hard rule', f
     $response->assertOk();
     $response->assertSee('Not Suitable');
     $response->assertSee('income category');
+    $response->assertSee('This scholarship is only open to B40 students.');
+    $response->assertSee('data-explanation-status="failed"', false);
+});
+
+test('recommendations detail uses the current failed rules instead of an old log', function () {
+    $user = makeStudent(['nationality' => 'Singaporean']);
+    $scholarship = makeScholarship();
+
+    \App\Models\RecommendationLog::create([
+        'user_id' => $user->id,
+        'scholarship_id' => $scholarship->id,
+        'score' => 100,
+        'status' => 'Eligible',
+        'failed_hard_rules' => [],
+        'explanation' => ['Old result'],
+        'score_breakdown' => ['academic' => 40, 'field' => 25, 'institution' => 20, 'income' => 15],
+    ]);
+
+    $response = $this->actingAs($user)->get(route('student.recommendations.show', $scholarship));
+
+    $response->assertOk();
+    $response->assertSee('Not Suitable');
+    $response->assertSee('Not Eligible - Failed Requirements');
+    $response->assertSee('nationality');
+    $response->assertDontSee('Old result');
 });
 
 test('recommendations detail requires student role', function () {
@@ -132,4 +157,13 @@ test('recommendations detail redirects guest to login', function () {
     $response = $this->get(route('student.recommendations.show', $scholarship));
 
     $response->assertRedirect(route('login'));
+});
+
+test('missing recommendation scholarship redirects to refreshed recommendations', function () {
+    $user = makeStudent();
+
+    $response = $this->actingAs($user)->get(route('student.recommendations.show', 999999));
+
+    $response->assertRedirect(route('student.recommendations'));
+    $response->assertSessionHas('warning', 'This scholarship is no longer available. Your recommendations have been refreshed.');
 });

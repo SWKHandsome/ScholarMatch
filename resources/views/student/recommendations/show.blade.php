@@ -62,18 +62,30 @@
                 <h2 class="text-lg font-semibold text-on-surface mb-4">Eligibility Explanation</h2>
                 <button type="button"
                     class="w-full text-left text-sm font-medium text-primary hover:text-primary/80 flex items-center justify-between mb-2"
+                    aria-expanded="false"
                     onclick="toggleExplanation(this)">
                     <span>View All Explanations ({{ count($recommendation['explanation']) }})</span>
                     <svg class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
-                <div class="space-y-2 hidden" style="display: none;">
+                <div class="space-y-2 hidden">
                     @foreach($recommendation['explanation'] as $explanation)
-                        <p class="text-sm text-on-surface-variant flex items-start gap-2 p-2 rounded bg-surface-container-low">
+                        @php
+                            $isFailedExplanation = collect([
+                                'does not meet',
+                                'exceeds',
+                                'not match',
+                                'passed its deadline',
+                                'only open to',
+                                'only for',
+                                'requires ',
+                            ])->contains(fn ($phrase) => str_contains($explanation, $phrase));
+                        @endphp
+                        <p data-explanation-status="{{ $isFailedExplanation ? 'failed' : 'passed' }}" class="text-sm text-on-surface-variant flex items-start gap-2 p-2 rounded bg-surface-container-low">
                             <svg class="w-4 h-4 mt-0.5 flex-shrink-0
-                                {{ (str_contains($explanation, 'does not meet') || str_contains($explanation, 'exceeds') || str_contains($explanation, 'not match') || str_contains($explanation, 'passed its deadline')) ? 'text-error' : 'text-success' }}"
+                                {{ $isFailedExplanation ? 'text-error' : 'text-success' }}"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="{{ (str_contains($explanation, 'does not meet') || str_contains($explanation, 'exceeds') || str_contains($explanation, 'not match') || str_contains($explanation, 'passed its deadline')) ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7' }}"></path>
+                                    d="{{ $isFailedExplanation ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7' }}"></path>
                             </svg>
                             {{ $explanation }}
                         </p>
@@ -184,7 +196,8 @@
 function toggleExplanation(btn) {
     const panel = btn.nextElementSibling;
     const icon = btn.querySelector('svg');
-    panel.classList.toggle('hidden');
+    const isExpanded = panel.classList.toggle('hidden') === false;
+    btn.setAttribute('aria-expanded', isExpanded.toString());
     icon.classList.toggle('rotate-180');
 }
 </script>

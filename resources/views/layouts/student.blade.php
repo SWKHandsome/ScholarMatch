@@ -107,14 +107,14 @@
             <div class="p-4 lg:p-6">
                 @if (session('success'))
                     <div class="mb-4 p-4 rounded-lg bg-success/10 text-success border border-success/20 flex items-center justify-between">
-                        <span>{{ session('success')
+                        <span>{{ session('success') }}</span>
                         <button onclick="this.parentElement.remove()" class="p-1 hover:bg-success/20 rounded">×</button>
                     </div>
                 @endif
 
                 @if (session('error'))
                     <div class="mb-4 p-4 rounded-lg bg-error/10 text-error border border-error/20 flex items-center justify-between">
-                        session('error')
+                        <span>{{ session('error') }}</span>
                         <button onclick="this.parentElement.remove()" class="p-1 hover:bg-error/20 rounded">×</button>
                     </div>
                 @endif
