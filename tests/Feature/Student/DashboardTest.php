@@ -75,6 +75,18 @@ test('dashboard shows recent recommendations when profile and academic complete'
     $response->assertSee('Test Scholarship');
 });
 
+test('dashboard marks failed hard-rule explanations as failed', function () {
+    $user = makeStudent(['field_of_study' => 'Business'], ['education_level' => 'Diploma']);
+    makeScholarship([], ['field_rule_type' => 'hard']);
+
+    $response = $this->actingAs($user)->get(route('student.dashboard'));
+
+    $response->assertOk();
+    $response->assertSee('This scholarship is only for Undergraduate students.');
+    $response->assertSee('This scholarship requires one of these fields of study: Engineering.');
+    $response->assertSee('data-explanation-status="failed"', false);
+});
+
 test('dashboard shows no matches message when no scholarships match', function () {
     $user = makeStudent([
         'nationality' => 'Singaporean',

@@ -106,6 +106,26 @@ test('recommendations detail page shows full scholarship details', function () {
     $response->assertSee('Save');
 });
 
+test('recommendations show unassessed score categories clearly', function () {
+    $user = makeStudent();
+    $scholarship = makeScholarship([], [
+        'min_cgpa' => null,
+        'required_income_category' => null,
+        'max_household_income' => null,
+        'required_field_of_study' => null,
+        'field_rule_type' => 'none',
+        'required_institution_type' => null,
+        'institution_rule_type' => 'none',
+        'income_rule_type' => 'none',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('student.recommendations.show', $scholarship));
+
+    $response->assertOk();
+    $response->assertSee('Not assessed');
+    $response->assertSee('Match score:');
+});
+
 test('recommendations detail shows not suitable details for failed hard rule', function () {
     $user = makeStudent(['household_income' => 8000, 'income_category' => 'T20']);
     $scholarship = makeScholarship([], ['income_rule_type' => 'hard']);

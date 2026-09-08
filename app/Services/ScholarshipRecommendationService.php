@@ -17,7 +17,7 @@ class ScholarshipRecommendationService
 {
     private const ACTIVE_SCHOLARSHIPS_CACHE_KEY = 'active_scholarships_with_rules_v4';
     private const CATALOG_VERSION_CACHE_KEY = 'recommendation_catalog_version';
-    private const RECOMMENDATION_ALGORITHM_VERSION = 'v3';
+    private const RECOMMENDATION_ALGORITHM_VERSION = 'v4';
 
     public function getRecommendations(User $user): array
     {
@@ -77,13 +77,21 @@ class ScholarshipRecommendationService
                             'institution' => 0,
                             'income' => 0,
                         ],
+                        'score_applicability' => [
+                            'academic' => false,
+                            'field' => false,
+                            'institution' => false,
+                            'income' => false,
+                        ],
+                        'raw_score' => 0,
+                        'score_maximum' => 0,
                         'is_preliminary' => $academicResult->result_status === 'pending',
                     ];
                     continue;
                 }
 
                 $softScore = $this->calculateSoftScore($profile, $academicResult, $rule);
-                $totalScore = array_sum($softScore['breakdown']);
+                $totalScore = $softScore['score'];
                 $status = $this->classifyStatus($totalScore);
 
                 $recommendations[] = [
@@ -94,6 +102,9 @@ class ScholarshipRecommendationService
                     'failed_hard_rules' => [],
                     'explanation' => array_merge($hardCheck['explanations'], $softScore['explanations']),
                     'score_breakdown' => $softScore['breakdown'],
+                    'score_applicability' => $softScore['applicability'],
+                    'raw_score' => $softScore['raw_score'],
+                    'score_maximum' => $softScore['maximum_score'],
                     'is_preliminary' => $academicResult->result_status === 'pending',
                 ];
             }
@@ -290,16 +301,30 @@ class ScholarshipRecommendationService
             'institution' => 0,
             'income' => 0,
         ];
+        $applicability = [
+            'academic' => $this->hasAcademicRequirement($academicResult, $rule),
+            'field' => in_array($rule->field_rule_type, ['hard', 'soft'], true)
+                && !empty($rule->supportedFieldsOfStudy()),
+            'institution' => in_array($rule->institution_rule_type, ['hard', 'soft'], true)
+                && !empty($rule->required_institution_type),
+            'income' => in_array($rule->income_rule_type, ['hard', 'soft'], true)
+                && (!empty($rule->required_income_category)
+                    || ($rule->income_rule_type === 'hard' && $rule->max_household_income !== null)),
+        ];
         $explanations = [];
 
-        $academicScore = $this->calculateAcademicScore($academicResult, $rule);
-        $breakdown['academic'] = $academicScore['score'];
-        $explanations[] = $academicScore['explanation'];
+        if ($applicability['academic']) {
+            $academicScore = $this->calculateAcademicScore($academicResult, $rule);
+            $breakdown['academic'] = $academicScore['score'];
+            $explanations[] = $academicScore['explanation'];
+        } else {
+            $explanations[] = 'Academic performance is not assessed for this scholarship.';
+        }
 
         // A passed hard rule is still a positive match. The hard check above has
         // already stopped any student who does not meet it, so award the same
         // points as a matching soft preference.
-        if (in_array($rule->field_rule_type, ['hard', 'soft'], true)) {
+        if ($applicability['field']) {
             $fieldScore = $this->calculateFieldScore($profile, $rule);
             $breakdown['field'] = $fieldScore['score'];
             $explanations[] = $fieldScore['explanation'];
@@ -307,7 +332,7 @@ class ScholarshipRecommendationService
             $explanations[] = 'Field of study matching is not a scoring criterion for this scholarship.';
         }
 
-        if (in_array($rule->institution_rule_type, ['hard', 'soft'], true)) {
+        if ($applicability['institution']) {
             $institutionScore = $this->calculateInstitutionScore($profile, $rule);
             $breakdown['institution'] = $institutionScore['score'];
             $explanations[] = $institutionScore['explanation'];
@@ -315,7 +340,7 @@ class ScholarshipRecommendationService
             $explanations[] = 'Institution type matching is not a scoring criterion for this scholarship.';
         }
 
-        if (in_array($rule->income_rule_type, ['hard', 'soft'], true)) {
+        if ($applicability['income']) {
             $incomeScore = $this->calculateIncomeScore($profile, $rule);
             $breakdown['income'] = $incomeScore['score'];
             $explanations[] = $incomeScore['explanation'];
@@ -323,10 +348,33 @@ class ScholarshipRecommendationService
             $explanations[] = 'Income priority matching is not a scoring criterion for this scholarship.';
         }
 
+        $maximumScore = array_sum(array_filter([
+            $applicability['academic'] ? 40 : 0,
+            $applicability['field'] ? 25 : 0,
+            $applicability['institution'] ? 20 : 0,
+            $applicability['income'] ? 15 : 0,
+        ]));
+        $rawScore = array_sum($breakdown);
+
         return [
             'breakdown' => $breakdown,
+            'applicability' => $applicability,
             'explanations' => $explanations,
+            'raw_score' => $rawScore,
+            'maximum_score' => $maximumScore,
+            'score' => $maximumScore > 0
+                ? (int) round(($rawScore / $maximumScore) * 100)
+                : 100,
         ];
+    }
+
+    private function hasAcademicRequirement(AcademicResult $academicResult, ScholarshipRule $rule): bool
+    {
+        if ($academicResult->education_level === 'SPM') {
+            return $rule->min_spm_as !== null || $rule->min_spm_credits !== null;
+        }
+
+        return $rule->min_cgpa !== null;
     }
 
     private function calculateAcademicScore(AcademicResult $academicResult, ScholarshipRule $rule): array

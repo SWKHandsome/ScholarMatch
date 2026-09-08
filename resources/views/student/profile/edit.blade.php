@@ -14,8 +14,12 @@
         <!-- Nationality -->
         <div>
             <label for="nationality" class="label">Nationality <span class="text-error">*</span></label>
-            <input type="text" id="nationality" name="nationality" class="input @error('nationality') input-error @enderror"
-                value="{{ old('nationality', $profile->nationality) }}" required autocomplete="off">
+            <select id="nationality" name="nationality" class="input @error('nationality') input-error @enderror" required>
+                <option value="">Select Nationality</option>
+                @foreach(['Malaysian', 'Non-Malaysian'] as $nationality)
+                    <option value="{{ $nationality }}" {{ old('nationality', $profile->nationality) === $nationality ? 'selected' : '' }}>{{ $nationality }}</option>
+                @endforeach
+            </select>
             @error('nationality')
                 <p class="mt-1 text-sm text-error">{{ $message }}</p>
             @enderror

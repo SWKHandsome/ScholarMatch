@@ -25,7 +25,7 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'nationality' => ['required', 'string', 'max:255'],
+            'nationality' => ['required', Rule::in(['Malaysian', 'Non-Malaysian'])],
             'state' => ['required', 'string', 'max:255'],
             'household_income' => ['required', 'numeric', 'min:0'],
             'number_of_dependents' => ['required', 'integer', 'min:0'],

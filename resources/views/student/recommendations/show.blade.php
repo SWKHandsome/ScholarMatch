@@ -95,18 +95,27 @@
             @endif
 
             <!-- Score Breakdown -->
-            @if(!empty($recommendation['score_breakdown']) && array_sum($recommendation['score_breakdown']) > 0)
+            @if(!empty($recommendation['score_breakdown']))
             <div class="card p-6">
                 <h2 class="text-lg font-semibold text-on-surface mb-4">Score Breakdown</h2>
                 <div class="grid grid-cols-2 gap-4">
                     @foreach(['academic' => 'Academic (40)', 'field' => 'Field of Study (25)', 'institution' => 'Institution (20)', 'income' => 'Income Priority (15)'] as $key => $label)
                         <div class="flex flex-col gap-1 p-3 rounded-lg bg-surface-container-low">
                             <span class="text-xs text-on-surface-variant font-medium">{{ $label }}</span>
-                            <span class="text-2xl font-bold {{ ($recommendation['score_breakdown'][$key] ?? 0) > 0 ? 'text-success' : 'text-on-surface-variant' }}">{{ $recommendation['score_breakdown'][$key] ?? 0 }}</span>
+                            @if(($recommendation['score_applicability'][$key] ?? true) === false)
+                                <span class="text-lg font-bold text-on-surface-variant">—</span>
+                                <span class="text-xs text-on-surface-variant">Not assessed</span>
+                            @else
+                                <span class="text-2xl font-bold {{ ($recommendation['score_breakdown'][$key] ?? 0) > 0 ? 'text-success' : 'text-on-surface-variant' }}">{{ $recommendation['score_breakdown'][$key] ?? 0 }}</span>
+                            @endif
                         </div>
                     @endforeach
                 </div>
-                <p class="text-xs text-on-surface-variant mt-3">Total: <span class="font-bold text-on-surface">{{ array_sum($recommendation['score_breakdown']) }}/100</span></p>
+                <p class="text-xs text-on-surface-variant mt-3">
+                    Applicable points: <span class="font-bold text-on-surface">{{ $recommendation['raw_score'] ?? array_sum($recommendation['score_breakdown']) }}/{{ $recommendation['score_maximum'] ?? 100 }}</span>
+                    <span class="mx-1">•</span>
+                    Match score: <span class="font-bold text-on-surface">{{ $recommendation['score'] }}/100</span>
+                </p>
             </div>
             @endif
 

@@ -237,7 +237,34 @@ test('score breakdown totals to final score', function () {
 
     $recommendation = $result['recommendations'][0];
 
-    expect(array_sum($recommendation['score_breakdown']))->toBe($recommendation['score']);
+    expect($recommendation['raw_score'])->toBe(array_sum($recommendation['score_breakdown']));
+    expect($recommendation['score'])->toBe(55);
+});
+
+test('unassessed categories are excluded from the normalized score', function () {
+    makeUnitScholarship([], [
+        'min_cgpa' => null,
+        'required_income_category' => null,
+        'max_household_income' => null,
+        'required_field_of_study' => null,
+        'field_rule_type' => 'none',
+        'required_institution_type' => null,
+        'institution_rule_type' => 'none',
+        'income_rule_type' => 'none',
+    ]);
+    $user = makeUnitStudent();
+
+    $recommendation = app(ScholarshipRecommendationService::class)->getRecommendations($user)['recommendations'][0];
+
+    expect($recommendation['status'])->toBe('Eligible');
+    expect($recommendation['score'])->toBe(100);
+    expect($recommendation['score_maximum'])->toBe(0);
+    expect($recommendation['score_applicability'])->toBe([
+        'academic' => false,
+        'field' => false,
+        'institution' => false,
+        'income' => false,
+    ]);
 });
 
 test('soft scoring lowers the result for partial match', function () {

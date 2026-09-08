@@ -24,6 +24,9 @@ $get = function($key, $default = '') use ($scholarship, $isArray) {
 
 $explanations = $recommendation['explanation'] ?? [];
 $breakdown = $recommendation['score_breakdown'] ?? [];
+$applicability = $recommendation['score_applicability'] ?? [];
+$rawScore = $recommendation['raw_score'] ?? array_sum($breakdown);
+$maximumScore = $recommendation['score_maximum'] ?? 100;
 $isPreliminary = $recommendation['is_preliminary'] ?? false;
 $failedRules = $recommendation['failed_hard_rules'] ?? [];
 ?>
@@ -107,12 +110,23 @@ $failedRules = $recommendation['failed_hard_rules'] ?? [];
         </button>
         <div class="mt-2 space-y-1 hidden">
             @foreach($explanations as $explanation)
-                <p class="text-sm text-on-surface-variant flex items-start gap-2">
+                @php
+                    $isFailedExplanation = collect([
+                        'does not meet',
+                        'exceeds',
+                        'not match',
+                        'passed its deadline',
+                        'only open to',
+                        'only for',
+                        'requires ',
+                    ])->contains(fn ($phrase) => str_contains($explanation, $phrase));
+                @endphp
+                <p data-explanation-status="{{ $isFailedExplanation ? 'failed' : 'passed' }}" class="text-sm text-on-surface-variant flex items-start gap-2">
                     <svg class="w-4 h-4 mt-0.5 flex-shrink-0
-                        {{ str_contains($explanation, 'does not meet') || str_contains($explanation, 'exceeds') || str_contains($explanation, 'not match') ? 'text-error' : 'text-success' }}"
+                        {{ $isFailedExplanation ? 'text-error' : 'text-success' }}"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="{{ str_contains($explanation, 'does not meet') || str_contains($explanation, 'exceeds') || str_contains($explanation, 'not match') ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7' }}"></path>
+                            d="{{ $isFailedExplanation ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7' }}"></path>
                     </svg>
                     {{ $explanation }}
                 </p>
@@ -122,17 +136,22 @@ $failedRules = $recommendation['failed_hard_rules'] ?? [];
     @endif
 
     <!-- Score Breakdown -->
-    @if(!empty($breakdown) && array_sum($breakdown) > 0)
+    @if(!empty($breakdown))
     <div class="mb-4 border-t border-outline-variant pt-4">
         <h4 class="text-sm font-medium text-on-surface mb-2">Score Breakdown</h4>
         <div class="grid grid-cols-2 gap-2 text-xs">
             @foreach(['academic' => 'Academic', 'field' => 'Field', 'institution' => 'Institution', 'income' => 'Income'] as $key => $label)
                 <div class="flex justify-between">
                     <span class="text-on-surface-variant">{{ $label }}</span>
-                    <span class="font-medium {{ ($breakdown[$key] ?? 0) > 0 ? 'text-success' : 'text-on-surface-variant' }}">{{ $breakdown[$key] ?? 0 }}</span>
+                    @if(($applicability[$key] ?? true) === false)
+                        <span class="font-medium text-on-surface-variant">—</span>
+                    @else
+                        <span class="font-medium {{ ($breakdown[$key] ?? 0) > 0 ? 'text-success' : 'text-on-surface-variant' }}">{{ $breakdown[$key] ?? 0 }}</span>
+                    @endif
                 </div>
             @endforeach
         </div>
+        <p class="mt-2 text-xs text-on-surface-variant">{{ $rawScore }}/{{ $maximumScore }} applicable points</p>
     </div>
     @endif
 
