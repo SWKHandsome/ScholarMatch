@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Scholarship;
+use App\Models\ScholarshipRule;
 use App\Services\ScholarshipRecommendationService;
+use App\Services\ScholarshipRuleEditor;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ScholarshipController extends Controller
 {
@@ -29,22 +32,30 @@ class ScholarshipController extends Controller
 
     public function create()
     {
-        return view('admin.scholarships.create');
+        return view('admin.scholarships.create', ['rule' => new ScholarshipRule]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, ScholarshipRuleEditor $editor)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'provider' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'special_requirements' => ['nullable', 'string', 'max:5000'],
             'award_type' => ['required', 'string', 'max:255'],
             'deadline' => ['required', 'date'],
             'application_link' => ['required', 'url'],
             'is_active' => ['boolean'],
         ]);
 
-        Scholarship::create($validated);
+        $rules = $request->boolean('rules_submitted') ? $editor->validate($request) : null;
+        $validated['is_active'] = $request->boolean('is_active');
+        DB::transaction(function () use ($validated, $rules, $editor) {
+            $scholarship = Scholarship::create($validated);
+            if ($rules !== null) {
+                $editor->save($scholarship, $rules);
+            }
+        });
         ScholarshipRecommendationService::invalidateCatalogCache();
 
         return redirect()->route('admin.scholarships.index')
@@ -53,22 +64,30 @@ class ScholarshipController extends Controller
 
     public function edit(Scholarship $scholarship)
     {
-        return view('admin.scholarships.edit', compact('scholarship'));
+        return view('admin.scholarships.edit', ['scholarship' => $scholarship, 'rule' => $scholarship->rule ?? new ScholarshipRule]);
     }
 
-    public function update(Request $request, Scholarship $scholarship)
+    public function update(Request $request, Scholarship $scholarship, ScholarshipRuleEditor $editor)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'provider' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'special_requirements' => ['nullable', 'string', 'max:5000'],
             'award_type' => ['required', 'string', 'max:255'],
             'deadline' => ['required', 'date'],
             'application_link' => ['required', 'url'],
             'is_active' => ['boolean'],
         ]);
 
-        $scholarship->update($validated);
+        $rules = $request->boolean('rules_submitted') ? $editor->validate($request) : null;
+        $validated['is_active'] = $request->boolean('is_active');
+        DB::transaction(function () use ($scholarship, $validated, $rules, $editor) {
+            $scholarship->update($validated);
+            if ($rules !== null) {
+                $editor->save($scholarship, $rules);
+            }
+        });
         ScholarshipRecommendationService::invalidateCatalogCache();
 
         return redirect()->route('admin.scholarships.index')

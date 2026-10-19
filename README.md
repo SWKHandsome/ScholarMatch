@@ -8,36 +8,45 @@ Built as a Final Year Project (FYP), ScholarMatch focuses on making scholarship 
 
 - Student registration, login, and role-based access control
 - Student profile management for nationality, state, household income, income category, field of study, and institution type
-- Academic-result management for SPM, STPM, Foundation, Matriculation, Diploma, and Undergraduate students
+- Latest official academic results, study status/year and separately selected funding level for SPM, STPM, Foundation, Matriculation, Diploma and Undergraduate students
 - Automatic B40, M40, and T20 income-category classification
 - Scholarship, scholarship-rule, and income-threshold management for administrators
-- Explainable recommendations classified as **Eligible**, **Partially Eligible**, or **Not Suitable**
+- Repeatable qualification boxes on Add/Edit Scholarship, with separate results, study status and year limits for each accepted route
+- Explainable **Eligible / Not Eligible** decisions, with **!** for administrator-entered special requirements
 - Saved scholarships for students
 - Recommendation logs for administrators
 - Seeded sample data and test accounts for local demonstrations
 
 ## How recommendations work
 
-ScholarMatch uses a two-phase recommendation engine:
+ScholarMatch checks every applicable scholarship requirement against the student's official academic results and profile. There are no points, weights or percentage match scores.
 
-1. **Hard eligibility filtering:** Strict requirements are checked first, such as nationality, income category, maximum household income, study level, application deadline, field of study, and institution type. Failing any applicable hard rule results in **Not Suitable**.
-
-2. **Soft scoring and ranking:** Scholarships that pass hard rules are scored out of 100 and ordered from highest to lowest match.
-
-| Criterion | Maximum score |
-| --- | ---: |
-| Academic-result match | 40 |
-| Field-of-study match | 25 |
-| Institution-type match | 20 |
-| Income-priority match | 15 |
-
-| Score | Recommendation status |
+| Display | Meaning |
 | --- | --- |
-| 80–100 | Eligible |
-| 50–79 | Partially Eligible |
-| 0–49 | Not Suitable |
+| Eligible | Every applicable automatic requirement is met. |
+| Eligible ! | Automatic requirements are met, with special conditions entered by the administrator that must be verified with the provider. Expand ! to read them. |
+| Not Eligible | At least one applicable requirement is not met. |
 
-Each recommendation includes its score breakdown, failed hard rules (if any), and human-readable explanations. Results with pending academic outcomes are marked as preliminary guidance.
+Students record one latest study level, Currently Studying/Completed status, current year when studying, and a separately selected study level seeking funding. SPM requires completed exams and official As/credits. CGPA-based levels require the latest official cumulative CGPA, or final CGPA when completed. Results that are not yet available cannot be used to generate recommendations.
+
+Requirements include nationality, funded level, accepted latest qualifications, study status/year, income, academics, field and institution. Within the student's qualification route, every configured minimum must pass. Empty criteria are not applicable. Results include each requirement, student value and outcome.
+
+Administrators add alternative qualification boxes directly on Add/Edit Scholarship or the Rules page. Each box has its own level, status, result minimums and optional current-year boundaries. Students must pass any one complete box plus the general requirements. For example, Completed Diploma with CGPA >= 3.00 OR Currently Studying Undergraduate with CGPA >= 3.30 in Years 1–3. Empty minimums/boundaries are unrestricted; no boxes means no academic restriction. The student still needs official results. Qualification level/status have required * markers; irrelevant result/year controls are hidden, disabled and cleared.
+
+Only active, open scholarships with configured rules are evaluated. Eligible (including !) and Not Eligible results are grouped separately and ordered by nearest deadline. Special requirements do not override a failed automatic condition. Providers make the final award decisions.
+
+## Upgrading an existing installation
+
+Apply the additive migration and rebuild assets:
+
+```bash
+php artisan migrate
+npm run build
+```
+
+Existing profiles and scholarships are preserved. Existing students must confirm their study status and selected funding level, and supply official results, before generating new decisions. Old evaluation logs remain identified as Previous Evaluation until refreshed; their historical score data is preserved but not treated as a current decision.
+
+The qualification-route migration converts existing rules into equivalent child rows and retains the original columns. Rebuild assets so the repeatable editor is available. Keep a database backup before upgrades. Earlier evaluations refresh under decisions-v2-routes when the student opens recommendations.
 
 ## Technology stack
 
@@ -90,7 +99,7 @@ php artisan key:generate
 Configure the database credentials in `.env`, then migrate and seed the application:
 
 ```bash
-php artisan migrate:fresh --seed
+php artisan migrate --seed
 ```
 
 Build the frontend assets and start the application:
@@ -125,7 +134,7 @@ Run the automated test suite with:
 php artisan test
 ```
 
-The test suite covers the recommendation engine and main student/admin workflows, including hard-rule failures, score calculation, recommendation classification, missing profile data, pending results, and access control.
+The test suite covers requirement decisions, official-result validation, qualification/funding separation, warning priority, thresholds, deadlines, caches, legacy migration, and student/admin access control.
 
 ## Project structure
 
@@ -149,6 +158,8 @@ tests/                      # Pest unit and feature tests
 - [Product Requirements Document](PRD.md)
 - [Architecture Document](ARCHITECTURE.md)
 - [Design System](DESIGN.md)
+- [Manual Test Cases](MANUAL_TEST_CASES.md)
+- [Improvement Log and FYP Documentation Changes](improve.md)
 
 ## License
 

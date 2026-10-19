@@ -26,6 +26,7 @@ class RecommendationController extends Controller
         return view('student.recommendations.index', [
             'error' => $result['error'],
             'recommendations' => $result['recommendations'],
+            'unconfiguredCount' => $result['unconfigured_count'] ?? 0,
         ]);
     }
 
@@ -48,8 +49,9 @@ class RecommendationController extends Controller
             $recommendation['scholarship'] = $scholarship;
         }
 
-        if (!$recommendation) {
-            abort(404, 'Recommendation not found');
+        if (! $recommendation) {
+            return redirect()->route('student.recommendations')
+                ->with('warning', $result['error'] ?? 'This scholarship is closed or is awaiting requirement configuration.');
         }
 
         $isSaved = $user->savedScholarships()->where('scholarship_id', $scholarship->id)->exists();

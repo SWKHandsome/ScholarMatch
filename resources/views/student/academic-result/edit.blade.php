@@ -1,142 +1,98 @@
 @extends('layouts.student', ['pageTitle' => 'Academic Result'])
-
 @section('content')
 <div class="max-w-2xl mx-auto">
-    <div class="mb-6">
-        <h1 class="text-2xl font-bold text-on-surface">Academic Result</h1>
-        <p class="text-on-surface-variant mt-1">Enter your academic qualifications for scholarship matching.</p>
-    </div>
-
+    <h1 class="text-2xl font-bold">Academic Qualification and Results</h1>
+    <p class="mt-2 mb-6 text-on-surface-variant">Use your latest study level and official results. SPM students must have completed the exam and received official results. Other students need at least one official CGPA result.</p>
     <form method="POST" action="{{ route('student.academic-result.update') }}" class="card p-6 space-y-6" id="academic-form">
         @csrf
         @method('PATCH')
-
-        <!-- Education Level -->
+        <p class="text-sm text-on-surface-variant"><span class="text-error">*</span> Required field. Only the result and year fields that apply to your selections are shown.</p>
+        @if($errors->any())
+            <div role="alert" class="text-error"><ul class="list-disc pl-5">@foreach($errors->all() as $message)<li>{{ $message }}</li>@endforeach</ul></div>
+        @endif
         <div>
-            <label for="education_level" class="label">Education Level <span class="text-error">*</span></label>
-            <select id="education_level" name="education_level" class="input @error('education_level') input-error @enderror" required
-                onchange="toggleFields()">
-                <option value="">Select Education Level</option>
+            <label class="label" for="education_level">Latest Study Level <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+            <select class="input" id="education_level" name="education_level" required>
+                <option value="">Select your latest study level</option>
                 @foreach($educationLevels as $level)
-                    <option value="{{ $level }}" {{ old('education_level', $academicResult->education_level) === $level ? 'selected' : '' }}>{{ $level }}</option>
+                    <option value="{{ $level }}" @selected(old('education_level', $academicResult->education_level) === $level)>{{ $level }}</option>
                 @endforeach
             </select>
-            @error('education_level')
-                <p class="mt-1 text-sm text-error">{{ $message }}</p>
-            @enderror
         </div>
-
-        <!-- SPM Fields -->
-        <div id="spm-fields" class="space-y-4 {{ (old('education_level', $academicResult->education_level) ?? '') === 'SPM' ? '' : 'hidden' }}">
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h4 class="font-medium text-blue-900 mb-3">SPM Results</h4>
-                <div class="grid sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="spm_as" class="label">Number of As <span class="text-error">*</span></label>
-                        <input type="number" id="spm_as" name="spm_as" min="0" max="12" class="input @error('spm_as') input-error @enderror"
-                            value="{{ old('spm_as', $academicResult->spm_as) }}">
-                        @error('spm_as')
-                            <p class="mt-1 text-sm text-error">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div>
-                        <label for="spm_credits" class="label">Number of Credits <span class="text-error">*</span></label>
-                        <input type="number" id="spm_credits" name="spm_credits" min="0" max="12" class="input @error('spm_credits') input-error @enderror"
-                            value="{{ old('spm_credits', $academicResult->spm_credits) }}">
-                        @error('spm_credits')
-                            <p class="mt-1 text-sm text-error">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Non-SPM Fields (CGPA) -->
-        <div id="cgpa-fields" class="space-y-4 {{ (old('education_level', $academicResult->education_level) ?? '') !== 'SPM' && (old('education_level', $academicResult->education_level) ?? '') !== '' ? '' : 'hidden' }}">
-            <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h4 class="font-medium text-green-900 mb-3">CGPA</h4>
-                <div>
-                    <label for="cgpa" class="label">CGPA <span class="text-error">*</span></label>
-                    <input type="number" id="cgpa" name="cgpa" step="0.01" min="0" max="4" class="input @error('cgpa') input-error @enderror"
-                        value="{{ old('cgpa', $academicResult->cgpa) }}">
-                    @error('cgpa')
-                        <p class="mt-1 text-sm text-error">{{ $message }}</p>
-                    @enderror
-                    <p class="mt-1 text-sm text-on-surface-variant">Enter your CGPA (0.00 - 4.00)</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Result Status -->
         <div>
-            <label class="label">Result Status <span class="text-error">*</span></label>
-            <div class="flex flex-wrap gap-4">
-                @foreach($resultStatuses as $status)
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="radio" name="result_status" value="{{ $status }}" class="w-4 h-4 text-primary border-outline-variant focus:ring-primary"
-                            {{ old('result_status', $academicResult->result_status) === $status ? 'checked' : '' }} required>
-                        <span class="text-on-surface capitalize">{{ $status }}</span>
-                    </label>
-                @endforeach
-            </div>
-            @error('result_status')
-                <p class="mt-1 text-sm text-error">{{ $message }}</p>
-            @enderror
-            <p class="mt-1 text-sm text-on-surface-variant">
-                <span class="font-medium">Official:</span> Final verified results used for full eligibility.<br>
-                <span class="font-medium">Pending:</span> Preliminary results — shows guidance only, not final eligibility.
-            </p>
+            <label class="label" for="study_status">Study Status <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+            <select class="input" id="study_status" name="study_status" required>
+                <option value="">Select your study status</option>
+                <option value="studying" @selected(old('study_status', $academicResult->study_status) === 'studying')>Currently Studying</option>
+                <option value="completed" @selected(old('study_status', $academicResult->study_status) === 'completed')>Completed</option>
+            </select>
+            <p class="mt-1 text-sm text-on-surface-variant">SPM is available only after completing the exam and receiving official results.</p>
         </div>
-
-        <div class="flex justify-end gap-3 pt-4 border-t border-outline-variant">
-            <a href="{{ route('student.dashboard') }}" class="btn btn-ghost">Cancel</a>
-            <button type="submit" class="btn btn-primary">Save Academic Result</button>
+        <div id="year-fields">
+            <label class="label" for="year_of_study">Current Year of Study <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+            <input class="input" type="number" id="year_of_study" name="year_of_study" min="1" max="10" value="{{ old('year_of_study', $academicResult->year_of_study) }}">
+        </div>
+        <fieldset id="spm-fields">
+            <legend class="font-semibold mb-3">Official SPM Results</legend>
+            <div class="grid sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="label" for="spm_as">Number of SPM As <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+                    <input class="input" type="number" id="spm_as" name="spm_as" min="0" max="12" value="{{ old('spm_as', $academicResult->spm_as) }}">
+                    <p class="mt-1 text-sm text-on-surface-variant">Count A+, A and A− subjects.</p>
+                </div>
+                <div>
+                    <label class="label" for="spm_credits">Number of SPM Credits <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+                    <input class="input" type="number" id="spm_credits" name="spm_credits" min="0" max="12" value="{{ old('spm_credits', $academicResult->spm_credits) }}">
+                    <p class="mt-1 text-sm text-on-surface-variant">Subjects graded C or above, including your As.</p>
+                </div>
+            </div>
+        </fieldset>
+        <div id="cgpa-fields">
+            <label class="label" for="cgpa">Official CGPA <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+            <input class="input" type="number" id="cgpa" name="cgpa" min="0" max="4" step="0.01" value="{{ old('cgpa', $academicResult->cgpa) }}">
+            <p class="mt-1 text-sm text-on-surface-variant">Currently studying: latest official cumulative CGPA. Completed: final CGPA.</p>
+        </div>
+        <div class="border-t border-outline-variant pt-5">
+            <label class="label" for="funding_study_level">Study Level Seeking Funding <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+            <select class="input" id="funding_study_level" name="funding_study_level" required>
+                <option value="">Select the level you want funded</option>
+                @foreach($educationLevels as $level)
+                    <option value="{{ $level }}" @selected(old('funding_study_level', $academicResult->funding_study_level) === $level)>{{ $level }}</option>
+                @endforeach
+            </select>
+            <p class="mt-1 text-sm text-on-surface-variant">Select the level of the programme you want the scholarship to support.</p>
+        </div>
+        <label class="flex items-start gap-3">
+            <input class="mt-1" type="checkbox" name="result_status" value="official" required @checked(old('result_status', $academicResult->result_status) === 'official')>
+            <span>I have received the official results entered above. <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></span>
+        </label>
+        <div class="flex justify-end gap-3">
+            <a href="{{ route('student.dashboard') }}" class="btn btn-outline">Cancel</a>
+            <button class="btn btn-primary" type="submit">Save Academic Result</button>
         </div>
     </form>
 </div>
-
 <script>
-function toggleFields() {
-    const level = document.getElementById('education_level').value;
-    const spmFields = document.getElementById('spm-fields');
-    const cgpaFields = document.getElementById('cgpa-fields');
-    const spmAs = document.getElementById('spm_as');
-    const spmCredits = document.getElementById('spm_credits');
-    const cgpa = document.getElementById('cgpa');
-
-    if (level === 'SPM') {
-        spmFields.classList.remove('hidden');
-        cgpaFields.classList.add('hidden');
-        spmAs.required = true;
-        spmCredits.required = true;
-        cgpa.required = false;
-    } else if (level) {
-        spmFields.classList.add('hidden');
-        cgpaFields.classList.remove('hidden');
-        spmAs.required = false;
-        spmCredits.required = false;
-        cgpa.required = document.querySelector('input[name="result_status"]:checked')?.value === 'official';
-    } else {
-        spmFields.classList.add('hidden');
-        cgpaFields.classList.add('hidden');
-        spmAs.required = false;
-        spmCredits.required = false;
-        cgpa.required = false;
-    }
-}
-
-// Update CGPA required on result status change
-document.querySelectorAll('input[name="result_status"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-        const level = document.getElementById('education_level').value;
-        const cgpa = document.getElementById('cgpa');
-        if (level !== 'SPM' && level !== '') {
-            cgpa.required = radio.value === 'official';
+(() => {
+    const level = document.getElementById('education_level');
+    const status = document.getElementById('study_status');
+    function toggleFields() {
+        const spm = level.value === 'SPM';
+        status.querySelector('[value="studying"]').disabled = spm;
+        if (spm) status.value = 'completed';
+        const year = !spm && status.value === 'studying';
+        for (const [group, active] of [['spm-fields', spm], ['cgpa-fields', !!level.value && !spm], ['year-fields', year]]) {
+            const container = document.getElementById(group);
+            container.hidden = !active;
+            container.querySelectorAll('input').forEach(input => {
+                input.disabled = !active;
+                input.required = active;
+            });
         }
-    });
-});
-
-// Initialize on load
-document.addEventListener('DOMContentLoaded', toggleFields);
+    }
+    level.addEventListener('change', toggleFields);
+    status.addEventListener('change', toggleFields);
+    toggleFields();
+})();
 </script>
 @endsection

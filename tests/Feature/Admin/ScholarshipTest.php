@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\IncomeCategory;
 use App\Models\Scholarship;
 use App\Models\User;
+use App\Services\ScholarshipRecommendationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -110,6 +110,23 @@ test('admin can update scholarship', function () {
     $scholarship->refresh();
     expect($scholarship->name)->toBe('Updated Name');
     expect($scholarship->provider)->toBe('Updated Provider');
+});
+
+test('admin can save and clear special requirements and refresh the student warning', function () {
+    $student = makeStudent();
+    $scholarship = makeScholarship();
+    $service = app(ScholarshipRecommendationService::class);
+    seedIncomeCategories();
+    expect($service->getRecommendations($student)['recommendations'][0]['requires_verification'])->toBeFalse();
+    $payload = $scholarship->only(['name', 'provider', 'description', 'award_type', 'application_link', 'is_active']);
+    $payload['deadline'] = $scholarship->deadline->toDateString();
+    $this->actingAs(makeAdmin())->put(route('admin.scholarships.update', $scholarship), array_merge($payload, [
+        'special_requirements' => 'Interview with the provider.',
+    ]))->assertSessionHasNoErrors();
+    expect($service->getRecommendations($student)['recommendations'][0]['requires_verification'])->toBeTrue();
+    $this->put(route('admin.scholarships.update', $scholarship), array_merge($payload, ['special_requirements' => '']))
+        ->assertSessionHasNoErrors();
+    expect($service->getRecommendations($student)['recommendations'][0]['requires_verification'])->toBeFalse();
 });
 
 test('admin can delete scholarship', function () {

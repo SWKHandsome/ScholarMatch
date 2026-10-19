@@ -1,208 +1,86 @@
 <?php
 
-use App\Models\IncomeCategory;
-use App\Models\Scholarship;
 use App\Models\ScholarshipRule;
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Services\ScholarshipRecommendationService;
 
-uses(RefreshDatabase::class);
+beforeEach(fn () => seedIncomeCategories());
 
-beforeEach(function () {
-    seedIncomeCategories();
-});
-
-test('admin can view scholarship rules index', function () {
+test('admin rule forms expose requirements without hard soft or scoring selectors', function () {
     $admin = makeAdmin();
     $scholarship = makeScholarship();
-
-    $response = $this->actingAs($admin)->get(route('admin.scholarships.rules.index', $scholarship));
-
-    $response->assertOk();
-    $response->assertSee('Scholarship Rules');
-    $response->assertSee('Test Scholarship');
+    foreach (['create', 'edit'] as $action) {
+        $parameters = $action === 'edit' ? [$scholarship, $scholarship->rule] : $scholarship;
+        $this->actingAs($admin)->get(route('admin.scholarships.rules.'.$action, $parameters))->assertOk()
+            ->assertSee('Funded Study Level')->assertSee('Accepted Qualification Routes')->assertSee('+ Add Qualification')
+            ->assertSee('Supported Fields of Study')->assertDontSee('Income Rule Type')
+            ->assertDontSee('Soft (scoring)')->assertDontSee('Hard (filter)');
+    }
 });
 
-test('admin can view create scholarship rules page', function () {
+test('admin can create rules without obsolete type selectors', function () {
     $admin = makeAdmin();
     $scholarship = makeScholarship();
-
-    $response = $this->actingAs($admin)->get(route('admin.scholarships.rules.create', $scholarship));
-
-    $response->assertOk();
-    $response->assertSee('Add Rules for: Test Scholarship');
-    $response->assertSee('Required Nationality');
-    $response->assertSee('Required Study Level');
-    $response->assertSee('Required Income Category');
-    $response->assertSee('Max Household Income');
-    $response->assertSee('Min SPM As');
-    $response->assertSee('Min SPM Credits');
-    $response->assertSee('Min CGPA');
-    $response->assertSee('Supported Fields of Study');
-    $response->assertSee('Required Institution Type');
-    $response->assertSee('Income Rule Type');
-    $response->assertSee('Study Level Rule Type');
-    $response->assertSee('Field of Study Rule Type');
-    $response->assertSee('Institution Type Rule Type');
-});
-
-test('admin can create scholarship rules', function () {
-    $admin = makeAdmin();
-    $scholarship = makeScholarship();
-
-    $response = $this->actingAs($admin)->post(route('admin.scholarships.rules.store', $scholarship), [
-        'required_nationality' => 'Malaysian',
-        'required_study_level' => 'Undergraduate',
-        'required_income_category' => 'B40',
-        'max_household_income' => 3169,
-        'min_spm_as' => 5,
-        'min_spm_credits' => 3,
-        'min_cgpa' => 3.0,
-        'required_field_of_study' => 'Engineering',
-        'required_institution_type' => 'Public University',
-        'income_rule_type' => 'hard',
-        'study_level_rule_type' => 'hard',
-        'field_rule_type' => 'soft',
-        'institution_rule_type' => 'soft',
-    ]);
-
-    $response->assertRedirect(route('admin.scholarships.rules.index', $scholarship));
-    $response->assertSessionHas('success');
-
-    $rule = ScholarshipRule::where('scholarship_id', $scholarship->id)->first();
-    expect($rule)->not->toBeNull();
-    expect($rule->required_nationality)->toBe('Malaysian');
-    expect($rule->income_rule_type)->toBe('hard');
-    expect($rule->study_level_rule_type)->toBe('hard');
-});
-
-test('admin can select multiple supported fields for a scholarship', function () {
-    $admin = makeAdmin();
-    $scholarship = makeScholarship();
-
-    $response = $this->actingAs($admin)->post(route('admin.scholarships.rules.store', $scholarship), [
-        'field_selection_submitted' => true,
-        'required_fields_of_study' => ['Computer Science', 'Engineering'],
-        'income_rule_type' => 'none',
-        'study_level_rule_type' => 'none',
-        'field_rule_type' => 'soft',
-        'institution_rule_type' => 'none',
-    ]);
-
-    $response->assertRedirect(route('admin.scholarships.rules.index', $scholarship));
-
+    $this->actingAs($admin)->post(route('admin.scholarships.rules.store', $scholarship), [
+        'required_nationality' => 'Malaysian', 'required_study_level' => 'Undergraduate',
+        'qualification_routes' => [
+            ['education_level' => 'Diploma', 'study_status' => 'completed', 'min_cgpa' => 3.00],
+            ['education_level' => 'Undergraduate', 'study_status' => 'studying', 'min_cgpa' => 3.50, 'min_year_of_study' => 1, 'max_year_of_study' => 2],
+        ],
+        'required_fields_of_study' => ['Computer Science', 'Engineering'], 'field_selection_submitted' => 1,
+    ])->assertSessionHasNoErrors()->assertRedirect(route('admin.scholarships.rules.index', $scholarship));
     $rule = $scholarship->fresh()->rule;
+    expect($rule->qualificationRoutes->pluck('education_level')->all())->toBe(['Diploma', 'Undergraduate']);
+    expect($rule->qualificationRoutes->pluck('min_cgpa')->all())->toBe(['3.00', '3.50']);
     expect($rule->required_fields_of_study)->toBe(['Computer Science', 'Engineering']);
-    expect($rule->required_field_of_study)->toBeNull();
+    expect(ScholarshipRule::where('scholarship_id', $scholarship->id)->count())->toBe(1);
 });
 
-test('admin can view edit scholarship rules page', function () {
-    $admin = makeAdmin();
+test('admin rule edits invalidate cached decisions', function () {
+    $user = makeStudent();
     $scholarship = makeScholarship();
-    $rule = $scholarship->rule;
-
-    $response = $this->actingAs($admin)->get(route('admin.scholarships.rules.edit', [$scholarship, $rule]));
-
-    $response->assertOk();
-    $response->assertSee('Edit Scholarship Rules');
-    $response->assertSee('Test Scholarship');
-    $response->assertSee('Malaysian');
-    $response->assertSee('B40');
+    $service = app(ScholarshipRecommendationService::class);
+    expect($service->getRecommendations($user)['recommendations'][0]['status'])->toBe('Eligible');
+    $this->actingAs(makeAdmin())->put(route('admin.scholarships.rules.update', [$scholarship, $scholarship->rule]), [
+        'qualification_routes' => [['education_level' => 'Undergraduate', 'study_status' => 'studying', 'min_cgpa' => 4]],
+    ])->assertSessionHasNoErrors();
+    expect($service->getRecommendations($user->fresh())['recommendations'][0]['status'])->toBe('Not Eligible');
 });
 
-test('admin can update scholarship rules', function () {
-    $admin = makeAdmin();
+test('rule validation rejects inconsistent qualification and year settings', function ($payload, $field) {
     $scholarship = makeScholarship();
-    $rule = $scholarship->rule;
+    $this->actingAs(makeAdmin())->post(route('admin.scholarships.rules.store', $scholarship), $payload)
+        ->assertSessionHasErrors($field);
+})->with([
+    [['required_fields_of_study' => ['Unlisted Field']], 'required_fields_of_study.0'],
+    [['qualification_routes' => [['education_level' => 'Unknown', 'study_status' => 'completed']]], 'qualification_routes.0.education_level'],
+    [['qualification_routes' => [['education_level' => 'SPM', 'study_status' => 'studying']]], 'qualification_routes.0.study_status'],
+    [['qualification_routes' => [['education_level' => 'Diploma']]], 'qualification_routes.0.study_status'],
+    [['qualification_routes' => [['education_level' => 'Diploma', 'study_status' => 'completed', 'min_cgpa' => 4.1]]], 'qualification_routes.0.min_cgpa'],
+    [['qualification_routes' => [['education_level' => 'Undergraduate', 'study_status' => 'studying', 'min_year_of_study' => 3, 'max_year_of_study' => 2]]], 'qualification_routes.0.max_year_of_study'],
+]);
 
-    $response = $this->actingAs($admin)->put(route('admin.scholarships.rules.update', [$scholarship, $rule]), [
-        'required_nationality' => 'Malaysian',
-        'required_study_level' => 'Diploma',
-        'required_income_category' => 'M40',
-        'max_household_income' => 6339,
-        'min_spm_as' => 3,
-        'min_spm_credits' => 3,
-        'min_cgpa' => 2.5,
-        'required_field_of_study' => 'Business',
-        'required_institution_type' => 'Private University',
-        'income_rule_type' => 'soft',
-        'study_level_rule_type' => 'soft',
-        'field_rule_type' => 'hard',
-        'institution_rule_type' => 'hard',
-    ]);
-
-    $response->assertRedirect(route('admin.scholarships.rules.index', $scholarship));
-    $response->assertSessionHas('success');
-
-    $rule = $scholarship->fresh()->rule;
-    expect($rule->required_study_level)->toBe('Diploma');
-    expect($rule->required_income_category)->toBe('M40');
-    expect($rule->field_rule_type)->toBe('hard');
+test('clearing a field selection really removes the field requirement', function () {
+    $scholarship = makeScholarship();
+    $this->actingAs(makeAdmin())->put(route('admin.scholarships.rules.update', [$scholarship, $scholarship->rule]), [
+        'field_selection_submitted' => 1,
+    ])->assertSessionHasNoErrors();
+    expect($scholarship->fresh()->rule->supportedFieldsOfStudy())->toBe([]);
 });
 
-test('scholarship rules validation requires rule types', function () {
-    $admin = makeAdmin();
-    $scholarship = makeScholarship();
-
-    $response = $this->actingAs($admin)->post(route('admin.scholarships.rules.store', $scholarship), [
-        'required_nationality' => 'Malaysian',
-        'income_rule_type' => '',
-        'study_level_rule_type' => '',
-        'field_rule_type' => '',
-        'institution_rule_type' => '',
-    ]);
-
-    $response->assertSessionHasErrors([
-        'income_rule_type',
-        'study_level_rule_type',
-        'field_rule_type',
-        'institution_rule_type',
-    ]);
+test('rules belonging to another scholarship cannot be edited through a nested URL', function () {
+    $first = makeScholarship(['name' => 'First']);
+    $second = makeScholarship(['name' => 'Second']);
+    $this->actingAs(makeAdmin())->put(route('admin.scholarships.rules.update', [$first, $second->rule]), [
+        'qualification_routes' => [['education_level' => 'Undergraduate', 'study_status' => 'any', 'min_cgpa' => 0]],
+    ])->assertNotFound();
+    expect($second->fresh()->rule->min_cgpa)->toBe('3.00');
 });
 
-test('scholarship rules validation requires valid rule types', function () {
-    $admin = makeAdmin();
+test('rule index shows configured requirements and retains access control', function () {
     $scholarship = makeScholarship();
-
-    $response = $this->actingAs($admin)->post(route('admin.scholarships.rules.store', $scholarship), [
-        'required_nationality' => 'Malaysian',
-        'income_rule_type' => 'invalid',
-        'study_level_rule_type' => 'hard',
-        'field_rule_type' => 'soft',
-        'institution_rule_type' => 'none',
-    ]);
-
-    $response->assertSessionHasErrors('income_rule_type');
-});
-
-test('scholarship required field must be one of the available options', function () {
-    $admin = makeAdmin();
-    $scholarship = makeScholarship();
-
-    $response = $this->actingAs($admin)->post(route('admin.scholarships.rules.store', $scholarship), [
-        'required_field_of_study' => 'Unlisted Field',
-        'income_rule_type' => 'none',
-        'study_level_rule_type' => 'none',
-        'field_rule_type' => 'none',
-        'institution_rule_type' => 'none',
-    ]);
-
-    $response->assertSessionHasErrors('required_field_of_study');
-});
-
-test('scholarship rules require admin role', function () {
-    $student = User::factory()->create(['role' => User::ROLE_STUDENT]);
-    $scholarship = makeScholarship();
-
-    $response = $this->actingAs($student)->get(route('admin.scholarships.rules.index', $scholarship));
-
-    $response->assertForbidden();
-});
-
-test('scholarship rules redirect guest to login', function () {
-    $scholarship = makeScholarship();
-
-    $response = $this->get(route('admin.scholarships.rules.index', $scholarship));
-
-    $response->assertRedirect(route('login'));
+    $this->actingAs(makeAdmin())->get(route('admin.scholarships.rules.index', $scholarship))
+        ->assertOk()->assertSee('Scholarship Rules')->assertSee('Test Scholarship');
+    $this->actingAs(makeStudent())->get(route('admin.scholarships.rules.index', $scholarship))->assertForbidden();
+    auth()->logout();
+    $this->get(route('admin.scholarships.rules.index', $scholarship))->assertRedirect(route('login'));
 });

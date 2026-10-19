@@ -23,10 +23,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'max_household_income' => 3169.00,
                 'min_cgpa' => 3.00,
                 'required_institution_type' => 'Public University',
-                'income_rule_type' => 'hard',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // Yayasan Khazanah B40 Scholarship
             [
@@ -38,10 +34,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'min_cgpa' => 3.50,
                 'required_field_of_study' => 'STEM',
                 'required_institution_type' => 'Public University',
-                'income_rule_type' => 'hard',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'hard',
-                'institution_rule_type' => 'soft',
             ],
             // PTPTN B40 Loan Conversion
             [
@@ -51,10 +43,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_income_category' => 'B40',
                 'max_household_income' => 3169.00,
                 'min_cgpa' => 2.50,
-                'income_rule_type' => 'hard',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'none',
             ],
             // Merit Scholarship for SPM High Achievers
             [
@@ -63,10 +51,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_study_level' => 'Undergraduate',
                 'min_spm_as' => 9,
                 'required_institution_type' => 'Public University',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // Excellence Award for STPM Top Scorers
             [
@@ -75,10 +59,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_study_level' => 'Undergraduate',
                 'min_cgpa' => 4.00,
                 'required_institution_type' => 'Public University',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // Taylor's Foundation Excellence Scholarship
             [
@@ -87,10 +67,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_study_level' => 'Foundation',
                 'min_cgpa' => 3.50,
                 'required_institution_type' => 'Private University',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // Sunway Foundation Scholarship
             [
@@ -99,10 +75,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_study_level' => 'Foundation',
                 'min_cgpa' => 3.30,
                 'required_institution_type' => 'Private University',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // Polytechnic Diploma Scholarship
             [
@@ -112,10 +84,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_institution_type' => 'Public University',
                 'max_household_income' => 5000.00,
                 'min_cgpa' => 2.50,
-                'income_rule_type' => 'soft',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // Community College Assistance Grant
             [
@@ -125,10 +93,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_institution_type' => 'Public University',
                 'required_income_category' => 'B40',
                 'max_household_income' => 3169.00,
-                'income_rule_type' => 'hard',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // PETRONAS Education Sponsorship
             [
@@ -138,10 +102,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'min_spm_as' => 8,
                 'min_cgpa' => 3.75,
                 'required_field_of_study' => 'Engineering',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'hard',
-                'institution_rule_type' => 'none',
             ],
             // Shell Malaysia Scholarship
             [
@@ -150,10 +110,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_study_level' => 'Undergraduate',
                 'min_cgpa' => 3.50,
                 'required_field_of_study' => 'Engineering',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'hard',
-                'institution_rule_type' => 'none',
             ],
             // MDEC Digital Technology Scholarship
             [
@@ -162,10 +118,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_study_level' => 'Undergraduate',
                 'min_cgpa' => 3.30,
                 'required_field_of_study' => 'Computer Science',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'hard',
-                'institution_rule_type' => 'none',
             ],
             // Intel Malaysia STEM Scholarship
             [
@@ -174,10 +126,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_study_level' => 'Undergraduate',
                 'min_cgpa' => 3.20,
                 'required_field_of_study' => 'Engineering',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'hard',
-                'institution_rule_type' => 'none',
             ],
             // UKM Chancellor Scholarship
             [
@@ -186,10 +134,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_study_level' => 'Undergraduate',
                 'min_cgpa' => 3.50,
                 'required_institution_type' => 'Public University',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // USM Vice-Chancellor Award
             [
@@ -198,10 +142,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_study_level' => 'Undergraduate',
                 'min_cgpa' => 3.75,
                 'required_institution_type' => 'Public University',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // Monash University Malaysia Scholarship
             [
@@ -210,10 +150,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_study_level' => 'Undergraduate',
                 'min_cgpa' => 3.50,
                 'required_institution_type' => 'Private University',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // Curtin Malaysia Academic Excellence
             [
@@ -222,10 +158,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_study_level' => 'Undergraduate',
                 'min_cgpa' => 3.40,
                 'required_institution_type' => 'Private University',
-                'income_rule_type' => 'none',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // Selangor State Scholarship
             [
@@ -235,10 +167,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_income_category' => 'B40',
                 'max_household_income' => 3169.00,
                 'min_cgpa' => 2.75,
-                'income_rule_type' => 'hard',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'none',
             ],
             // Bantuan Kewangan Pelajar IPTA
             [
@@ -249,10 +177,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'max_household_income' => 3169.00,
                 'required_institution_type' => 'Public University',
                 'min_cgpa' => 2.00,
-                'income_rule_type' => 'hard',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'hard',
             ],
             // Zakat Education Assistance
             [
@@ -262,10 +186,6 @@ class ScholarshipRuleSeeder extends Seeder
                 'required_income_category' => 'B40',
                 'max_household_income' => 3169.00,
                 'min_cgpa' => 2.00,
-                'income_rule_type' => 'hard',
-                'study_level_rule_type' => 'hard',
-                'field_rule_type' => 'none',
-                'institution_rule_type' => 'none',
             ],
         ];
 
@@ -274,10 +194,12 @@ class ScholarshipRuleSeeder extends Seeder
             if ($scholarship) {
                 unset($data['scholarship_name']);
                 $data['scholarship_id'] = $scholarship->id;
-                ScholarshipRule::updateOrCreate(
+                $rule = ScholarshipRule::updateOrCreate(
                     ['scholarship_id' => $scholarship->id],
                     $data
                 );
+                $rule->qualificationRoutes()->delete();
+                $rule->qualificationRoutes()->createMany($rule->legacyAcademicRoutes());
             }
         }
     }

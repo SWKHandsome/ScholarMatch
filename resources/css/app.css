@@ -5,6 +5,7 @@
 @tailwind utilities;
 
 @layer base {
+    [x-cloak] { display: none !important; }
     * {
         @apply border-outline-variant;
     }

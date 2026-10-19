@@ -1,387 +1,161 @@
 # ScholarMatch — Architecture Document
 
-**Project:** ScholarMatch: A Result-Based and Socioeconomic Scholarship Recommendation Platform for Malaysian Students  
-**Version:** 2.0 Short Architecture  
-**Stack:** Laravel, PHP, MySQL, Blade, Tailwind CSS or Bootstrap
-
----
+**Version:** 3.1 — Alternative qualification routes
+**Updated:** 2026-10-19 (Asia/Singapore)
+**Stack:** Laravel 13, PHP 8.3+, MySQL/SQLite, Blade, Tailwind CSS, Alpine.js, Vite and Pest
 
 ## 1. Architecture Overview
 
-ScholarMatch uses a Laravel MVC monolith with a service layer. Laravel handles routing, authentication, validation, business logic, database access, and Blade page rendering. MySQL stores users, profiles, academic results, scholarships, rules, saved scholarships, and recommendation logs.
+ScholarMatch is a Laravel MVC monolith with an application service for eligibility evaluation.
 
-```text
-Browser → Routes → Controllers → Services → Eloquent Models → MySQL
-```
-
-Blade is used for server-rendered pages to keep the MVP simple, fast to build, and easy to demonstrate on localhost.
-
----
+Browser → Routes → Role Middleware → Controllers → ScholarshipRecommendationService → Eloquent → Database
 
 ## 2. Architecture Pattern
 
-ScholarMatch follows MVC plus service-layer architecture.
-
-```text
-Model      → Database tables and relationships
-View       → Blade pages
-Controller → Request handling and validation
-Service    → Business logic and recommendation engine
-Tests      → Automated validation of recommendation logic
-```
-
-The recommendation logic must be placed in:
-
-```text
-app/Services/ScholarshipRecommendationService.php
-```
-
-Controllers should call the service and pass results to Blade views. They should not contain scoring logic.
-
----
+Controllers validate requests and coordinate views. Models provide relationships and academic-readiness checks. The service evaluates conditions and returns arrays suitable for caching. Shared Blade components render decision badges and requirement explanations.
 
 ## 3. Core Modules
 
-## 3.1 Authentication Module
+### 3.1 Authentication Module
 
-Handles student registration, login, logout, admin login, and role-based access.
+Laravel Breeze handles authentication and account management. RoleMiddleware protects student and administrator routes. Nested rule controllers verify that the supplied rule belongs to the supplied scholarship.
 
-Roles:
+### 3.2 Student Profile Module
 
-```text
-student
-admin
-```
+Student profiles store nationality, state, household income, dependents, field and institution. Income category is calculated on profile save and recalculated against current ranges during recommendation generation.
 
-Student routes are restricted to students. Admin routes are restricted to admins.
+State and dependents are currently informational rather than evaluation criteria.
 
----
+### 3.3 Academic Result Module
 
-## 3.2 Student Profile Module
+AcademicResult stores one latest record per user:
 
-Stores socioeconomic and study information:
+- education_level: current/latest qualification supplying academic evidence.
+- study_status: studying/completed.
+- year_of_study: current year for studying non-SPM students.
+- funding_study_level: manually selected programme level seeking funding.
+- spm_as, spm_credits or cgpa: official results.
+- result_status: official for new submissions; old pending rows are preserved but incomplete.
 
-```text
-nationality
-state
-household_income
-number_of_dependents
-income_category
-institution_type
-field_of_study
-```
+AcademicResult::isReadyForRecommendations checks required fields and official results. The academic controller enforces these rules server-side and clears irrelevant values when the qualification or status changes.
 
-The system classifies household income into B40, M40, or T20 using the `income_categories` table.
+SPM submissions require completed exams and received official results. CGPA-based submissions require the latest official cumulative CGPA or final CGPA if completed. Students without these results cannot generate recommendations.
 
----
+### 3.4 Scholarship Module
 
-## 3.3 Academic Result Module
+Scholarships contain provider metadata, an active flag, a date-only deadline, application link, and optional special_requirements text. Add and Edit forms share the special-requirements field.
 
-Stores academic data:
+Only active, open scholarships enter evaluation. The deadline remains open throughout its application-calendar date. Saved expired scholarships remain visible as expired.
 
-```text
-education_level
-spm_as
-spm_credits
-cgpa
-result_status
-```
+### 3.5 Scholarship Rule Module
 
-SPM students use SPM As and credits. STPM, Foundation, Matriculation, Diploma, and Undergraduate students use CGPA.
+A scholarship has at most one rule record. Every specified condition is enforced; empty values are not applicable.
 
-Result status:
+The parent rule stores general nationality, funded level, income, field and institution restrictions. ScholarshipQualificationRoute belongs to ScholarshipRule; a rule has many ordered qualificationRoutes. Each route stores education_level, study_status, optional min_spm_as/min_spm_credits or min_cgpa, and optional min_year_of_study/max_year_of_study.
 
-```text
-official
-pending
-```
+ScholarshipRuleEditor validates shared Add/Edit Scholarship and Rules forms and replaces routes in a transaction. Qualification and status are required per box. SPM only allows Completed. Either status preserves unrestricted non-SPM status. Inactive academic/year fields are cleared on the server. Each year boundary may be empty; both supplied boundaries must be ordered. A hidden initialization marker prevents an uninitialized JavaScript editor from wiping routes.
 
-Pending results should show preliminary guidance only.
+required_study_level describes the funded programme and is compared against funding_study_level. Each route compares the student's latest education_level, study_status, official results and current year. AcademicRouteEvaluator combines conditions within each route with AND and complete routes with OR. General restrictions combine with AND. Two boxes may accept the same qualification under different conditions. With no routes, academic restrictions are not applicable.
 
----
+The migration backfills routes from existing lists and threshold types; legacyAcademicRoutes provides the same fallback for legacy imports/seeders without route rows. Newly edited rules clear old academic columns so deleting the last route cannot resurrect an obsolete minimum. General rule and scholarship changes commit atomically. qualificationEditor in resources/js/app.js manages stable box identities, input names, addition/removal and conditional controls.
 
-## 3.4 Scholarship Module
-
-The `scholarships` table stores metadata only:
-
-```text
-name
-provider
-description
-award_type
-deadline
-application_link
-is_active
-```
-
-Eligibility criteria must be stored separately in `scholarship_rules`.
-
----
-
-## 3.5 Scholarship Rule Module
-
-Scholarship rules should support both structured fields and flexible JSON rules.
-
-Core rule fields:
-
-```text
-scholarship_id
-required_nationality
-required_study_level
-required_income_category
-max_household_income
-min_spm_as
-min_spm_credits
-min_cgpa
-required_field_of_study
-required_institution_type
-rule_payload JSON
-```
-
-Rule type fields:
-
-```text
-income_rule_type
-study_level_rule_type
-field_rule_type
-institution_rule_type
-```
-
-Rule type values:
-
-```text
-hard
-soft
-none
-```
-
-The `rule_payload` JSON column stores dynamic future criteria such as birthplace, state-specific rules, special categories, or custom scholarship conditions without requiring a new database migration.
-
-Example:
-
-```json
-{
-  "birth_state": "Johor",
-  "preferred_category": "STEM",
-  "requires_leadership": true
-}
-```
-
----
+The old hard/soft/none columns and rule_payload are inactive compatibility fields. The service does not read them or parse JSON/free text into requirements.
 
 ## 4. Recommendation Engine
 
-The recommendation engine uses two phases.
+The service returns error and recommendations. Incomplete student information produces a completion error and an empty result list. Unclassifiable income produces an administrator-action error. Scholarships without rules are skipped and counted in unconfigured_count.
 
-### Phase 1: Hard Eligibility Filtering
+For each configured, open scholarship:
 
-Hard rules are checked first. If any hard rule fails, the scholarship is classified as:
+1. Evaluate general conditions and every academic route independently. Require one complete passing route if routes exist.
+2. Record every outcome and explanation without stopping at the first failure.
+3. Return Not Eligible when a general condition fails or no route passes. Never combine partial matches from different routes.
+4. Otherwise return Eligible.
+5. Set requires_verification only for an Eligible result with non-whitespace special text.
 
-```text
-Not Suitable
-```
+| Data | Meaning |
+| --- | --- |
+| status | Eligible or Not Eligible |
+| requires_verification | True only for otherwise Eligible results with admin special text |
+| special_requirements | Text to verify with the provider |
+| requirement_results | key, label, required, actual, outcome, message per condition; academic_route includes nested route comparisons |
+| failed_requirements | Keys of automatic conditions that fail |
+| explanation | Plain text descriptions of the comparisons |
 
-Hard rules may include nationality, income category, maximum household income, study level, deadline, field of study, institution type, and custom JSON rules.
+There is no active score, weighting, normalization or percentage ranking.
 
-### Phase 2: Soft Scoring
+For the main explanation, the evaluator selects a passing route, or the closest relevant failing route (qualification, then status, then failed-condition count, with stable order). Nested alternatives remain available without contributing unrelated failures to the overall decision. This selection explains the decision; it does not rank scholarships or award points.
 
-Soft scoring only runs after hard rules pass.
+Example: SPM qualification with 8 As and 9 credits, funding level Undergraduate, compared with a scholarship funding Undergraduate and accepting SPM with minimum 8 As and 9 credits. Both academic minimums and the funding-level check pass. Other applicable requirements must also pass.
 
-Suggested weights:
-
-```text
-Academic result match: 40
-Field of study match: 25
-Institution type match: 20
-Income priority match: 15
-Total: 100
-```
-
-Classification:
-
-```text
-80–100 = Eligible
-50–79  = Partially Eligible
-0–49   = Not Suitable
-```
-
-Each result should include:
-
-```text
-score
-status
-failed_hard_rules
-explanation
-score_breakdown
-```
-
-Example `score_breakdown` JSON:
-
-```json
-{
-  "academic": 40,
-  "field": 25,
-  "institution": 0,
-  "income": 15
-}
-```
-
----
+An interview note adds ! to an Eligible result. It cannot override a failed CGPA, income, nationality or other automatic condition.
 
 ## 5. Recommendation Execution Strategy
 
-For the MVP, recommendations may be generated synchronously when the student clicks “View Recommendations”. This is acceptable for a small seeded dataset.
+Evaluation is synchronous when the dashboard, list or detail page requests recommendations. The list also upserts the latest evaluation log per user/scholarship. Detail pages evaluate current data rather than trusting an old log.
 
-For future scalability, recommendation generation should be moved to Laravel Queues using a job such as:
+Results are cached for 30 minutes. Cache identity includes algorithm version, user ID, a hash of actual profile/academic attributes, catalog version and today's date. This avoids same-second update collisions and prevents yesterday's open deadline from persisting after midnight.
 
-```text
-GenerateRecommendationsJob
-```
+Admin scholarship, rule and income-category mutations invalidate the catalog version. The service reclassifies income, avoiding stale stored categories after threshold changes.
 
-Future flow:
-
-```text
-Student requests recommendations → Job dispatched → Queue processes scoring → Results stored → Student views completed matches
-```
-
----
+Within each decision group, order by deadline, name and ID. Eligible results with special warnings remain in the Eligible group.
 
 ## 6. Database Tables
 
-Main tables:
+Core tables: users, student_profiles, academic_results, income_categories, scholarships, scholarship_rules, scholarship_qualification_routes, saved_scholarships and recommendation_logs.
 
-```text
-users
-student_profiles
-academic_results
-income_categories
-scholarships
-scholarship_rules
-saved_scholarships
-recommendation_logs
+```mermaid
+erDiagram
+    scholarships ||--o| scholarship_rules : has
+    scholarship_rules ||--o{ scholarship_qualification_routes : accepts
+    users ||--o| academic_results : provides_latest
+    users ||--o| student_profiles : describes
+    users ||--o{ recommendation_logs : receives
+    scholarships ||--o{ recommendation_logs : evaluated_for
 ```
 
-Key relationships:
+The route table has a cascading scholarship_rule_id foreign key, education_level and study_status strings, nullable integer SPM/year minima/maxima, nullable decimal(3,2) CGPA, and timestamps. Migration 2026_10_19_010000 backfills equivalent alternatives while retaining old columns. New saves use the child rows. Algorithm version decisions-v2-routes invalidates cached decisions and identifies earlier logs as previous evaluations.
 
-```text
-User hasOne StudentProfile
-User hasOne AcademicResult
-User hasMany SavedScholarship
-User hasMany RecommendationLog
-Scholarship hasOne ScholarshipRule
-Scholarship hasMany RecommendationLog
-Scholarship hasMany SavedScholarship
-```
+New academic fields are nullable at schema level so migration can preserve legacy records without inventing study status or funding intent. New submissions require them through application validation.
 
-The `recommendation_logs` table should include structured JSON columns:
+New log fields: evaluation_version, requirement_results, failed_requirements, requires_verification, special_requirements and legacy_evaluation. The status column supports the new decision labels.
 
-```text
-failed_hard_rules JSON
-explanation JSON
-score_breakdown JSON
-```
+The migration snapshots existing score-based log data into legacy_evaluation and marks evaluation_version as legacy-score-v4. Existing score columns remain intact for preservation; active models/views do not use them as current scoring. Existing legacy rule-type columns also remain stored but inactive. Refreshing a log updates its current decision while retaining its legacy snapshot.
 
----
+No live student records or scholarships are deleted or recreated by the migration.
 
 ## 7. Recommended Folder Structure
 
-```text
-app/
- ├── Http/Controllers/Student/
- ├── Http/Controllers/Admin/
- ├── Http/Middleware/RoleMiddleware.php
- ├── Models/
- ├── Services/ScholarshipRecommendationService.php
- └── Jobs/GenerateRecommendationsJob.php
-
-resources/views/
- ├── public/
- ├── student/
- ├── admin/
- └── layouts/
-
-tests/
- ├── Unit/ScholarshipRecommendationServiceTest.php
- └── Feature/RecommendationFlowTest.php
-```
-
----
+- app/Services/ScholarshipRecommendationService.php: evaluation, cache and latest log storage.
+- app/Services/AcademicRouteEvaluator.php: AND within routes, OR between routes and nested explanations.
+- app/Services/ScholarshipRuleEditor.php: shared validation, normalization and transactional route replacement.
+- app/Models/AcademicResult.php: official-result readiness.
+- app/Models/ScholarshipRule.php: qualification routes and supported fields.
+- app/Models/ScholarshipQualificationRoute.php: individual alternative requirements.
+- app/Http/Controllers/Student/: academic, profile, recommendation and dashboard workflows.
+- app/Http/Controllers/Admin/: scholarship, rule, income and log workflows.
+- resources/views/components/: decision-badge, requirement-results and scholarship-card.
+- database/migrations/: additive upgrade and legacy-log preservation.
+- tests/: unit, feature and migration checks.
 
 ## 8. Testing Strategy
 
-ScholarMatch must include automated tests for the recommendation engine.
+Tests cover individual requirement failures, AND/OR combinations, qualification/funding separation, zero and boundary values, official-result validation, special-warning priority, expired/unconfigured scholarships, stable ordering, cache invalidation, log snapshots and role/nested-resource protection.
 
-Required unit tests:
-
-```text
-T20 student fails B40 hard rule
-Expired scholarship returns Not Suitable
-Student with matching CGPA receives academic score
-Soft score produces correct Eligible classification
-Soft score produces correct Partially Eligible classification
-Missing academic result blocks final recommendation
-Pending result returns preliminary guidance
-score_breakdown totals correctly to final score
-```
-
-Use PHPUnit or Pest for testing.
-
----
+Pest uses an isolated in-memory SQLite database. Migration tests exercise old log preservation and academic-data preservation. Browser checks additionally verify form switching, tab interaction and expandable special text.
 
 ## 9. Security Design
 
-The system should use:
-
-```text
-Laravel authentication
-Password hashing
-CSRF protection
-Input validation
-Role middleware
-Escaped Blade output
-Authenticated database actions
-```
-
----
+Use server-side validation and role middleware, escaped Blade output, CSRF forms, user-scoped saved scholarships and nested-rule ownership checks. Special text remains plain text and cannot execute scripts. External application links use rel=noopener noreferrer.
 
 ## 10. Seed Data and Localhost
 
-Required seeders:
+Seeders provide demonstration users, income ranges and sample scholarships/rules. Criteria are demonstration data, not verified live provider requirements.
 
-```text
-UserSeeder
-IncomeCategorySeeder
-ScholarshipSeeder
-ScholarshipRuleSeeder
-```
+For an existing database, apply php artisan migrate; do not use migrate:fresh. Existing students update their academic status and funding level before generating new decisions. Rebuild frontend assets after changing templates.
 
-Test accounts:
-
-```text
-Admin: admin@scholarmatch.test / password
-Student: student@scholarmatch.test / password
-```
-
-Local setup:
-
-```bash
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate:fresh --seed
-php artisan serve
-npm run dev
-```
-
-Local URL:
-
-```text
-http://127.0.0.1:8000
-```
-
----
+Date-only deadlines close after the configured application's deadline day. Existing timestamp/timezone conventions are preserved.
 
 ## 11. Final Architecture Notes
 
-ScholarMatch should prioritize correctness, explainability, and maintainability. The MVP can use synchronous recommendations, but the architecture should be ready for queues, JSON-based dynamic rules, structured score breakdowns, and automated tests.
+This version evaluates one latest qualification. It does not infer earlier qualifications, GPA equivalence, award renewal eligibility, or entry/enrolment context solely from the selected funding level. Conditions requiring evidence beyond the supported fields belong in the special-requirements description or a future data-model extension.

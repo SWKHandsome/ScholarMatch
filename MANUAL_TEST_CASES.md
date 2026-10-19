@@ -1,16 +1,16 @@
 # ScholarMatch — Manual Test Cases
 
-**Project:** FYP ScholarMatch — Scholarship Recommendation Platform for Malaysian Students  
-**Stack:** Laravel 13 + PHP 8.3 + Pest + Tailwind CSS + Vite + SQLite (dev)  
-**Last Updated:** 2026-07-13  
-**Test Suite Status:** 117/117 automated tests passing
+**Project:** FYP ScholarMatch — Scholarship Recommendation Platform for Malaysian Students
+**Stack:** Laravel 13 + PHP 8.3 + Pest + Tailwind CSS + Vite + SQLite (dev)
+**Last Updated:** 2026-10-19 (Asia/Singapore)
+**Test Suite Status:** 185/185 automated tests passed (584 assertions); see improve.md for verification details.
 
 ---
 
 ## Setup
 
 ```bash
-php artisan migrate:fresh --seed
+php artisan migrate --seed
 php artisan serve  # http://127.0.0.1:8000
 npm run dev        # in separate terminal
 ```
@@ -69,40 +69,42 @@ npm run dev        # in separate terminal
 
 ## 4. Student Academic Results
 
-| # | Test Case | Steps | Expected |
-|---|-----------|-------|----------|
-| AR1 | View edit page | `/student/academic-result/edit` | Form with education level dropdown |
-| AR2 | Create SPM result | Level: SPM, As: 8, Credits: 5, Status: Official → Save | Saved, CGPA hidden |
-| AR3 | Create Undergrad CGPA | Level: Undergraduate, CGPA: 3.75, Status: Official → Save | Saved, SPM fields hidden |
-| AR4 | Create pending result | Any level, Status: Pending → Save | Saved, `result_status = 'pending'` |
-| AR5 | Update result | Change CGPA 3.75 → 3.90 → Save | Updated |
-| AR6 | Validation: missing level | Submit without education level | Error required |
-| AR7 | Validation: SPM missing As/credits | SPM level, no As/credits, Official | Error "SPM requires As or Credits" |
-| AR8 | Validation: non-SPM missing CGPA (official) | Undergrad, no CGPA, Official | Error "CGPA required for official results" |
-| AR9 | Validation: non-SPM allows missing CGPA (pending) | Undergrad, no CGPA, Pending | Saves OK |
-| AR10 | Validation: CGPA range | CGPA: 4.5 or -0.5 | Error "between 0 and 4" |
-| AR11 | Validation: SPM As range | As: 13 or -1 | Error "between 0 and 12" |
-| AR12 | Role guard | Admin → `/student/academic-result/edit` | 403 Forbidden |
+| ID | Action | Expected result |
+| --- | --- | --- |
+| AR-01 | Select SPM | Status becomes Completed; current-year and CGPA controls are hidden/disabled. |
+| AR-02 | Submit SPM without official-result confirmation | Validation prevents saving. |
+| AR-03 | Submit completed SPM with 8 As and 9 credits, funding Undergraduate | Save succeeds; stored CGPA/year are empty; funding level stays Undergraduate. |
+| AR-04 | Enter fewer credits than As | Validation explains that As are included in credits. |
+| AR-05 | Select a CGPA-based level and Currently Studying | Current year and official cumulative CGPA are required. |
+| AR-06 | Select Completed for a CGPA-based level | Final CGPA is required; previous current year is cleared. |
+| AR-07 | Submit pending results or omit CGPA | Validation prevents saving; no preliminary recommendation is generated. |
+| AR-08 | Enter CGPA 0.00 or 4.00 | Both boundaries are valid official numeric results. |
+| AR-09 | Change from SPM to Diploma and save | Old SPM counts are cleared. |
+| AR-10 | Open a legacy academic record missing new fields | Student must confirm status/funding level before recommendations. |
 
----
 
 ## 5. Student Recommendations (Core Feature)
 
-| # | Test Case | Steps | Expected |
-|---|-----------|-------|----------|
-| R1 | No profile | Fresh student → `/student/recommendations` | Error: "Complete your profile first" |
-| R2 | Profile only, no academic | Complete profile → `/student/recommendations` | Error: "Add academic results first" |
-| R3 | Eligible student (B40, Engineering, 3.5 CGPA) | Complete both → `/student/recommendations` | List of eligible scholarships with scores, status badges |
-| R4 | Not suitable student (T20, non-matching) | T20 profile, Arts field → `/student/recommendations` | "Not Suitable" badges, failed hard rules shown |
-| R5 | Preliminary badge | Pending academic result → `/student/recommendations` | Yellow "Preliminary" badge on each card |
-| R6 | Sort order | Multiple matches | Highest score first |
-| R7 | Detail page (eligible) | Click "View Details" on eligible card | `/student/recommendations/{id}` shows: circular progress, score breakdown, explanations, scholarship details, Apply/Save buttons |
-| R8 | Detail page (not suitable) | Click on Not Suitable card | Shows failed hard rules in red, soft score breakdown |
-| R9 | Detail page (preliminary) | Pending result student | Shows "Preliminary Guidance" notice |
-| R10 | Apply button | Click "Apply Now" on detail | Opens scholarship `application_link` in new tab |
-| R11 | Role guard | Admin → `/student/recommendations` | 403 Forbidden |
+| ID | Action | Expected result |
+| --- | --- | --- |
+| REC-01 | Meet every specified automatic requirement | Eligible; no percentage, points or score ring. |
+| REC-02 | Fail only the minimum CGPA | Not Eligible; the CGPA comparison is marked Not Met. |
+| REC-03 | Fail income, field and CGPA together | All failures remain visible. |
+| REC-04 | Meet checks for a scholarship with special text | Eligible group; ! expands through click, tap or keyboard to show the text. |
+| REC-05 | Fail a requirement on a scholarship with special text | Not Eligible; no Eligible ! badge. Special text remains visible in the detail page. |
+| REC-06 | Use whitespace-only special text | No ! warning. |
+| REC-07 | Use official SPM results for Undergraduate funding | Compare the funding requirement against Undergraduate and academic route against SPM. |
+| REC-08 | Configure minimum As and minimum credits | Both must pass, including equality. |
+| REC-09 | Match one of multiple supported fields | Field check passes. |
+| REC-10 | Leave a criterion explicitly unrestricted | Detail table says Not Applicable. |
+| REC-11 | Use a scholarship with no rule record | Excluded; configuration notice appears. |
+| REC-12 | Use inactive/expired scholarships | Absent from current recommendations. Saved records remain available. |
+| REC-13 | Open a scholarship on its deadline day | It remains open until that day ends in the application timezone. |
+| REC-14 | Compare two scholarships in a decision group | Earlier deadline first; ties use name then ID. |
+| REC-15 | Switch Eligible / Not Eligible tabs | Correct panel appears; Eligible ! stays in Eligible. |
+| REC-16 | Open an incomplete/legacy academic profile | Completion prompt appears; missing data is not classified as failure or !. |
+| REC-17 | Put HTML/script text in special requirements | It is shown as escaped text and does not execute. |
 
----
 
 ## 6. Student Saved Scholarships
 
@@ -158,19 +160,28 @@ npm run dev        # in separate terminal
 
 ## 10. Admin Scholarship Rules (Nested Resource)
 
-| # | Test Case | Steps | Expected |
-|---|-----------|-------|----------|
-| AR1 | Rules index | `/admin/scholarships/1/rules` | Shows existing rule for scholarship |
-| AR2 | Create page | Click "Add Rules" | Form with all rule fields + 4 rule type dropdowns |
-| AR3 | Create rule | Fill nationality, income B40, study level Undergrad, income_rule_type=hard, study_level_rule_type=hard, others=soft → Save | Success, rule appears |
-| AR4 | Edit page | Click "Edit" on rule | Pre-filled form |
-| AR5 | Update rule | Change income to M40, income_rule_type=soft → Save | Updated |
-| AR6 | Validation: rule types required | Submit with empty dropdowns | Errors on all 4 rule type fields |
-| AR7 | Validation: rule types valid | Submit with "invalid" type | Error "must be hard/soft/none" |
-| AR8 | One rule per scholarship | Try create second rule for same scholarship | Unique constraint prevents (handled by updateOrCreate) |
-| AR9 | Role guard | Student → rules pages | 403 Forbidden |
+| ID | Action | Expected result |
+| --- | --- | --- |
+| RULE-01 | Open Add/Edit Rules | No hard/soft/scoring selectors; all specified criteria are requirements. |
+| RULE-02 | Add Diploma/Completed/CGPA 3.00 and Undergraduate/Currently Studying/CGPA 3.30/Years 1–3 boxes; funded level Undergraduate | Each box saves independently; funded level remains outside the boxes. |
+| RULE-03 | Add current-study status and year range | Inclusive ordered bounds save; invalid ranges fail. Either boundary can be empty. |
+| RULE-04 | Change Currently Studying to Completed | Year controls hide, disable and clear; the server also removes stale year values. |
+| RULE-05 | Switch SPM to Diploma or back | SPM shows As/credits and forces Completed; Diploma shows CGPA; irrelevant values clear. |
+| RULE-06 | Clear supported-field selections and save | Previous field restriction is removed. |
+| RULE-07 | Save a rule after a student has viewed recommendations | New evaluation reflects the edit immediately through catalog invalidation. |
+| RULE-08 | Substitute another scholarship's rule ID in Edit/Update URL | 404; the unrelated rule is unchanged. |
+| RULE-09 | Add/Edit Scholarship special textbox | Text persists and appears through ! only on otherwise Eligible results. |
+| RULE-10 | Remove special text and save | The Eligible warning disappears after re-evaluation. |
+| RULE-11 | Add three boxes and remove the middle box | Remaining values stay with their boxes; submitted indices are valid; removed routes disappear after saving. |
+| RULE-12 | Save directly from Add/Edit Scholarship | Scholarship metadata, general rules and route rows save together; any invalid route prevents partial updates. |
+| RULE-13 | Leave result minimums empty; use minimum 0.00 separately | Blank is unrestricted; zero is stored as an actual minimum. |
+| RULE-14 | Remove all boxes and save | Academic restrictions disappear; obsolete legacy academic columns do not reappear. General requirements remain. |
+| RULE-15 | Open the editor with JavaScript disabled and submit | Server rejects the missing editor-initialization marker; saved routes are preserved. |
+| RULE-16 | Set non-SPM Either status | Studying and completed applicants may use this route; year controls are hidden. |
+| REC-18 | A student passes one complete box and fails another | Eligible if general conditions pass; expanded explanations show each alternative. |
+| REC-19 | Student passes CGPA in one box and year in another, but no complete box | Not Eligible; conditions are not mixed across boxes. |
+| REC-20 | Student passes a route but fails nationality/income/field | Not Eligible; special text does not override the failure. |
 
----
 
 ## 11. Admin Income Categories
 
@@ -184,29 +195,29 @@ npm run dev        # in separate terminal
 
 ## 12. Admin Recommendation Logs
 
-| # | Test Case | Steps | Expected |
-|---|-----------|-------|----------|
-| RL1 | Index page | `/admin/recommendation-logs` | Table with student, scholarship, score, status, date |
-| RL2 | Detail page | Click "View" on log row | Shows: score breakdown, explanations, failed hard rules (if any) |
-| RL3 | Failed hard rules display | View log for Not Suitable student | Red badges with specific failed rules |
-| RL4 | Role guard | Student → logs pages | 403 Forbidden |
+| ID | Action | Expected result |
+| --- | --- | --- |
+| LOG-01 | Student opens recommendations twice | Latest user/scholarship result is updated rather than duplicated. |
+| LOG-02 | Open current log detail | Decision, special text snapshot, failed requirements and structured comparisons appear. |
+| LOG-03 | Filter Eligible ! | Only current Eligible evaluations with requires_verification are returned. |
+| LOG-04 | Search student email or scholarship name | Matching logs appear; filters and pagination remain functional. |
+| LOG-05 | Open a pre-upgrade evaluation | Previous Evaluation / re-evaluation required appears; old scores are not shown as current decisions. |
+| LOG-06 | Refresh an old evaluation after completing academic fields | New decision is stored while the old snapshot is retained. |
+| LOG-07 | Filter by evaluation date | Uses the latest evaluation timestamp. |
 
----
 
 ## 13. Edge Cases & Integration
 
-| # | Test Case | Steps | Expected |
-|---|-----------|-------|----------|
-| E1 | Expired scholarship hidden | Set scholarship deadline to yesterday → student recommendations | Not shown in recommendations |
-| E2 | Inactive scholarship hidden | Set `is_active=false` → student recommendations | Not shown |
-| E3 | Hard rule filter priority | Student fails nationality hard rule but passes all soft | Status = "Not Suitable", score = 0, failed hard rule shown |
-| E4 | Soft scoring only | All rules soft, partial match | Score < 100, status based on threshold (80/50) |
-| E5 | Score breakdown totals 100 | Check detail page breakdown | Academic 40 + Field 25 + Institution 20 + Income 15 = 100 |
-| E6 | Recommendation logging | Generate recommendation → `/admin/recommendation-logs` | Log entry created with score, status, breakdown, explanations |
-| E7 | Mobile responsive | Resize browser < 768px | Cards stack, navigation collapses, tables scroll |
-| E8 | Design tokens | Check colors | Primary #00288E, Success #10B981, badges rounded-full |
+| ID | Action | Expected result |
+| --- | --- | --- |
+| EDGE-01 | Edit official CGPA twice within one second | The second evaluation uses the current value. |
+| EDGE-02 | Change administrator income ranges after cached evaluation | Category is recalculated and cached decisions are invalidated. |
+| EDGE-03 | Use a household income not covered by any configured range | An administrator-action message appears; no eligibility is invented. |
+| EDGE-04 | Cross midnight while a result is still cached | Yesterday's scholarship deadline no longer appears as open. |
+| EDGE-05 | Compare actual and minimum values of zero | Zero is evaluated as a real value, not an unspecified criterion. |
+| EDGE-06 | Apply upgrade to a copy of an existing database | Student/scholarship data survives, legacy logs are snapshotted, new intent/status fields are not invented. |
+| EDGE-07 | Review mobile and keyboard interaction | Forms, decision tabs, requirement tables and ! disclosures remain usable. |
 
----
 
 ## Quick Regression Checklist (run after any change)
 
@@ -214,8 +225,8 @@ npm run dev        # in separate terminal
 # 1. Full test suite
 php artisan test
 
-# 2. Fresh DB + seed
-php artisan migrate:fresh --seed
+# 2. Upgrade schema (preserves existing records)
+php artisan migrate
 
 # 3. Key feature tests
 php artisan test --filter="Student"
@@ -231,11 +242,11 @@ php artisan test --filter="RecommendationServiceTest"
 
 ## Test Data Reference (Seeders)
 
-**12 Scholarships seeded** across categories:
+**21 Scholarships seeded** across categories:
 - Government: Yayasan Khazanah, MARA, JPA, PTPTN
 - Corporate: Petronas, Maybank, CIMB, Khazanah, Sime Darby, YTL, Sunway, Taylor's
 
-**Rules cover:** nationality, income category, study level, field of study, institution type, SPM As/credits, CGPA, max income — with mix of hard/soft/none types.
+**Rules cover:** nationality, income category, funded level, accepted latest qualification, field, institution, SPM As/credits, CGPA and maximum income. Every configured criterion is enforced; new rules can also restrict study status and current year.
 
 ```bash
 # Inspect rules
@@ -244,23 +255,6 @@ php artisan db:seed --class=ScholarshipRuleSeeder
 
 ---
 
-## Automated Test Coverage (117 tests)
+## Automated Test Coverage
 
-| Area | Tests |
-|------|-------|
-| Auth | 18 |
-| Profile (Breeze) | 5 |
-| Student Profile | 10 |
-| Student Academic Result | 14 |
-| Student Dashboard | 7 |
-| Student Recommendations | 9 |
-| Student Saved Scholarships | 7 |
-| Admin Dashboard | 3 |
-| Admin Scholarships | 8 |
-| Admin Scholarship Rules | 9 |
-| Admin Income Categories | 5 |
-| Admin Recommendation Logs | 6 |
-| Unit: Recommendation Service | 12 |
-| **Total** | **117** |
-
-Run: `php artisan test --testdox` for full list.
+Run `php artisan test`. Tests cover the decision engine, official-result form validation, latest qualification versus funding level, special warnings, boundary cases, caches, log migration, and existing authentication/admin/student workflows. Automated results and browser checks are recorded in improve.md. Manual cases above describe expected behaviour; they are not a claim that every manual case has been executed.

@@ -5,60 +5,44 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicResult;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class AcademicResultController extends Controller
 {
-    public function edit()
+    public function edit(Request $request)
     {
-        $user = Auth::user();
-        $academicResult = $user->academicResult ?? new AcademicResult(['user_id' => $user->id]);
+        $academicResult = $request->user()->academicResult ?? new AcademicResult;
+        $educationLevels = AcademicResult::EDUCATION_LEVELS;
 
-        $educationLevels = [
-            'SPM',
-            'STPM',
-            'Foundation',
-            'Matriculation',
-            'Diploma',
-            'Undergraduate',
-        ];
-
-        $resultStatuses = ['official', 'pending'];
-
-        return view('student.academic-result.edit', compact('academicResult', 'educationLevels', 'resultStatuses'));
+        return view('student.academic-result.edit', compact('academicResult', 'educationLevels'));
     }
 
     public function update(Request $request)
     {
-        $user = Auth::user();
-
+        $isSpm = $request->input('education_level') === 'SPM';
         $validated = $request->validate([
-            'education_level' => ['required', 'string', 'in:SPM,STPM,Foundation,Matriculation,Diploma,Undergraduate'],
-            'spm_as' => ['nullable', 'integer', 'min:0', 'max:12'],
-            'spm_credits' => ['nullable', 'integer', 'min:0', 'max:12'],
-            'cgpa' => ['nullable', 'numeric', 'min:0', 'max:4'],
-            'result_status' => ['required', 'string', 'in:official,pending'],
+            'education_level' => ['required', Rule::in(AcademicResult::EDUCATION_LEVELS)],
+            'study_status' => ['required', Rule::in($isSpm ? ['completed'] : ['studying', 'completed'])],
+            'year_of_study' => ['exclude_unless:study_status,studying', 'required', 'integer', 'between:1,10'],
+            'funding_study_level' => ['required', Rule::in(AcademicResult::EDUCATION_LEVELS)],
+            'spm_as' => ['exclude_unless:education_level,SPM', 'required', 'integer', 'between:0,12'],
+            'spm_credits' => [
+                'exclude_unless:education_level,SPM', 'required', 'integer', 'between:0,12', 'gte:spm_as',
+            ],
+            'cgpa' => ['exclude_if:education_level,SPM', 'required', 'numeric', 'between:0,4'],
+            'result_status' => ['required', Rule::in(['official'])],
+        ], [
+            'study_status.in' => $isSpm ? 'SPM students must have completed their exam and received official results.' : 'Choose Currently Studying or Completed.',
+            'result_status.in' => 'Official results are required before recommendations can be generated.',
+            'spm_credits.gte' => 'The credit total must include all of your A subjects.',
         ]);
+        $validated['year_of_study'] = $validated['study_status'] === 'studying'
+            ? $validated['year_of_study'] : null;
+        $validated['spm_as'] = $isSpm ? $validated['spm_as'] : null;
+        $validated['spm_credits'] = $isSpm ? $validated['spm_credits'] : null;
+        $validated['cgpa'] = $isSpm ? null : $validated['cgpa'];
+        AcademicResult::updateOrCreate(['user_id' => $request->user()->id], $validated);
 
-        if ($validated['education_level'] === 'SPM') {
-            $request->validate([
-                'spm_as' => ['required', 'integer', 'min:0', 'max:12'],
-                'spm_credits' => ['required', 'integer', 'min:0', 'max:12'],
-            ]);
-        } else {
-            if ($validated['result_status'] === 'official') {
-                $request->validate([
-                    'cgpa' => ['required', 'numeric', 'min:0', 'max:4'],
-                ]);
-            }
-        }
-
-        AcademicResult::updateOrCreate(
-            ['user_id' => $user->id],
-            $validated
-        );
-
-        return redirect()->route('student.dashboard')
-            ->with('success', 'Academic result updated successfully.');
+        return redirect()->route('student.dashboard')->with('success', 'Academic result updated successfully.');
     }
 }

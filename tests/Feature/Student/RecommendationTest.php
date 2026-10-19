@@ -1,189 +1,84 @@
 <?php
 
-use App\Models\AcademicResult;
-use App\Models\SavedScholarship;
-use App\Models\Scholarship;
-use App\Models\ScholarshipRule;
-use App\Models\StudentProfile;
+use App\Models\RecommendationLog;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(RefreshDatabase::class);
+beforeEach(fn () => seedIncomeCategories());
 
-beforeEach(function () {
-    seedIncomeCategories();
-});
-
-test('recommendations index shows error when profile incomplete', function () {
-    $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
-    AcademicResult::create([
-        'user_id' => $user->id,
-        'education_level' => 'Undergraduate',
-        'cgpa' => 3.50,
-        'result_status' => 'official',
-    ]);
-
-    $response = $this->actingAs($user)->get(route('student.recommendations'));
-
-    $response->assertOk();
-    $response->assertSee('Please complete your student profile first');
-});
-
-test('recommendations index shows error when academic result missing', function () {
-    $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
-    StudentProfile::create([
-        'user_id' => $user->id,
-        'nationality' => 'Malaysian',
-        'state' => 'Selangor',
-        'household_income' => 2500,
-        'number_of_dependents' => 3,
-        'income_category' => 'B40',
-        'institution_type' => 'Public University',
-        'field_of_study' => 'Engineering',
-    ]);
-
-    $response = $this->actingAs($user)->get(route('student.recommendations'));
-
-    $response->assertOk();
-    $response->assertSee('Please enter your academic result first');
-});
-
-test('recommendations index shows eligible scholarships for matching student', function () {
+test('matching results show eligibility and no scoring components', function () {
     $user = makeStudent();
-    $scholarship = makeScholarship();
-
-    $response = $this->actingAs($user)->get(route('student.recommendations'));
-
-    $response->assertOk();
-    $response->assertSee('Test Scholarship');
-    $response->assertSee('Eligible');
-    $response->assertSee('100');
-    $response->assertSee('View Details');
-    $response->assertSee('Apply Now');
-    $response->assertSee('Save');
-});
-
-test('recommendations index shows not suitable for non-matching student', function () {
-    $user = makeStudent(['nationality' => 'Singaporean']);
     makeScholarship();
-
-    $response = $this->actingAs($user)->get(route('student.recommendations'));
-
-    $response->assertOk();
-    $response->assertSee('Not Suitable');
-    $response->assertSee('nationality');
+    $this->actingAs($user)->get(route('student.recommendations'))->assertOk()
+        ->assertSee('Test Scholarship')->assertSee('Eligible')->assertSee('View Details')
+        ->assertSee('Apply Now')->assertDontSee('Score Breakdown')->assertDontSee('Partially Eligible');
 });
 
-test('recommendations index shows preliminary badge for pending results', function () {
+test('special verification is an accessible expandable warning within eligible results', function () {
+    $user = makeStudent();
+    makeScholarship(['special_requirements' => 'Attend an interview.']);
+    $this->actingAs($user)->get(route('student.recommendations'))->assertOk()
+        ->assertSee('Attend an interview.')->assertSee('Special requirements need verification')
+        ->assertSee('<details', false)->assertSee('<summary', false);
+    expect(RecommendationLog::first()->requires_verification)->toBeTrue();
+});
+
+test('failed requirements prevent eligibility and suppress the special warning', function () {
+    $user = makeStudent([], ['cgpa' => 2]);
+    $scholarship = makeScholarship(['special_requirements' => 'Interview']);
+    $this->actingAs($user)->get(route('student.recommendations.show', $scholarship))->assertOk()
+        ->assertSee('Not Eligible - Failed Requirements')->assertSee('data-explanation-status="failed"', false)
+        ->assertDontSee('Special requirements need verification')->assertDontSee('Apply Now');
+});
+
+test('detail shows the current evaluation instead of an old log', function () {
+    $user = makeStudent(['nationality' => 'Singaporean']);
+    $scholarship = makeScholarship();
+    RecommendationLog::create(['user_id' => $user->id, 'scholarship_id' => $scholarship->id,
+        'status' => 'Eligible', 'explanation' => ['Old result']]);
+    $this->actingAs($user)->get(route('student.recommendations.show', $scholarship))->assertOk()
+        ->assertSee('Not Eligible')->assertDontSee('Old result')->assertSee('Requirement Explanation');
+});
+
+test('pending and legacy academic records show an update prompt not eligibility', function () {
     $user = makeStudent([], ['result_status' => 'pending']);
     makeScholarship();
-
-    $response = $this->actingAs($user)->get(route('student.recommendations'));
-
-    $response->assertOk();
-    $response->assertSee('Preliminary');
+    $this->actingAs($user)->get(route('student.recommendations'))->assertOk()
+        ->assertSee('Complete your academic information')->assertDontSee('Test Scholarship');
 });
 
-test('recommendations detail page shows full scholarship details', function () {
+test('missing student information produces a clear completion prompt', function () {
+    $user = User::factory()->create(['role' => 'student']);
+    $this->actingAs($user)->get(route('student.recommendations'))->assertOk()->assertSee('Please complete your student profile');
     $user = makeStudent();
-    $scholarship = makeScholarship();
-
-    $response = $this->actingAs($user)->get(route('student.recommendations.show', $scholarship));
-
-    $response->assertOk();
-    $response->assertSee('Test Scholarship');
-    $response->assertSee('Test Provider');
-    $response->assertSee('Full Scholarship');
-    $response->assertSee('Eligible');
-    $response->assertSee('100');
-    $response->assertSee('Score Breakdown');
-    $response->assertSee('Academic');
-    $response->assertSee('Field');
-    $response->assertSee('Institution');
-    $response->assertSee('Income');
-    $response->assertSee('Explanation');
-    $response->assertSee('Apply Now');
-    $response->assertSee('Save');
+    $user->academicResult()->delete();
+    $this->actingAs($user->fresh())->get(route('student.recommendations'))->assertOk()->assertSee('Please enter your academic result');
 });
 
-test('recommendations show unassessed score categories clearly', function () {
+test('unrestricted criteria are explicitly not applicable on the detail page', function () {
     $user = makeStudent();
-    $scholarship = makeScholarship([], [
-        'min_cgpa' => null,
-        'required_income_category' => null,
-        'max_household_income' => null,
-        'required_field_of_study' => null,
-        'field_rule_type' => 'none',
-        'required_institution_type' => null,
-        'institution_rule_type' => 'none',
-        'income_rule_type' => 'none',
-    ]);
-
-    $response = $this->actingAs($user)->get(route('student.recommendations.show', $scholarship));
-
-    $response->assertOk();
-    $response->assertSee('Not assessed');
-    $response->assertSee('Match score:');
+    $scholarship = makeScholarship([], ['required_income_category' => null, 'max_household_income' => null]);
+    $this->actingAs($user)->get(route('student.recommendations.show', $scholarship))
+        ->assertOk()->assertSee('Not Applicable')->assertDontSee('Match score');
 });
 
-test('recommendations detail shows not suitable details for failed hard rule', function () {
-    $user = makeStudent(['household_income' => 8000, 'income_category' => 'T20']);
-    $scholarship = makeScholarship([], ['income_rule_type' => 'hard']);
-
-    $response = $this->actingAs($user)->get(route('student.recommendations.show', $scholarship));
-
-    $response->assertOk();
-    $response->assertSee('Not Suitable');
-    $response->assertSee('income category');
-    $response->assertSee('This scholarship is only open to B40 students.');
-    $response->assertSee('data-explanation-status="failed"', false);
-});
-
-test('recommendations detail uses the current failed rules instead of an old log', function () {
-    $user = makeStudent(['nationality' => 'Singaporean']);
-    $scholarship = makeScholarship();
-
-    \App\Models\RecommendationLog::create([
-        'user_id' => $user->id,
-        'scholarship_id' => $scholarship->id,
-        'score' => 100,
-        'status' => 'Eligible',
-        'failed_hard_rules' => [],
-        'explanation' => ['Old result'],
-        'score_breakdown' => ['academic' => 40, 'field' => 25, 'institution' => 20, 'income' => 15],
-    ]);
-
-    $response = $this->actingAs($user)->get(route('student.recommendations.show', $scholarship));
-
-    $response->assertOk();
-    $response->assertSee('Not Suitable');
-    $response->assertSee('Not Eligible - Failed Requirements');
-    $response->assertSee('nationality');
-    $response->assertDontSee('Old result');
-});
-
-test('recommendations detail requires student role', function () {
-    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-    $scholarship = makeScholarship();
-
-    $response = $this->actingAs($admin)->get(route('student.recommendations.show', $scholarship));
-
-    $response->assertForbidden();
-});
-
-test('recommendations detail redirects guest to login', function () {
-    $scholarship = makeScholarship();
-
-    $response = $this->get(route('student.recommendations.show', $scholarship));
-
-    $response->assertRedirect(route('login'));
-});
-
-test('missing recommendation scholarship redirects to refreshed recommendations', function () {
+test('special requirement text is escaped instead of interpreted as markup', function () {
     $user = makeStudent();
+    $scholarship = makeScholarship(['special_requirements' => '<script>alert("x")</script>']);
+    $this->actingAs($user)->get(route('student.recommendations.show', $scholarship))
+        ->assertOk()->assertSee('&lt;script&gt;', false)->assertDontSee('<script>alert(', false);
+});
 
-    $response = $this->actingAs($user)->get(route('student.recommendations.show', 999999));
+test('missing and closed scholarships redirect to current recommendations', function () {
+    $user = makeStudent();
+    $this->actingAs($user)->get(route('student.recommendations.show', 999999))
+        ->assertRedirect(route('student.recommendations'));
+    $scholarship = makeScholarship(['deadline' => today()->subDay()->toDateString()]);
+    $this->actingAs($user)->get(route('student.recommendations.show', $scholarship))
+        ->assertRedirect(route('student.recommendations'));
+});
 
-    $response->assertRedirect(route('student.recommendations'));
-    $response->assertSessionHas('warning', 'This scholarship is no longer available. Your recommendations have been refreshed.');
+test('recommendation routes retain role protection', function () {
+    $scholarship = makeScholarship();
+    $this->get(route('student.recommendations.show', $scholarship))->assertRedirect(route('login'));
+    $this->actingAs(makeAdmin())->get(route('student.recommendations.show', $scholarship))->assertForbidden();
 });

@@ -23,76 +23,25 @@
 
             <!-- Solution -->
             <section>
-                <h2 class="text-2xl font-semibold text-on-surface mb-4">Our Solution</h2>
-                <div class="prose prose-slate max-w-none text-on-surface-variant">
-                    <p>ScholarMatch is a web-based scholarship recommendation platform that helps Malaysian students identify scholarships matching their academic results and socioeconomic background.</p>
-                    <p>The system is not only a scholarship listing website. It is an <strong>explainable eligibility-matching platform</strong> that compares student profiles with scholarship rules and classifies each scholarship as:</p>
-                    <ul class="list-disc list-inside mt-4 space-y-2">
-                        <li><strong>Eligible</strong> — Passes all hard rules, scores 80–100</li>
-                        <li><strong>Partially Eligible</strong> — Passes all hard rules, scores 50–79</li>
-                        <li><strong>Not Suitable</strong> — Fails any hard rule, or scores 0–49</li>
-                    </ul>
-                    <p>Each recommendation includes detailed explanation messages so students can understand exactly why they qualify or do not qualify.</p>
-                </div>
+                <h2 class="text-2xl font-semibold mb-4">Our Solution</h2>
+                <p class="text-on-surface-variant">ScholarMatch compares official academic results and student profiles with administrator-defined scholarship requirements.</p>
+                <ul class="list-disc list-inside mt-4 space-y-2">
+                    <li><strong>Eligible</strong> — All applicable automatic requirements are met.</li>
+                    <li><strong>Eligible !</strong> — Automatic requirements are met, with special conditions to verify with the provider.</li>
+                    <li><strong>Not Eligible</strong> — At least one applicable requirement is not met.</li>
+                </ul>
             </section>
-
             <!-- Methodology -->
             <section>
-                <h2 class="text-2xl font-semibold text-on-surface mb-4">Recommendation Methodology</h2>
-                <div class="prose prose-slate max-w-none text-on-surface-variant">
-                    <h3 class="text-lg font-medium text-on-surface mb-2">Phase 1: Hard Eligibility Filtering</h3>
-                    <p>The system first checks strict scholarship requirements. If a student fails any hard rule, the scholarship is classified as <strong>Not Suitable</strong>, regardless of score.</p>
-                    <p>Hard rules may include:</p>
-                    <ul class="list-disc list-inside mt-2 space-y-1">
-                        <li>Nationality</li>
-                        <li>Required income category (B40/M40/T20)</li>
-                        <li>Maximum household income</li>
-                        <li>Required study level</li>
-                        <li>Application deadline validity</li>
-                        <li>Required field of study (if marked hard)</li>
-                        <li>Required institution type (if marked hard)</li>
-                    </ul>
-
-                    <h3 class="text-lg font-medium text-on-surface mb-2 mt-6">Phase 2: Soft Scoring and Ranking</h3>
-                    <p>Soft scoring only runs after the student passes all hard rules.</p>
-                    <table class="w-full mt-4 border-collapse">
-                        <thead>
-                            <tr class="border-b border-outline-variant">
-                                <th class="text-left p-2 font-medium text-on-surface">Criterion</th>
-                                <th class="text-left p-2 font-medium text-on-surface">Weight</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="border-b border-outline-variant/50">
-                                <td class="p-2 text-on-surface-variant">Academic result match</td>
-                                <td class="p-2 font-medium text-on-surface">40 points</td>
-                            </tr>
-                            <tr class="border-b border-outline-variant/50">
-                                <td class="p-2 text-on-surface-variant">Field of study match</td>
-                                <td class="p-2 font-medium text-on-surface">25 points</td>
-                            </tr>
-                            <tr class="border-b border-outline-variant/50">
-                                <td class="p-2 text-on-surface-variant">Institution type match</td>
-                                <td class="p-2 font-medium text-on-surface">20 points</td>
-                            </tr>
-                            <tr class="border-b border-outline-variant/50">
-                                <td class="p-2 text-on-surface-variant">Income priority match</td>
-                                <td class="p-2 font-medium text-on-surface">15 points</td>
-                            </tr>
-                            <tr>
-                                <td class="p-2 font-medium text-on-surface">Total</td>
-                                <td class="p-2 font-bold text-on-surface">100 points</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p class="mt-4">Classification after hard filters are passed:</p>
-                    <ul class="list-disc list-inside mt-2 space-y-1">
-                        <li><strong>80–100:</strong> Eligible</li>
-                        <li><strong>50–79:</strong> Partially Eligible</li>
-                        <li><strong>0–49:</strong> Not Suitable</li>
-                    </ul>
-                    <p class="mt-2">Results are sorted from highest score to lowest score.</p>
-                </div>
+                <h2 class="text-2xl font-semibold mb-4">Recommendation Methodology</h2>
+                <ol class="list-decimal list-inside space-y-3 text-on-surface-variant">
+                    <li>Complete a student profile and enter official results. SPM requires completed exams and official results; CGPA-based levels require a latest official CGPA, or final CGPA if completed.</li>
+                    <li>Select the study level seeking funding separately from the qualification supplying the results.</li>
+                    <li>The system checks each applicable requirement: nationality, funding level, accepted latest qualification, study status and year, income, academics, field and institution.</li>
+                    <li>Every applicable requirement must pass for eligibility. Each result shows the requirement, student information and outcome.</li>
+                    <li>Expand ! on an Eligible result to read any special conditions that need checking with the provider.</li>
+                </ol>
+                <p class="mt-4 text-on-surface-variant">Open scholarships appear by nearest deadline within each decision group. Scholarship providers make the final award decisions.</p>
             </section>
 
             <!-- Tech Stack -->
@@ -102,7 +51,7 @@
                     <div class="card p-4">
                         <h3 class="font-medium text-on-surface mb-2">Backend</h3>
                         <ul class="list-disc list-inside text-on-surface-variant space-y-1">
-                            <li>Laravel 11 (PHP 8.2+)</li>
+                            <li>Laravel 13 (PHP 8.3+)</li>
                             <li>MySQL / SQLite</li>
                             <li>Eloquent ORM</li>
                             <li>Laravel Breeze (Auth)</li>
@@ -136,7 +85,7 @@
                     </div>
                     <div class="flex justify-between">
                         <dt class="font-medium text-on-surface">Version</dt>
-                        <dd>2.0</dd>
+                        <dd>3.0</dd>
                     </div>
                 </dl>
             </section>

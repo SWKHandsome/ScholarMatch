@@ -166,13 +166,27 @@ The shape language distinguishes between **actions** and **containers**:
 Primary buttons use the Primary Blue (#1E40AF) with white text. Hover states transition to Secondary Indigo (#4338CA). Focus states must include a 2px offset ring in the secondary color.
 
 ### Scholarship Cards
-The centerpiece of the UI. Cards must feature a 12px border radius and the standard soft shadow. The "Match Score" is positioned on the left as a circular progress indicator (animated on load). The top-right corner is reserved for status ribbons/badges.
+Cards use the standard rounded corners and soft shadow. Show the scholarship name, provider, eligibility badge, description, award type, deadline and actions. Requirement explanations expand through native details/summary controls. Cards do not contain score rings, points or percentage matches.
 
 ### Input Fields
 Standard text inputs use an 8px radius with a 1px border (#E2E8F0). On focus, the border shifts to Primary Blue with a subtle blue outer glow. Error states use the "Error Rose" (#E11D48) for both the border and the helper text below.
 
+Student profile, academic-result and scholarship Add/Edit forms explain that a red * marks a required field. Academic labels include the marker and screen-reader text; conditional result/year fields and their markers appear together only when applicable. Description and special requirements are explicitly optional. General admin restrictions and result/year minimums are optional to configure. Each added qualification box requires level and status. A * describes form completion, not a requirement weight or priority.
+
+### Administrator Qualification Boxes
+
+Add/Edit Scholarship and Rules use the same editor. Add Qualification creates a numbered fieldset with level/status * controls and a labelled Remove button. Stable identities keep values attached to their own box when a middle item is removed. SPM forces Completed and displays As/credits; other levels display CGPA. Currently Studying shows minimum/maximum year controls. Changing level/status clears inapplicable values, and hidden controls are disabled. Non-SPM Either status permits both studying/completed without year limits. Result minimums and each year boundary are explicitly optional. No boxes displays an unrestricted-qualification explanation.
+
+Funded study level and general conditions remain outside the boxes. Explain AND within a box and OR between boxes. Student/log explanation tables show the matched route (or closest failing route) and expand to all alternative comparisons. An unrelated failing alternative never overrides a passing route.
+
 ### Badges & Chips
-Pill-shaped containers. For eligibility status, use high-contrast combinations (e.g., Emerald background with white text for "Eligible"). For general metadata tags, use a light-gray tint with `text-muted` content.
+Use green text and a pale green pill for Eligible, and rose text with a pale rose pill for Not Eligible. Eligible results with administrator-entered special requirements add an amber ! inside an expandable badge. Its accessible label explains that special requirements need verification; expanding it reveals the full plain text and a provider-verification action. Missing results never cause this warning. Not Eligible remains the decision when an automatic check fails. Previous evaluation logs use an informational badge until refreshed.
+
+### Academic Form and Requirement Explanations
+
+Latest study level, completion status, conditional current year, official result fields and manually selected funding level are distinct controls. SPM fixes the study status to Completed. Hide and disable irrelevant result/year inputs, while preserving the same rules in server-side validation. The confirmation requires official results. Explain SPM credits as subjects graded C or above, including As.
+
+Use a responsive requirement table with Requirement, Required, Your Information and Result columns. Render Met, Not Met and Not Applicable explicitly; do not infer meaning from message wording or colour alone. Special text must remain escaped and keyboard-accessible. Decision tabs group Eligible (including !) and Not Eligible. Alpine controls tab visibility; x-cloak prevents the inactive panel flashing before initialization.
 
 ### Skeleton Screens
 During data fetching or match engine processing, use shimmering gray blocks that mirror the card layout to maintain user perceived performance.

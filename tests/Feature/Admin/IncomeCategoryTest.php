@@ -2,12 +2,26 @@
 
 use App\Models\IncomeCategory;
 use App\Models\User;
+use App\Services\ScholarshipRecommendationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
     seedIncomeCategories();
+});
+
+test('income edits invalidate decisions and reclassify stored student categories', function () {
+    seedIncomeCategories();
+    $student = makeStudent(['household_income' => 2500]);
+    makeScholarship();
+    $service = app(ScholarshipRecommendationService::class);
+    expect($service->getRecommendations($student)['recommendations'][0]['status'])->toBe('Eligible');
+    $category = IncomeCategory::where('name', 'B40')->firstOrFail();
+    $this->actingAs(makeAdmin())->put(route('admin.income-categories.update', $category), [
+        'name' => 'B40', 'min_income' => 2600, 'max_income' => 3169,
+    ])->assertSessionHasNoErrors();
+    expect($service->getRecommendations($student->fresh())['error'])->toContain('income cannot be classified');
 });
 
 test('admin can view income categories index', function () {

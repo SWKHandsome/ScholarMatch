@@ -1,10 +1,6 @@
 <?php
 
-use App\Models\AcademicResult;
 use App\Models\SavedScholarship;
-use App\Models\Scholarship;
-use App\Models\ScholarshipRule;
-use App\Models\StudentProfile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -71,19 +67,19 @@ test('dashboard shows recent recommendations when profile and academic complete'
     $response = $this->actingAs($user)->get(route('student.dashboard'));
 
     $response->assertOk();
-    $response->assertSee('Top Recommendations');
+    $response->assertSee('Recent Recommendations');
     $response->assertSee('Test Scholarship');
 });
 
-test('dashboard marks failed hard-rule explanations as failed', function () {
+test('dashboard marks failed requirement explanations as failed', function () {
     $user = makeStudent(['field_of_study' => 'Business'], ['education_level' => 'Diploma']);
-    makeScholarship([], ['field_rule_type' => 'hard']);
+    makeScholarship();
 
     $response = $this->actingAs($user)->get(route('student.dashboard'));
 
     $response->assertOk();
-    $response->assertSee('This scholarship is only for Undergraduate students.');
-    $response->assertSee('This scholarship requires one of these fields of study: Engineering.');
+    $response->assertSee('Not Eligible');
+    $response->assertSee('Supported fields: Engineering; your field: Business.');
     $response->assertSee('data-explanation-status="failed"', false);
 });
 
@@ -96,6 +92,12 @@ test('dashboard shows no matches message when no scholarships match', function (
 
     $response->assertOk();
     $response->assertSee('No Scholarships Matched');
+});
+
+test('dashboard treats legacy official results without study status as incomplete', function () {
+    $user = makeStudent([], ['study_status' => null]);
+    $this->actingAs($user)->get(route('student.dashboard'))->assertOk()
+        ->assertSee('Incomplete')->assertSee('Add Academic Result');
 });
 
 test('dashboard shows quick action links', function () {

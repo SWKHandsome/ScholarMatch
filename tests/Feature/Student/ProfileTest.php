@@ -1,14 +1,14 @@
 <?php
 
-use App\Models\IncomeCategory;
 use App\Models\StudentProfile;
 use App\Models\User;
+use Database\Seeders\IncomeCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->seed(\Database\Seeders\IncomeCategorySeeder::class);
+    $this->seed(IncomeCategorySeeder::class);
 });
 
 test('student can view profile edit page', function () {
@@ -39,7 +39,7 @@ test('student can create profile with all fields', function () {
     expect($profile)->not->toBeNull();
     expect($profile->nationality)->toBe('Malaysian');
     expect($profile->state)->toBe('Selangor');
-    expect((float)$profile->household_income)->toBe(2500.0);
+    expect((float) $profile->household_income)->toBe(2500.0);
     expect($profile->number_of_dependents)->toBe(3);
     expect($profile->institution_type)->toBe('Public University');
     expect($profile->field_of_study)->toBe('Engineering');
@@ -106,7 +106,7 @@ test('student can update existing profile', function () {
 
     $profile = $user->fresh()->studentProfile;
     expect($profile->state)->toBe('Kuala Lumpur');
-    expect((float)$profile->household_income)->toBe(4000.0);
+    expect((float) $profile->household_income)->toBe(4000.0);
     expect($profile->income_category)->toBe('M40');
     expect($profile->field_of_study)->toBe('Engineering');
 });
@@ -152,7 +152,7 @@ test('profile nationality must be selected from the available options', function
     $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
 
     $response = $this->actingAs($user)->patch(route('student.profile.update'), [
-        'nationality' => 'Singaporean',
+        'nationality' => 'Unlisted Nationality',
         'state' => 'Selangor',
         'household_income' => 2500,
         'number_of_dependents' => 3,
@@ -191,6 +191,14 @@ test('profile validation requires non-negative dependents', function () {
     ]);
 
     $response->assertSessionHasErrors('number_of_dependents');
+});
+
+test('student can supply the same specific nationalities available in scholarship rules', function () {
+    $user = makeStudent();
+    $payload = $user->studentProfile->only(['nationality', 'state', 'household_income', 'number_of_dependents', 'institution_type', 'field_of_study']);
+    $payload['nationality'] = 'Singaporean';
+    $this->actingAs($user)->patch(route('student.profile.update'), $payload)->assertSessionHasNoErrors();
+    expect($user->fresh()->studentProfile->nationality)->toBe('Singaporean');
 });
 
 test('profile requires student role', function () {

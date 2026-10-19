@@ -1,11 +1,12 @@
 <?php
 
 use App\Models\AcademicResult;
-use App\Models\IncomeCategory;
 use App\Models\Scholarship;
 use App\Models\ScholarshipRule;
 use App\Models\StudentProfile;
 use App\Models\User;
+use Database\Seeders\IncomeCategorySeeder;
+use Illuminate\Support\Facades\Artisan;
 
 function makeAdmin(): User
 {
@@ -30,6 +31,9 @@ function makeStudent(array $profileAttributes = [], array $academicAttributes = 
     AcademicResult::create(array_merge([
         'user_id' => $user->id,
         'education_level' => 'Undergraduate',
+        'study_status' => 'studying',
+        'year_of_study' => 2,
+        'funding_study_level' => 'Undergraduate',
         'spm_as' => null,
         'spm_credits' => null,
         'cgpa' => 3.50,
@@ -62,11 +66,6 @@ function makeScholarship(array $attributes = [], array $ruleAttributes = []): Sc
         'min_cgpa' => 3.00,
         'required_field_of_study' => 'Engineering',
         'required_institution_type' => 'Public University',
-        'income_rule_type' => 'soft',
-        'study_level_rule_type' => 'hard',
-        'field_rule_type' => 'soft',
-        'institution_rule_type' => 'soft',
-        'rule_payload' => null,
     ], $ruleAttributes));
 
     return $scholarship->fresh(['rule']);
@@ -74,7 +73,7 @@ function makeScholarship(array $attributes = [], array $ruleAttributes = []): Sc
 
 function seedIncomeCategories(): void
 {
-    \Illuminate\Support\Facades\Artisan::call('db:seed', [
-        '--class' => \Database\Seeders\IncomeCategorySeeder::class,
+    Artisan::call('db:seed', [
+        '--class' => IncomeCategorySeeder::class,
     ]);
 }

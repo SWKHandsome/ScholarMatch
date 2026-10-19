@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\IncomeCategory;
+use App\Services\ScholarshipRecommendationService;
 use Illuminate\Http\Request;
 
 class IncomeCategoryController extends Controller
@@ -11,6 +12,7 @@ class IncomeCategoryController extends Controller
     public function index()
     {
         $categories = IncomeCategory::orderBy('min_income')->get();
+
         return view('admin.income-categories.index', compact('categories'));
     }
 
@@ -23,6 +25,7 @@ class IncomeCategoryController extends Controller
         ]);
 
         IncomeCategory::create($validated);
+        ScholarshipRecommendationService::invalidateCatalogCache();
 
         return back()->with('success', 'Income category created successfully.');
     }
@@ -30,12 +33,13 @@ class IncomeCategoryController extends Controller
     public function update(Request $request, IncomeCategory $incomeCategory)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:income_categories,name,' . $incomeCategory->id],
+            'name' => ['required', 'string', 'max:255', 'unique:income_categories,name,'.$incomeCategory->id],
             'min_income' => ['required', 'numeric', 'min:0'],
             'max_income' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $incomeCategory->update($validated);
+        ScholarshipRecommendationService::invalidateCatalogCache();
 
         return back()->with('success', 'Income category updated successfully.');
     }
@@ -43,6 +47,8 @@ class IncomeCategoryController extends Controller
     public function destroy(IncomeCategory $incomeCategory)
     {
         $incomeCategory->delete();
+        ScholarshipRecommendationService::invalidateCatalogCache();
+
         return back()->with('success', 'Income category deleted successfully.');
     }
 }

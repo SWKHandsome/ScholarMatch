@@ -11,12 +11,14 @@
         @csrf
         @method('PATCH')
 
+        <p class="text-sm text-on-surface-variant"><span class="text-error">*</span> Required field.</p>
+
         <!-- Nationality -->
         <div>
             <label for="nationality" class="label">Nationality <span class="text-error">*</span></label>
             <select id="nationality" name="nationality" class="input @error('nationality') input-error @enderror" required>
                 <option value="">Select Nationality</option>
-                @foreach(['Malaysian', 'Non-Malaysian'] as $nationality)
+                @foreach(config('scholarship.nationalities') as $nationality)
                     <option value="{{ $nationality }}" {{ old('nationality', $profile->nationality) === $nationality ? 'selected' : '' }}>{{ $nationality }}</option>
                 @endforeach
             </select>
@@ -82,6 +84,7 @@
         </div>
 
         <!-- Institution Type -->
+        <p class="text-sm text-on-surface-variant">For institution type and field of study, describe the programme you want the scholarship to fund.</p>
         <div>
             <label for="institution_type" class="label">Institution Type <span class="text-error">*</span></label>
             <select id="institution_type" name="institution_type" class="input @error('institution_type') input-error @enderror" required>

@@ -4,8 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Scholarship extends Model
 {
@@ -19,6 +19,7 @@ class Scholarship extends Model
         'deadline',
         'application_link',
         'is_active',
+        'special_requirements',
     ];
 
     protected $casts = [
@@ -43,6 +44,6 @@ class Scholarship extends Model
 
     public function isExpired(): bool
     {
-        return $this->deadline < now()->toDateString();
+        return $this->deadline !== null && $this->deadline->toDateString() < now()->toDateString();
     }
 }

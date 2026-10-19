@@ -10,6 +10,8 @@
     <form method="POST" action="{{ route('admin.scholarships.store') }}" class="card p-6 space-y-6">
         @csrf
 
+        <p class="text-sm text-on-surface-variant"><span class="text-error">*</span> Required field.</p>
+
         <!-- Name -->
         <div>
             <label for="name" class="label">Scholarship Name <span class="text-error">*</span></label>
@@ -32,7 +34,7 @@
 
         <!-- Description -->
         <div>
-            <label for="description" class="label">Description</label>
+            <label for="description" class="label">Description (optional)</label>
             <textarea id="description" name="description" rows="4" class="input @error('description') input-error @enderror"
                 placeholder="Describe the scholarship, eligibility overview, benefits, etc.">{{ old('description') }}</textarea>
             @error('description')
@@ -76,12 +78,19 @@
         </div>
 
         <!-- Active Status -->
+        @include('admin.scholarships._special-requirements')
+
         <div class="flex items-center gap-3">
             <input type="checkbox" id="is_active" name="is_active" value="1" class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" {{ old('is_active', true) ? 'checked' : '' }}>
             <label for="is_active" class="label mb-0 cursor-pointer">Active (visible to students)</label>
         </div>
 
         <!-- Actions -->
+        <section class="border-t border-outline-variant pt-6 space-y-6">
+            <h2 class="font-semibold text-xl">Eligibility Requirements</h2>
+            @include('admin.rules._form')
+        </section>
+
         <div class="flex justify-end gap-3 pt-4 border-t border-outline-variant">
             <a href="{{ route('admin.scholarships.index') }}" class="btn btn-outline">Cancel</a>
             <button type="submit" class="btn btn-primary">Create Scholarship</button>

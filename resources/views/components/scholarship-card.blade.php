@@ -1,191 +1,45 @@
-@props([
-    'recommendation',
-    'showSaveButton' => true,
-    'showDetailLink' => true,
-    'showApplyButton' => true,
-])
-
-<?php
-$status = $recommendation['status'] ?? 'Not Suitable';
-$score = $recommendation['score'] ?? 0;
-// Support both old (Eloquent model) and new (array data) structures
-$scholarshipData = $recommendation['scholarship_data'] ?? null;
-$scholarshipModel = $recommendation['scholarship'] ?? null;
-$scholarship = $scholarshipData ?: $scholarshipModel;
-$isArray = is_array($scholarship);
-
-// Helper to safely get value from array or object
-$get = function($key, $default = '') use ($scholarship, $isArray) {
-    if ($isArray) {
-        return $scholarship[$key] ?? $default;
-    }
-    return $scholarship->$key ?? $default;
-};
-
-$explanations = $recommendation['explanation'] ?? [];
-$breakdown = $recommendation['score_breakdown'] ?? [];
-$applicability = $recommendation['score_applicability'] ?? [];
-$rawScore = $recommendation['raw_score'] ?? array_sum($breakdown);
-$maximumScore = $recommendation['score_maximum'] ?? 100;
-$isPreliminary = $recommendation['is_preliminary'] ?? false;
-$failedRules = $recommendation['failed_hard_rules'] ?? [];
-?>
-
-@if($scholarship)
-<div class="card p-5 flex flex-col h-full">
-    <div class="flex items-start justify-between gap-4 mb-4">
-        <div class="flex-1 min-w-0">
-            <h3 class="text-lg font-semibold text-on-surface truncate">
-                <a href="{{ route('student.recommendations.show', $get('id')) }}"
-                    class="hover:text-primary hover:underline transition-colors">
-                    {{ $get('name') }}
-                </a>
-            </h3>
-            <p class="text-sm text-on-surface-variant mt-1">{{ $get('provider_name') }}</p>
-        </div>
-        <!-- Score Circle -->
-        <div class="flex-shrink-0 progress-circle w-16 h-16">
-            <svg class="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
-                <circle
-                    cx="32" cy="32" r="28"
-                    class="text-surface-container-highest"
-                    fill="none" stroke="currentColor" stroke-width="4"
-                />
-                <circle
-                    cx="32" cy="32" r="28"
-                    class="{{ $status === 'Eligible' ? 'text-success' : ($status === 'Partially Eligible' ? 'text-warning' : 'text-error') }}"
-                    fill="none" stroke="currentColor" stroke-width="4"
-                    stroke-linecap="round"
-                    stroke-dasharray="{{ 2 * pi() * 28 }}"
-                    stroke-dashoffset="{{ (1 - $score / 100) * (2 * pi() * 28) }}"
-                    style="transition: stroke-dashoffset 0.8s ease-out;"
-                />
-            </svg>
-            <div class="absolute inset-0 flex items-center justify-center">
-                <span class="text-sm font-bold text-on-surface">{{ $score }}</span>
-            </div>
-        </div>
+@php
+    $data = $recommendation['scholarship_data'];
+    $status = $recommendation['status'];
+    $showSaveButton = $showSaveButton ?? true;
+    $showApplyButton = $showApplyButton ?? true;
+    $showDetailLink = $showDetailLink ?? true;
+    $saved = auth()->user()->savedScholarships()->where('scholarship_id', $data['id'])->exists();
+@endphp
+<article class="card p-5 flex flex-col h-full">
+    <div class="mb-3">
+        <h3 class="text-lg font-semibold"><a class="hover:text-primary hover:underline" href="{{ route('student.recommendations.show', $data['id']) }}">{{ $data['name'] }}</a></h3>
+        <p class="text-sm text-on-surface-variant mt-1">{{ $data['provider_name'] }}</p>
     </div>
-
-    <!-- Status Badge -->
-    <div class="mb-3 flex items-center gap-2 flex-wrap">
-        <span class="badge
-            {{ $status === 'Eligible' ? 'badge-eligible' : ($status === 'Partially Eligible' ? 'badge-partial' : 'badge-not-suitable') }}">
-            {{ $status }}
-        </span>
-        @if($isPreliminary)
-            <span class="badge badge-info">Preliminary</span>
-        @endif
-        @php
-            $deadline = $get('deadline');
-        @endphp
-        @if($deadline && \Carbon\Carbon::parse($deadline)->isPast())
-            <span class="badge badge-error">Expired</span>
-        @endif
+    <div class="mb-4">
+        @include('components.decision-badge', ['status' => $status, 'requiresVerification' => $recommendation['requires_verification'], 'specialRequirements' => $recommendation['special_requirements']])
     </div>
-
-    <!-- Description -->
-    <p class="text-sm text-on-surface-variant mb-4 line-clamp-2">{{ $get('description') }}</p>
-
-    <!-- Award Type & Deadline -->
-    <div class="mb-4 flex flex-wrap items-center gap-4 text-sm text-on-surface-variant">
-        <span class="flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-            {{ $get('award_type') }}
-        </span>
-        <span class="flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            Deadline: {{ \Carbon\Carbon::parse($deadline)->format('M d, Y') }}
-        </span>
-    </div>
-
-    <!-- Explanation Accordion -->
-    @if(!empty($explanations))
-    <div class="mb-4 border-t border-outline-variant pt-4">
-        <button type="button"
-            class="w-full text-left text-sm font-medium text-primary hover:text-primary/80 flex items-center justify-between"
-            onclick="toggleExplanation(this)">
-            <span>View Explanation ({{ count($explanations) }})</span>
-            <svg class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-        </button>
-        <div class="mt-2 space-y-1 hidden">
-            @foreach($explanations as $explanation)
-                @php
-                    $isFailedExplanation = collect([
-                        'does not meet',
-                        'exceeds',
-                        'not match',
-                        'passed its deadline',
-                        'only open to',
-                        'only for',
-                        'requires ',
-                    ])->contains(fn ($phrase) => str_contains($explanation, $phrase));
-                @endphp
-                <p data-explanation-status="{{ $isFailedExplanation ? 'failed' : 'passed' }}" class="text-sm text-on-surface-variant flex items-start gap-2">
-                    <svg class="w-4 h-4 mt-0.5 flex-shrink-0
-                        {{ $isFailedExplanation ? 'text-error' : 'text-success' }}"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="{{ $isFailedExplanation ? 'M6 18L18 6M6 6l12 12' : 'M5 13l4 4L19 7' }}"></path>
-                    </svg>
-                    {{ $explanation }}
-                </p>
+    <p class="text-sm text-on-surface-variant mb-4 line-clamp-2">{{ $data['description'] }}</p>
+    <p class="text-sm mb-1">{{ $data['award_type'] }}</p>
+    <p class="text-sm text-on-surface-variant mb-4">Deadline: {{ \Carbon\Carbon::parse($data['deadline'])->format('M d, Y') }}</p>
+    <details class="mb-4 border-t border-outline-variant pt-3">
+        <summary class="cursor-pointer text-sm font-medium text-primary">View Explanation</summary>
+        <ul class="mt-3 space-y-2 text-sm">
+            @foreach($recommendation['requirement_results'] as $check)
+                @if($check['outcome'] !== 'not_applicable')
+                    <li data-explanation-status="{{ $check['outcome'] === 'not_met' ? 'failed' : 'passed' }}" class="{{ $check['outcome'] === 'not_met' ? 'text-error' : 'text-on-surface-variant' }}">
+                        <span class="font-semibold">{{ $check['outcome'] === 'not_met' ? 'Not Met:' : 'Met:' }}</span> {{ $check['message'] }}
+                    </li>
+                @endif
             @endforeach
-        </div>
-    </div>
-    @endif
-
-    <!-- Score Breakdown -->
-    @if(!empty($breakdown))
-    <div class="mb-4 border-t border-outline-variant pt-4">
-        <h4 class="text-sm font-medium text-on-surface mb-2">Score Breakdown</h4>
-        <div class="grid grid-cols-2 gap-2 text-xs">
-            @foreach(['academic' => 'Academic', 'field' => 'Field', 'institution' => 'Institution', 'income' => 'Income'] as $key => $label)
-                <div class="flex justify-between">
-                    <span class="text-on-surface-variant">{{ $label }}</span>
-                    @if(($applicability[$key] ?? true) === false)
-                        <span class="font-medium text-on-surface-variant">—</span>
-                    @else
-                        <span class="font-medium {{ ($breakdown[$key] ?? 0) > 0 ? 'text-success' : 'text-on-surface-variant' }}">{{ $breakdown[$key] ?? 0 }}</span>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-        <p class="mt-2 text-xs text-on-surface-variant">{{ $rawScore }}/{{ $maximumScore }} applicable points</p>
-    </div>
-    @endif
-
-    <!-- Actions -->
+        </ul>
+    </details>
     <div class="mt-auto flex flex-wrap gap-2 pt-4 border-t border-outline-variant">
-        <a href="{{ route('student.recommendations.show', $get('id')) }}"
-            class="flex-1 btn btn-ghost text-center text-sm">
-            View Details
-        </a>
-
-        @php
-            $applicationLink = $get('application_link');
-        @endphp
-        @if($showApplyButton && $applicationLink)
-            <a href="{{ $applicationLink }}" target="_blank" rel="noopener noreferrer"
-                class="flex-1 btn btn-primary text-center text-sm">
-                Apply Now
-            </a>
+        @if($showDetailLink)<a class="btn btn-ghost text-sm" href="{{ route('student.recommendations.show', $data['id']) }}">View Details</a>@endif
+        @if($showApplyButton && $status === 'Eligible')
+            <a class="btn btn-primary text-sm" href="{{ $data['application_link'] }}" target="_blank" rel="noopener noreferrer">Apply Now</a>
         @endif
-
-        @php
-            $scholarshipId = $get('id');
-        @endphp
         @if($showSaveButton)
-            <form action="{{ route('student.saved-scholarships.store') }}" method="POST" class="flex-1">
+            <form action="{{ route('student.saved-scholarships.store') }}" method="POST">
                 @csrf
-                <input type="hidden" name="scholarship_id" value="{{ $scholarshipId }}">
-                <button type="submit"
-                    class="w-full btn btn-outline text-center text-sm"
-                    {{ auth()->user()->savedScholarships()->where('scholarship_id', $scholarshipId)->exists() ? 'disabled' : '' }}>
-                    {{ auth()->user()->savedScholarships()->where('scholarship_id', $scholarshipId)->exists() ? 'Saved' : 'Save' }}
-                </button>
+                <input type="hidden" name="scholarship_id" value="{{ $data['id'] }}">
+                <button type="submit" class="btn btn-outline text-sm" @disabled($saved)>{{ $saved ? 'Saved' : 'Save' }}</button>
             </form>
         @endif
     </div>
-</div>
-@endif
+</article>

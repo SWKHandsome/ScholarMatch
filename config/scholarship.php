@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'nationalities' => ['Malaysian', 'Non-Malaysian', 'Singaporean', 'Indonesian', 'Bruneian', 'Other'],
+
     /*
      * These labels are used by both students and administrators. Keeping one
      * shared list prevents a field saved in a student profile from differing

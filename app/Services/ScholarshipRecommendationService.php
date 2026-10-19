@@ -2,469 +2,154 @@
 
 namespace App\Services;
 
-use App\Models\AcademicResult;
 use App\Models\IncomeCategory;
 use App\Models\RecommendationLog;
 use App\Models\Scholarship;
-use App\Models\ScholarshipRule;
-use App\Models\StudentProfile;
 use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class ScholarshipRecommendationService
 {
-    private const ACTIVE_SCHOLARSHIPS_CACHE_KEY = 'active_scholarships_with_rules_v4';
+    public const ALGORITHM_VERSION = 'decisions-v2-routes';
+
     private const CATALOG_VERSION_CACHE_KEY = 'recommendation_catalog_version';
-    private const RECOMMENDATION_ALGORITHM_VERSION = 'v4';
 
     public function getRecommendations(User $user): array
     {
         $profile = $user->studentProfile;
-        $academicResult = $user->academicResult;
-
-        if (!$profile) {
+        $academic = $user->academicResult;
+        if (! $profile) {
+            return ['error' => 'Please complete your student profile first.', 'recommendations' => []];
+        }
+        if (! $academic) {
+            return ['error' => 'Please enter your academic result first.', 'recommendations' => []];
+        }
+        if (! $academic->isReadyForRecommendations()) {
             return [
-                'error' => 'Please complete your student profile first.',
+                'error' => 'Complete your academic information and funding level using official results. SPM requires completed exams; other levels require an official CGPA.',
                 'recommendations' => [],
             ];
         }
-
-        if (!$academicResult) {
-            return [
-                'error' => 'Please enter your academic result first.',
-                'recommendations' => [],
-            ];
-        }
-
         $incomeCategory = IncomeCategory::classifyIncome((float) $profile->household_income);
+        if ($incomeCategory === null) {
+            return ['error' => 'Your income cannot be classified. Please ask the administrator to review the income ranges.', 'recommendations' => []];
+        }
 
-        $cacheKey = sprintf(
-            'recommendations_%s_user_%d_profile_%s_academic_%s_catalog_%s',
-            self::RECOMMENDATION_ALGORITHM_VERSION,
-            $user->id,
-            $profile->updated_at->timestamp ?? 'none',
-            $academicResult->updated_at->timestamp ?? 'none',
-            $this->catalogVersion()
-        );
+        // The calendar day prevents yesterday's open deadlines surviving in cache.
+        $version = Cache::get(self::CATALOG_VERSION_CACHE_KEY, 'initial');
+        $key = 'recommendations_'.self::ALGORITHM_VERSION.'_'.$user->id.'_'.hash('sha256', json_encode([
+            $profile->getAttributes(), $academic->getAttributes(), $version, today()->toDateString(),
+        ], JSON_THROW_ON_ERROR));
 
-        return Cache::remember($cacheKey, 1800, function () use ($user, $profile, $academicResult, $incomeCategory) {
-            $scholarships = $this->getActiveScholarships($this->catalogVersion());
-
+        return Cache::remember($key, 1800, function () use ($profile, $academic, $incomeCategory) {
+            $scholarships = Scholarship::where('is_active', true)
+                ->whereDate('deadline', '>=', today()->toDateString())->with('rule.qualificationRoutes')->get();
             $recommendations = [];
-
+            $unconfigured = 0;
             foreach ($scholarships as $scholarship) {
+                if (! $scholarship->rule) {
+                    $unconfigured++;
+
+                    continue;
+                }
                 $rule = $scholarship->rule;
+                if ($rule->required_nationality && ! in_array($rule->required_nationality, config('scholarship.nationalities'), true)) {
+                    $unconfigured++;
 
-                if (!$rule) {
                     continue;
                 }
-
-                $hardCheck = $this->checkHardRules($profile, $academicResult, $rule, $scholarship);
-
-                if (!empty($hardCheck['failed'])) {
-                    $recommendations[] = [
-                        'scholarship_id' => $scholarship->id,
-                        'scholarship_data' => $this->extractScholarshipData($scholarship),
-                        'score' => 0,
-                        'status' => 'Not Suitable',
-                        'failed_hard_rules' => $hardCheck['failed'],
-                        'explanation' => $hardCheck['explanations'],
-                        'score_breakdown' => [
-                            'academic' => 0,
-                            'field' => 0,
-                            'institution' => 0,
-                            'income' => 0,
-                        ],
-                        'score_applicability' => [
-                            'academic' => false,
-                            'field' => false,
-                            'institution' => false,
-                            'income' => false,
-                        ],
-                        'raw_score' => 0,
-                        'score_maximum' => 0,
-                        'is_preliminary' => $academicResult->result_status === 'pending',
+                if ($profile->nationality === 'Non-Malaysian'
+                    && $rule->required_nationality
+                    && ! in_array($rule->required_nationality, ['Malaysian', 'Non-Malaysian'], true)) {
+                    return ['error' => 'Please select your specific nationality in your student profile to check nationality-specific scholarships.', 'recommendations' => []];
+                }
+                $checks = [];
+                $add = function (string $key, string $label, mixed $required, mixed $actual, bool $met, string $message, bool $applicable = true) use (&$checks) {
+                    $checks[] = [
+                        'key' => $key, 'label' => $label, 'required' => $required, 'actual' => $actual,
+                        'outcome' => ! $applicable ? 'not_applicable' : ($met ? 'met' : 'not_met'),
+                        'message' => $applicable ? $message : 'No '.$label.' requirement is specified.',
                     ];
-                    continue;
-                }
+                };
+                $nationalityMatches = ! $rule->required_nationality
+                    || $profile->nationality === $rule->required_nationality
+                    || ($rule->required_nationality === 'Non-Malaysian' && $profile->nationality !== 'Malaysian');
+                $add('nationality', 'Nationality', $rule->required_nationality, $profile->nationality,
+                    $nationalityMatches, $nationalityMatches ? 'You meet the nationality requirement.'
+                        : "This scholarship requires {$rule->required_nationality} nationality.", (bool) $rule->required_nationality);
+                $add('funding_level', 'Funded study level', $rule->required_study_level, $academic->funding_study_level,
+                    $academic->funding_study_level === $rule->required_study_level,
+                    "The scholarship funds {$rule->required_study_level}; you selected {$academic->funding_study_level}.",
+                    (bool) $rule->required_study_level);
+                $checks = array_merge($checks, app(AcademicRouteEvaluator::class)->evaluate($rule->academicRoutes(), $academic));
+                $add('income_category', 'Income category', $rule->required_income_category, $incomeCategory,
+                    $incomeCategory === $rule->required_income_category,
+                    "Required income category: {$rule->required_income_category}; your category: {$incomeCategory}.",
+                    (bool) $rule->required_income_category);
+                $add('max_household_income', 'Maximum household income', $rule->max_household_income, $profile->household_income,
+                    (float) $profile->household_income <= (float) $rule->max_household_income,
+                    "Maximum household income: RM {$rule->max_household_income}; your income: RM {$profile->household_income}.",
+                    $rule->max_household_income !== null);
+                $fields = $rule->supportedFieldsOfStudy();
+                $add('field_of_study', 'Field of study', $fields, $profile->field_of_study,
+                    in_array($profile->field_of_study, $fields, true),
+                    'Supported fields: '.implode(', ', $fields)."; your field: {$profile->field_of_study}.", ! empty($fields));
+                $add('institution_type', 'Institution type', $rule->required_institution_type, $profile->institution_type,
+                    $profile->institution_type === $rule->required_institution_type,
+                    "Required institution: {$rule->required_institution_type}; your institution: {$profile->institution_type}.",
+                    (bool) $rule->required_institution_type);
 
-                $softScore = $this->calculateSoftScore($profile, $academicResult, $rule);
-                $totalScore = $softScore['score'];
-                $status = $this->classifyStatus($totalScore);
-
+                $add('deadline', 'Application deadline', $scholarship->deadline->toDateString(), today()->toDateString(),
+                    ! $scholarship->isExpired(), 'This scholarship is open for applications.');
+                $failed = array_values(array_map(fn ($check) => $check['key'],
+                    array_filter($checks, fn ($check) => $check['outcome'] === 'not_met')));
+                $eligible = empty($failed);
+                $special = trim((string) $scholarship->special_requirements);
                 $recommendations[] = [
                     'scholarship_id' => $scholarship->id,
-                    'scholarship_data' => $this->extractScholarshipData($scholarship),
-                    'score' => $totalScore,
-                    'status' => $status,
-                    'failed_hard_rules' => [],
-                    'explanation' => array_merge($hardCheck['explanations'], $softScore['explanations']),
-                    'score_breakdown' => $softScore['breakdown'],
-                    'score_applicability' => $softScore['applicability'],
-                    'raw_score' => $softScore['raw_score'],
-                    'score_maximum' => $softScore['maximum_score'],
-                    'is_preliminary' => $academicResult->result_status === 'pending',
+                    'scholarship_data' => [
+                        'id' => $scholarship->id, 'name' => $scholarship->name,
+                        'description' => $scholarship->description, 'provider_name' => $scholarship->provider,
+                        'award_type' => $scholarship->award_type, 'deadline' => $scholarship->deadline->toDateString(),
+                        'application_link' => $scholarship->application_link,
+                    ],
+                    'status' => $eligible ? 'Eligible' : 'Not Eligible',
+                    'requires_verification' => $eligible && $special !== '',
+                    'special_requirements' => $special,
+                    'failed_requirements' => $failed,
+                    'requirement_results' => $checks,
+                    'explanation' => array_column($checks, 'message'),
                 ];
             }
+            usort($recommendations, fn ($a, $b) => (($a['status'] === 'Eligible' ? 0 : 1) <=> ($b['status'] === 'Eligible' ? 0 : 1))
+                ?: ($a['scholarship_data']['deadline'] <=> $b['scholarship_data']['deadline'])
+                ?: strcasecmp($a['scholarship_data']['name'], $b['scholarship_data']['name'])
+                ?: ($a['scholarship_id'] <=> $b['scholarship_id']));
 
-            usort($recommendations, fn($a, $b) => $b['score'] <=> $a['score']);
-
-            return [
-                'error' => null,
-                'recommendations' => $recommendations,
-            ];
+            return ['error' => null, 'recommendations' => $recommendations, 'unconfigured_count' => $unconfigured];
         });
     }
 
-    /**
-     * Make all cached recommendation results stale after scholarship data changes.
-     */
     public static function invalidateCatalogCache(): void
     {
-        Cache::forever(self::CATALOG_VERSION_CACHE_KEY, uniqid('catalog_', true));
+        Cache::forever(self::CATALOG_VERSION_CACHE_KEY, bin2hex(random_bytes(12)));
     }
 
-    /**
-     * Return a valid collection of scholarship models, rebuilding an invalid cache entry when needed.
-     */
-    private function getActiveScholarships(string $catalogVersion): Collection
-    {
-        $cacheKey = self::ACTIVE_SCHOLARSHIPS_CACHE_KEY . '_' . $catalogVersion;
-        $scholarships = Cache::get($cacheKey);
-
-        if (! $scholarships instanceof Collection || $scholarships->contains(
-            fn ($scholarship) => ! ($scholarship instanceof Scholarship)
-        )) {
-            $scholarships = Scholarship::where('is_active', true)
-                ->with('rule')
-                ->get();
-
-            Cache::put($cacheKey, $scholarships, 3600);
-        }
-
-        return $scholarships;
-    }
-
-    private function catalogVersion(): string
-    {
-        return (string) Cache::get(self::CATALOG_VERSION_CACHE_KEY, 'initial');
-    }
-
-    /**
-     * Extract only the necessary scholarship data for caching (avoids Eloquent serialization issues).
-     */
-    private function extractScholarshipData(Scholarship $scholarship): array
-    {
-        return [
-            'id' => $scholarship->id,
-            'name' => $scholarship->name,
-            'slug' => $scholarship->slug,
-            'description' => $scholarship->description,
-            'award_type' => $scholarship->award_type,
-            'amount' => $scholarship->amount,
-            'deadline' => $scholarship->deadline?->toDateString(),
-            'provider_name' => $scholarship->provider,
-            'provider_logo' => $scholarship->provider_logo,
-            'application_link' => $scholarship->application_link,
-            'is_active' => $scholarship->is_active,
-            'quota' => $scholarship->quota,
-            'study_levels' => $scholarship->study_levels,
-            'fields_of_study' => $scholarship->fields_of_study,
-            'institution_types' => $scholarship->institution_types,
-            'nationalities' => $scholarship->nationalities,
-            'income_categories' => $scholarship->income_categories,
-        ];
-    }
-
-    /**
-     * Load the full Scholarship model from cached ID.
-     */
     public function loadScholarshipFromRecommendation(array $recommendation): ?Scholarship
     {
-        if (empty($recommendation['scholarship_id'])) {
-            return null;
-        }
-
-        return Scholarship::with('rule')->find($recommendation['scholarship_id']);
+        return Scholarship::with('rule.qualificationRoutes')->find($recommendation['scholarship_id'] ?? null);
     }
 
     public function storeRecommendationLogs(User $user, array $recommendations): void
     {
         foreach ($recommendations as $recommendation) {
-            // Support both old format (Eloquent model) and new format (array data)
-            $scholarshipId = $recommendation['scholarship_id'] ?? ($recommendation['scholarship']?->id ?? null);
-
-            if (!$scholarshipId) {
-                continue;
-            }
-
             RecommendationLog::updateOrCreate(
-                [
-                    'user_id' => $user->id,
-                    'scholarship_id' => $scholarshipId,
-                ],
-                [
-                    'score' => (int) ($recommendation['score'] ?? 0),
-                    'status' => $recommendation['status'] ?? 'Not Suitable',
-                    'failed_hard_rules' => $recommendation['failed_hard_rules'] ?? [],
-                    'explanation' => $recommendation['explanation'] ?? [],
-                    'score_breakdown' => $recommendation['score_breakdown'] ?? [],
-                ]
+                ['user_id' => $user->id, 'scholarship_id' => $recommendation['scholarship_id']],
+                array_merge(array_intersect_key($recommendation, array_flip([
+                    'status', 'requires_verification', 'special_requirements', 'failed_requirements',
+                    'requirement_results', 'explanation',
+                ])), ['evaluation_version' => self::ALGORITHM_VERSION])
             );
         }
-    }
-
-    public function checkHardRules(
-        StudentProfile $profile,
-        AcademicResult $academicResult,
-        ScholarshipRule $rule,
-        Scholarship $scholarship
-    ): array {
-        $failed = [];
-        $explanations = [];
-
-        if ($rule->required_nationality && $profile->nationality !== $rule->required_nationality) {
-            $failed[] = 'nationality';
-            $explanations[] = "This scholarship requires {$rule->required_nationality} nationality.";
-        } else {
-            $explanations[] = 'You meet the nationality requirement.';
-        }
-
-        if ($rule->income_rule_type === 'hard') {
-            if ($rule->required_income_category && $profile->income_category !== $rule->required_income_category) {
-                $failed[] = 'income_category';
-                $explanations[] = "This scholarship is only open to {$rule->required_income_category} students.";
-            } else {
-                $explanations[] = 'You meet the income category requirement.';
-            }
-
-            if ($rule->max_household_income && $profile->household_income > $rule->max_household_income) {
-                $failed[] = 'max_household_income';
-                $explanations[] = "Your household income exceeds the maximum allowed (RM {$rule->max_household_income}).";
-            } else {
-                $explanations[] = 'Your household income is within the allowed range.';
-            }
-        }
-
-        if ($rule->study_level_rule_type === 'hard') {
-            if ($rule->required_study_level && $academicResult->education_level !== $rule->required_study_level) {
-                $failed[] = 'study_level';
-                $explanations[] = "This scholarship is only for {$rule->required_study_level} students.";
-            } else {
-                $explanations[] = 'Your education level matches the scholarship requirement.';
-            }
-        }
-
-        if ($scholarship->isExpired()) {
-            $failed[] = 'deadline';
-            $explanations[] = 'This scholarship has passed its deadline.';
-        } else {
-            $explanations[] = 'This scholarship is still open for applications.';
-        }
-
-        if ($rule->field_rule_type === 'hard') {
-            $supportedFields = $rule->supportedFieldsOfStudy();
-
-            if ($supportedFields && !in_array($profile->field_of_study, $supportedFields, true)) {
-                $failed[] = 'field_of_study';
-                $explanations[] = 'This scholarship requires one of these fields of study: ' . implode(', ', $supportedFields) . '.';
-            } else {
-                $explanations[] = 'Your field of study matches the scholarship requirement.';
-            }
-        }
-
-        if ($rule->institution_rule_type === 'hard') {
-            if ($rule->required_institution_type && $profile->institution_type !== $rule->required_institution_type) {
-                $failed[] = 'institution_type';
-                $explanations[] = "This scholarship is only for {$rule->required_institution_type} students.";
-            } else {
-                $explanations[] = 'Your institution type matches the scholarship requirement.';
-            }
-        }
-
-        return [
-            'failed' => $failed,
-            'explanations' => $explanations,
-        ];
-    }
-
-    public function calculateSoftScore(
-        StudentProfile $profile,
-        AcademicResult $academicResult,
-        ScholarshipRule $rule
-    ): array {
-        $breakdown = [
-            'academic' => 0,
-            'field' => 0,
-            'institution' => 0,
-            'income' => 0,
-        ];
-        $applicability = [
-            'academic' => $this->hasAcademicRequirement($academicResult, $rule),
-            'field' => in_array($rule->field_rule_type, ['hard', 'soft'], true)
-                && !empty($rule->supportedFieldsOfStudy()),
-            'institution' => in_array($rule->institution_rule_type, ['hard', 'soft'], true)
-                && !empty($rule->required_institution_type),
-            'income' => in_array($rule->income_rule_type, ['hard', 'soft'], true)
-                && (!empty($rule->required_income_category)
-                    || ($rule->income_rule_type === 'hard' && $rule->max_household_income !== null)),
-        ];
-        $explanations = [];
-
-        if ($applicability['academic']) {
-            $academicScore = $this->calculateAcademicScore($academicResult, $rule);
-            $breakdown['academic'] = $academicScore['score'];
-            $explanations[] = $academicScore['explanation'];
-        } else {
-            $explanations[] = 'Academic performance is not assessed for this scholarship.';
-        }
-
-        // A passed hard rule is still a positive match. The hard check above has
-        // already stopped any student who does not meet it, so award the same
-        // points as a matching soft preference.
-        if ($applicability['field']) {
-            $fieldScore = $this->calculateFieldScore($profile, $rule);
-            $breakdown['field'] = $fieldScore['score'];
-            $explanations[] = $fieldScore['explanation'];
-        } else {
-            $explanations[] = 'Field of study matching is not a scoring criterion for this scholarship.';
-        }
-
-        if ($applicability['institution']) {
-            $institutionScore = $this->calculateInstitutionScore($profile, $rule);
-            $breakdown['institution'] = $institutionScore['score'];
-            $explanations[] = $institutionScore['explanation'];
-        } else {
-            $explanations[] = 'Institution type matching is not a scoring criterion for this scholarship.';
-        }
-
-        if ($applicability['income']) {
-            $incomeScore = $this->calculateIncomeScore($profile, $rule);
-            $breakdown['income'] = $incomeScore['score'];
-            $explanations[] = $incomeScore['explanation'];
-        } else {
-            $explanations[] = 'Income priority matching is not a scoring criterion for this scholarship.';
-        }
-
-        $maximumScore = array_sum(array_filter([
-            $applicability['academic'] ? 40 : 0,
-            $applicability['field'] ? 25 : 0,
-            $applicability['institution'] ? 20 : 0,
-            $applicability['income'] ? 15 : 0,
-        ]));
-        $rawScore = array_sum($breakdown);
-
-        return [
-            'breakdown' => $breakdown,
-            'applicability' => $applicability,
-            'explanations' => $explanations,
-            'raw_score' => $rawScore,
-            'maximum_score' => $maximumScore,
-            'score' => $maximumScore > 0
-                ? (int) round(($rawScore / $maximumScore) * 100)
-                : 100,
-        ];
-    }
-
-    private function hasAcademicRequirement(AcademicResult $academicResult, ScholarshipRule $rule): bool
-    {
-        if ($academicResult->education_level === 'SPM') {
-            return $rule->min_spm_as !== null || $rule->min_spm_credits !== null;
-        }
-
-        return $rule->min_cgpa !== null;
-    }
-
-    private function calculateAcademicScore(AcademicResult $academicResult, ScholarshipRule $rule): array
-    {
-        $score = 0;
-        $explanation = '';
-
-        if ($academicResult->education_level === 'SPM') {
-            if ($rule->min_spm_as && $academicResult->spm_as >= $rule->min_spm_as) {
-                $score = 40;
-                $explanation = "Your SPM results ({$academicResult->spm_as} As) meet the minimum requirement ({$rule->min_spm_as} As).";
-            } elseif ($rule->min_spm_credits && $academicResult->spm_credits >= $rule->min_spm_credits) {
-                $score = 30;
-                $explanation = "Your SPM credits ({$academicResult->spm_credits}) meet the minimum requirement ({$rule->min_spm_credits} credits).";
-            } else {
-                $explanation = 'Your SPM results do not meet the minimum academic requirement.';
-            }
-        } else {
-            if ($rule->min_cgpa && $academicResult->cgpa >= $rule->min_cgpa) {
-                $score = 40;
-                $explanation = "Your CGPA ({$academicResult->cgpa}) meets the minimum requirement ({$rule->min_cgpa}).";
-            } else {
-                $explanation = 'Your CGPA does not meet the minimum academic requirement.';
-            }
-        }
-
-        if ($academicResult->result_status === 'pending') {
-            $explanation .= ' (Preliminary - results pending)';
-        }
-
-        return ['score' => $score, 'explanation' => $explanation];
-    }
-
-    private function calculateFieldScore(StudentProfile $profile, ScholarshipRule $rule): array
-    {
-        $supportedFields = $rule->supportedFieldsOfStudy();
-
-        if (!$supportedFields) {
-            return ['score' => 25, 'explanation' => 'No specific field of study required.'];
-        }
-
-        if (in_array($profile->field_of_study, $supportedFields, true)) {
-            return ['score' => 25, 'explanation' => "Your field of study ({$profile->field_of_study}) matches the scholarship requirement."];
-        }
-
-        return ['score' => 0, 'explanation' => "Your field of study ({$profile->field_of_study}) does not match the supported fields (" . implode(', ', $supportedFields) . ').'];
-    }
-
-    private function calculateInstitutionScore(StudentProfile $profile, ScholarshipRule $rule): array
-    {
-        if (!$rule->required_institution_type) {
-            return ['score' => 20, 'explanation' => 'No specific institution type required.'];
-        }
-
-        if ($profile->institution_type === $rule->required_institution_type) {
-            return ['score' => 20, 'explanation' => "Your institution type ({$profile->institution_type}) matches the scholarship requirement."];
-        }
-
-        return ['score' => 0, 'explanation' => "Your institution type ({$profile->institution_type}) does not match the required type ({$rule->required_institution_type})."];
-    }
-
-    private function calculateIncomeScore(StudentProfile $profile, ScholarshipRule $rule): array
-    {
-        if (!$rule->required_income_category) {
-            return ['score' => 15, 'explanation' => 'No specific income category required.'];
-        }
-
-        if ($profile->income_category === $rule->required_income_category) {
-            return ['score' => 15, 'explanation' => "Your income category ({$profile->income_category}) matches the scholarship priority."];
-        }
-
-        $priorityOrder = ['B40' => 3, 'M40' => 2, 'T20' => 1];
-        $studentPriority = $priorityOrder[$profile->income_category] ?? 0;
-        $requiredPriority = $priorityOrder[$rule->required_income_category] ?? 0;
-
-        if ($studentPriority > $requiredPriority) {
-            return ['score' => 10, 'explanation' => "Your income category ({$profile->income_category}) has higher priority than required ({$rule->required_income_category})."];
-        }
-
-        return ['score' => 0, 'explanation' => "Your income category ({$profile->income_category}) does not match the required category ({$rule->required_income_category})."];
-    }
-
-    private function classifyStatus(int $score): string
-    {
-        if ($score >= 80) {
-            return 'Eligible';
-        }
-        if ($score >= 50) {
-            return 'Partially Eligible';
-        }
-        return 'Not Suitable';
     }
 }

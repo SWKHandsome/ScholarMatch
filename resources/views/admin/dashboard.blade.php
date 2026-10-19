@@ -88,7 +88,7 @@
                     </div>
                     <div>
                         <p class="font-medium text-on-surface">View Recommendation Logs</p>
-                        <p class="text-sm text-on-surface-variant">Monitor student matches and scores</p>
+                        <p class="text-sm text-on-surface-variant">Review eligibility decisions and explanations</p>
                     </div>
                 </a>
                 <a href="{{ route('admin.scholarships.index') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
@@ -129,11 +129,11 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="badge
-                                    {{ $log->status === 'Eligible' ? 'badge-eligible' : ($log->status === 'Partially Eligible' ? 'badge-partial' : 'badge-not-suitable') }}">
-                                    {{ $log->status }}
-                                </span>
-                                <span class="text-sm font-medium text-on-surface">{{ $log->score }}</span>
+                                @if($log->isCurrentEvaluation())
+                                    @include('components.decision-badge', ['status' => $log->status, 'requiresVerification' => $log->requires_verification, 'specialRequirements' => $log->special_requirements])
+                                @else
+                                    <span class="badge badge-info">Previous Evaluation</span>
+                                @endif
                                 <span class="text-xs text-on-surface-variant">{{ $log->created_at->diffForHumans() }}</span>
                             </div>
                         </div>

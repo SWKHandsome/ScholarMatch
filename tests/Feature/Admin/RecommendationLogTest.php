@@ -1,184 +1,63 @@
 <?php
 
-use App\Models\AcademicResult;
 use App\Models\RecommendationLog;
-use App\Models\Scholarship;
-use App\Models\ScholarshipRule;
-use App\Models\StudentProfile;
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Services\ScholarshipRecommendationService;
 
-uses(RefreshDatabase::class);
+beforeEach(fn () => seedIncomeCategories());
 
-beforeEach(function () {
-    seedIncomeCategories();
+function decisionLog(array $profile = [], array $scholarship = []): RecommendationLog
+{
+    $user = makeStudent($profile);
+    makeScholarship($scholarship);
+    $service = app(ScholarshipRecommendationService::class);
+    $service->storeRecommendationLogs($user, $service->getRecommendations($user)['recommendations']);
+
+    return RecommendationLog::where('user_id', $user->id)->first();
+}
+
+test('admin sees current decision explanations without scores', function () {
+    $log = decisionLog();
+    $this->actingAs(makeAdmin())->get(route('admin.recommendation-logs.show', $log))->assertOk()
+        ->assertSee('Recommendation Log Details')->assertSee('Eligible')
+        ->assertSee('Requirement Explanation')->assertSee('Nationality')
+        ->assertDontSee('Score Breakdown')->assertDontSee('Match Score');
 });
 
-test('admin can view recommendation logs index', function () {
-    $admin = makeAdmin();
-    $student = makeStudent();
-    $scholarship = makeScholarship();
-
-    RecommendationLog::create([
-        'user_id' => $student->id,
-        'scholarship_id' => $scholarship->id,
-        'score' => 85,
-        'status' => 'Eligible',
-        'failed_hard_rules' => [],
-        'explanation' => ['You meet the nationality requirement.'],
-        'score_breakdown' => ['academic' => 40, 'field' => 25, 'institution' => 20, 'income' => 15],
-    ]);
-
-    $response = $this->actingAs($admin)->get(route('admin.recommendation-logs.index'));
-
-    $response->assertOk();
-    $response->assertSee('Recommendation Logs');
-    $response->assertSee('Test Scholarship');
-    $response->assertSee('Eligible');
-    $response->assertSee('85');
+test('admin can filter decisions and verification flags', function () {
+    decisionLog([], ['name' => 'Interview Award', 'special_requirements' => 'Interview']);
+    decisionLog(['nationality' => 'Singaporean'], ['name' => 'Rejected Award']);
+    $this->actingAs(makeAdmin())->get(route('admin.recommendation-logs.index', ['status' => 'eligible_verification']))
+        ->assertOk()->assertViewHas('logs', fn ($logs) => $logs->every(fn ($log) => $log->status === 'Eligible' && $log->requires_verification));
+    $this->get(route('admin.recommendation-logs.index', ['status' => 'Not Eligible']))
+        ->assertOk()->assertViewHas('logs', fn ($logs) => $logs->every(fn ($log) => $log->status === 'Not Eligible'));
 });
 
-test('admin can filter recommendation logs by status', function () {
-    $admin = makeAdmin();
-    $student = makeStudent();
-    $scholarship = makeScholarship();
-
-    RecommendationLog::create([
-        'user_id' => $student->id,
-        'scholarship_id' => $scholarship->id,
-        'score' => 85,
-        'status' => 'Eligible',
-    ]);
-
-    RecommendationLog::create([
-        'user_id' => $student->id,
-        'scholarship_id' => $scholarship->id,
-        'score' => 55,
-        'status' => 'Partially Eligible',
-    ]);
-
-    $response = $this->actingAs($admin)->get(route('admin.recommendation-logs.index', [
-        'status' => 'Partially Eligible',
-    ]));
-
-    $response->assertOk();
-    $response->assertSee('55');
-    $response->assertDontSee('85');
+test('admin can search by student and scholarship', function () {
+    $log = decisionLog([], ['name' => 'Future Leaders Award']);
+    $log->user->update(['name' => 'Aisha Ahmad', 'email' => 'aisha@example.test']);
+    $this->actingAs(makeAdmin())->get(route('admin.recommendation-logs.index', ['search' => 'aisha@example.test']))
+        ->assertOk()->assertSee('Aisha Ahmad');
+    $this->get(route('admin.recommendation-logs.index', ['search' => 'Future Leaders']))
+        ->assertOk()->assertSee('Future Leaders Award');
 });
 
-test('admin can search recommendation logs by student or scholarship', function () {
-    $admin = makeAdmin();
-    $student = makeStudent();
-    $student->update(['name' => 'Aisha Ahmad', 'email' => 'aisha@example.test']);
-    $scholarship = makeScholarship(['name' => 'Future Leaders Scholarship']);
-
-    RecommendationLog::create([
-        'user_id' => $student->id,
-        'scholarship_id' => $scholarship->id,
-        'score' => 88,
-        'status' => 'Eligible',
-    ]);
-
-    $studentSearch = $this->actingAs($admin)->get(route('admin.recommendation-logs.index', [
-        'search' => 'aisha@example.test',
-    ]));
-
-    $studentSearch->assertOk();
-    $studentSearch->assertSee('88');
-
-    $scholarshipSearch = $this->actingAs($admin)->get(route('admin.recommendation-logs.index', [
-        'search' => 'Future Leaders',
-    ]));
-
-    $scholarshipSearch->assertOk();
-    $scholarshipSearch->assertSee('Future Leaders Scholarship');
+test('failed requirement detail is explicit', function () {
+    $log = decisionLog(['nationality' => 'Singaporean']);
+    $this->actingAs(makeAdmin())->get(route('admin.recommendation-logs.show', $log))->assertOk()
+        ->assertSee('Not Eligible')->assertSee('Failed Requirements')->assertSee('nationality');
 });
 
-test('admin can view recommendation log detail', function () {
-    $admin = makeAdmin();
-    $student = makeStudent();
-    $scholarship = makeScholarship();
-
-    $log = RecommendationLog::create([
-        'user_id' => $student->id,
-        'scholarship_id' => $scholarship->id,
-        'score' => 75,
-        'status' => 'Partially Eligible',
-        'failed_hard_rules' => [],
-        'explanation' => ['You meet the nationality requirement.', 'Your field of study partially matches.'],
-        'score_breakdown' => ['academic' => 40, 'field' => 15, 'institution' => 20, 'income' => 15],
-    ]);
-
-    $response = $this->actingAs($admin)->get(route('admin.recommendation-logs.show', $log));
-
-    $response->assertOk();
-    $response->assertSee('Recommendation Log Details');
-    $response->assertSee('Test Scholarship');
-    $response->assertSee('Partially Eligible');
-    $response->assertSee('75');
-    $response->assertSee('Score Breakdown');
-    $response->assertSee('Academic');
-    $response->assertSee('40');
-    $response->assertSee('Field');
-    $response->assertSee('15');
-    $response->assertSee('Explanation');
-    $response->assertSee('You meet the nationality requirement');
+test('previous evaluations are labelled rather than relabelled as current eligibility', function () {
+    $log = decisionLog();
+    $log->update(['evaluation_version' => 'legacy-score-v4', 'status' => 'Partially Eligible']);
+    $this->actingAs(makeAdmin())->get(route('admin.recommendation-logs.show', $log))->assertOk()
+        ->assertSee('Previous Evaluation')->assertSee('re-evaluation required')->assertDontSee('Partially Eligible');
+    $this->get(route('admin.recommendation-logs.index', ['status' => 'Eligible']))
+        ->assertOk()->assertViewHas('logs', fn ($logs) => $logs->isEmpty());
 });
 
-test('recommendation log detail shows failed hard rules', function () {
-    $admin = makeAdmin();
-    $student = makeStudent(['nationality' => 'Singaporean']);
-    $scholarship = makeScholarship();
-
-    $log = RecommendationLog::create([
-        'user_id' => $student->id,
-        'scholarship_id' => $scholarship->id,
-        'score' => 0,
-        'status' => 'Not Suitable',
-        'failed_hard_rules' => ['nationality'],
-        'explanation' => ['This scholarship is only open to Malaysian students.'],
-        'score_breakdown' => ['academic' => 0, 'field' => 0, 'institution' => 0, 'income' => 0],
-    ]);
-
-    $response = $this->actingAs($admin)->get(route('admin.recommendation-logs.show', $log));
-
-    $response->assertOk();
-    $response->assertSee('Not Suitable');
-    $response->assertSee('Failed Hard Rules');
-    $response->assertSee('nationality');
-});
-
-test('recommendation logs require admin role', function () {
-    $student = makeStudent();
-
-    $response = $this->actingAs($student)->get(route('admin.recommendation-logs.index'));
-
-    $response->assertForbidden();
-});
-
-test('recommendation logs redirect guest to login', function () {
-    $response = $this->get(route('admin.recommendation-logs.index'));
-
-    $response->assertRedirect(route('login'));
-});
-
-test('recommendation log detail requires admin role', function () {
-    $student = makeStudent();
-    $scholarship = makeScholarship();
-
-    $log = RecommendationLog::create([
-        'user_id' => $student->id,
-        'scholarship_id' => $scholarship->id,
-        'score' => 85,
-        'status' => 'Eligible',
-        'failed_hard_rules' => [],
-        'explanation' => [],
-        'score_breakdown' => [],
-    ]);
-
-    $otherStudent = User::factory()->create(['role' => User::ROLE_STUDENT]);
-
-    $response = $this->actingAs($otherStudent)->get(route('admin.recommendation-logs.show', $log));
-
-    $response->assertForbidden();
+test('recommendation log routes retain admin access control', function () {
+    $log = decisionLog();
+    $this->get(route('admin.recommendation-logs.index'))->assertRedirect(route('login'));
+    $this->actingAs(makeStudent())->get(route('admin.recommendation-logs.show', $log))->assertForbidden();
 });
