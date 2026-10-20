@@ -43,7 +43,9 @@ class ScholarshipController extends Controller
             'description' => ['nullable', 'string'],
             'special_requirements' => ['nullable', 'string', 'max:5000'],
             'award_type' => ['required', 'string', 'max:255'],
-            'deadline' => ['required', 'date'],
+            'deadline' => ['nullable', 'date'],
+            'deadline_type' => ['sometimes', 'required', 'in:'.implode(',', array_keys(Scholarship::DEADLINE_TYPES))],
+            'application_notes' => ['nullable', 'string', 'max:2000'],
             'application_link' => ['required', 'url'],
             'is_active' => ['boolean'],
         ]);
@@ -75,7 +77,9 @@ class ScholarshipController extends Controller
             'description' => ['nullable', 'string'],
             'special_requirements' => ['nullable', 'string', 'max:5000'],
             'award_type' => ['required', 'string', 'max:255'],
-            'deadline' => ['required', 'date'],
+            'deadline' => ['nullable', 'date'],
+            'deadline_type' => ['sometimes', 'required', 'in:'.implode(',', array_keys(Scholarship::DEADLINE_TYPES))],
+            'application_notes' => ['nullable', 'string', 'max:2000'],
             'application_link' => ['required', 'url'],
             'is_active' => ['boolean'],
         ]);

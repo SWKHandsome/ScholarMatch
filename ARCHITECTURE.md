@@ -1,7 +1,7 @@
 # ScholarMatch — Architecture Document
 
-**Version:** 3.1 — Alternative qualification routes
-**Updated:** 2026-10-19 (Asia/Singapore)
+**Version:** 3.4 — Recommendation browsing and binary nationality
+**Updated:** 2026-10-20 (Asia/Singapore)
 **Stack:** Laravel 13, PHP 8.3+, MySQL/SQLite, Blade, Tailwind CSS, Alpine.js, Vite and Pest
 
 ## 1. Architecture Overview
@@ -22,7 +22,9 @@ Laravel Breeze handles authentication and account management. RoleMiddleware pro
 
 ### 3.2 Student Profile Module
 
-Student profiles store nationality, state, household income, dependents, field and institution. Income category is calculated on profile save and recalculated against current ranges during recommendation generation.
+Student profiles actively store nationality, state, household income and dependents. Income category is calculated on profile save and recalculated against current ranges during recommendation generation. Legacy institution/field columns remain nullable for migration recovery and first-form prefill, but are not mass assignable or edited through Profile.
+
+The shared scholarship.nationalities configuration contains only Malaysian and Non-Malaysian. Profile and rule validation use that list; an empty scholarship nationality restriction remains unrestricted. The evaluator compares categories exactly and requires legacy/invalid profile values to be corrected before evaluation. Unsupported country-specific legacy rules are preserved but excluded as awaiting configuration; they do not block other scholarships or silently become broader restrictions.
 
 State and dependents are currently informational rather than evaluation criteria.
 
@@ -34,18 +36,21 @@ AcademicResult stores one latest record per user:
 - study_status: studying/completed.
 - year_of_study: current year for studying non-SPM students.
 - funding_study_level: manually selected programme level seeking funding.
+- institution_type and field_of_study: required choices for the programme seeking funding; grouped with funding_study_level in the Academic Result form.
 - spm_as, spm_credits or cgpa: official results.
 - result_status: official for new submissions; old pending rows are preserved but incomplete.
 
 AcademicResult::isReadyForRecommendations checks required fields and official results. The academic controller enforces these rules server-side and clears irrelevant values when the qualification or status changes.
 
+Institution and field matching read AcademicResult, using shared config choices. Profile updates ignore these fields and cannot overwrite academic selections. Changes to academic programme values alter the recommendation input hash, so cached matches refresh immediately. Dashboard academic-completion status requires both values. AcademicResultController prefills legacy programme choices only when there is no saved academic record.
+
 SPM submissions require completed exams and received official results. CGPA-based submissions require the latest official cumulative CGPA or final CGPA if completed. Students without these results cannot generate recommendations.
 
 ### 3.4 Scholarship Module
 
-Scholarships contain provider metadata, an active flag, a date-only deadline, application link, and optional special_requirements text. Add and Edit forms share the special-requirements field.
+Scholarships contain provider metadata, an active flag, a nullable date-only deadline, application link, intake notes and optional special_requirements text. Catalogue entries additionally retain a stable key, official source URL and source-check date. Add and Edit forms share the special-requirements and intake-note fields.
 
-Only active, open scholarships enter evaluation. The deadline remains open throughout its application-calendar date. Saved expired scholarships remain visible as expired.
+Only active scholarships with an unexpired or unknown deadline enter evaluation. A known deadline remains unexpired throughout its calendar date. Unknown dates require provider confirmation and sort last. Saved expired scholarships remain visible as expired.
 
 ### 3.5 Scholarship Rule Module
 
@@ -100,6 +105,8 @@ Admin scholarship, rule and income-category mutations invalidate the catalog ver
 
 Within each decision group, order by deadline, name and ID. Eligible results with special warnings remain in the Eligible group.
 
+RecommendationController validates GET search/programme/award filters, then filters the cached evaluation collection in memory. Programme filters use the existing required values and not_applicable outcomes, including scholarships with unrestricted criteria. Counts are computed after filtering and before selecting a decision group. A LengthAwarePaginator slices the selected group into 10-card pages while retaining query parameters. Group/filter changes omit page; stale high page values are clamped to the last page. The controller still logs the complete unfiltered evaluation set, so browsing does not rewrite decisions or omit off-page evaluations. The dashboard continues using its existing recent-recommendation list.
+
 ## 6. Database Tables
 
 Core tables: users, student_profiles, academic_results, income_categories, scholarships, scholarship_rules, scholarship_qualification_routes, saved_scholarships and recommendation_logs.
@@ -114,7 +121,7 @@ erDiagram
     scholarships ||--o{ recommendation_logs : evaluated_for
 ```
 
-The route table has a cascading scholarship_rule_id foreign key, education_level and study_status strings, nullable integer SPM/year minima/maxima, nullable decimal(3,2) CGPA, and timestamps. Migration 2026_10_19_010000 backfills equivalent alternatives while retaining old columns. New saves use the child rows. Algorithm version decisions-v2-routes invalidates cached decisions and identifies earlier logs as previous evaluations.
+The route table has a cascading scholarship_rule_id foreign key, education_level and study_status strings, nullable integer SPM/year minima/maxima, nullable decimal(3,2) CGPA, and timestamps. Migration 2026_10_19_010000 backfills equivalent alternatives while retaining old columns. New saves use the child rows. Algorithm version decisions-v5-local-award-windows invalidates earlier cached decisions and identifies older logs as previous evaluations until refreshed.
 
 New academic fields are nullable at schema level so migration can preserve legacy records without inventing study status or funding intent. New submissions require them through application validation.
 
@@ -123,6 +130,8 @@ New log fields: evaluation_version, requirement_results, failed_requirements, re
 The migration snapshots existing score-based log data into legacy_evaluation and marks evaluation_version as legacy-score-v4. Existing score columns remain intact for preservation; active models/views do not use them as current scoring. Existing legacy rule-type columns also remain stored but inactive. Refreshing a log updates its current decision while retaining its legacy snapshot.
 
 No live student records or scholarships are deleted or recreated by the migration.
+
+Migration 2026_10_20_000000_move_programme_details_to_academic_results adds nullable institution_type/field_of_study columns to academic_results and copies values for matching user IDs. It makes legacy profile columns nullable so personal profiles can be created independently. Students without academic records keep their legacy choices; no grade, qualification or academic row is invented. Down migration copies current academic choices back to existing profiles before removing the new columns.
 
 ## 7. Recommended Folder Structure
 
@@ -150,7 +159,11 @@ Use server-side validation and role middleware, escaped Blade output, CSRF forms
 
 ## 10. Seed Data and Localhost
 
-Seeders provide demonstration users, income ranges and sample scholarships/rules. Criteria are demonstration data, not verified live provider requirements.
+Seeders provide demonstration users, income ranges and a fixed 70-entry fictional scholarship catalogue for study in Malaysia. `database/data/demo-scholarships.json` supplies metadata and rules. Stable `catalog_key` values support normal upserts. See `docs/DEMO_SCHOLARSHIPS.md` for the scenario register; the old real-world dataset remains archived and is not seeded.
+
+`ScholarshipCatalogSeeder` updates scholarships/rules without running account seeders. Rerunning it restores the snapshot, keeps scholarship IDs and bookmarks, and deactivates exact matches of old demo metadata without deletion. Custom rows are preserved. A fresh installation contains exactly 70 scholarships; existing installations may retain archived/custom rows. `composer setup` now includes seeding.
+
+Each record persists `deadline_type`: published, admission-linked, calculated relative, rolling, intake-based, automatic or unconfirmed. The current demo snapshot has 60 synthetic fixed dates in 2099, nine rolling awards and one automatic award; all remain open for repeatable demonstrations. The matcher version is decisions-v5-local-award-windows. `scholarships:replace-catalog` validates dates, backs up file-backed SQLite, and transactionally deletes/reseeds all scholarships (cascading scholarship-related records only). Ordinary catalogue reseeding still preserves IDs/custom records/history.
 
 For an existing database, apply php artisan migrate; do not use migrate:fresh. Existing students update their academic status and funding level before generating new decisions. Rebuild frontend assets after changing templates.
 
@@ -159,3 +172,9 @@ Date-only deadlines close after the configured application's deadline day. Exist
 ## 11. Final Architecture Notes
 
 This version evaluates one latest qualification. It does not infer earlier qualifications, GPA equivalence, award renewal eligibility, or entry/enrolment context solely from the selected funding level. Conditions requiring evidence beyond the supported fields belong in the special-requirements description or a future data-model extension.
+
+### Current default: fictional demo catalogue
+
+`ScholarshipCatalog::entries()` now reads `database/data/demo-scholarships.json` (version `scholarmatch-demo-70-v2`), a deterministic 70-record fictional dataset. The previous real-world JSON is retained as an archive and is not seeded. All 70 demo awards have supported structured rules and active/open windows: 60 fixed synthetic dates in 2099, nine rolling and one automatic. The data covers all six result qualifications, all six institution types, all configured fields, all three income categories, both nationality categories and six award types. Existing matching behavior and input fields are unchanged.
+
+Demo keys use `demo-01` through `demo-70`. `Scholarship::isDemo()` identifies them for a fictional-data label and an Apply label even for rolling demo awards. Cards and details show Apply for Eligible results; saved listings also expose the application link. These buttons use reserved placeholder URLs for presentations. Source URL/check date stay null. Catalogue validation requires a clear Demo name, fictional description and reserved scholarmatch.example placeholder; real records still require a source. Normal seeders upsert by stable keys; explicit replacement remains the backed-up path to removing the prior dataset.

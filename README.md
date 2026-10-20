@@ -7,15 +7,17 @@ Built as a Final Year Project (FYP), ScholarMatch focuses on making scholarship 
 ## Key features
 
 - Student registration, login, and role-based access control
-- Student profile management for nationality, state, household income, income category, field of study, and institution type
+- Student profile management for nationality, state, household income, dependents and income category
 - Latest official academic results, study status/year and separately selected funding level for SPM, STPM, Foundation, Matriculation, Diploma and Undergraduate students
+- Programme Seeking Funding section in Academic Result groups funding level, institution type and field of study
 - Automatic B40, M40, and T20 income-category classification
 - Scholarship, scholarship-rule, and income-threshold management for administrators
 - Repeatable qualification boxes on Add/Edit Scholarship, with separate results, study status and year limits for each accepted route
 - Explainable **Eligible / Not Eligible** decisions, with **!** for administrator-entered special requirements
+- Recommendation filters for name/provider, award type, funded level, field and institution, with full-width cards and 10 results per page
 - Saved scholarships for students
 - Recommendation logs for administrators
-- Seeded sample data and test accounts for local demonstrations
+- Fixed catalogue of 50 clearly fictional demo scholarships covering supported matching scenarios, plus local test accounts
 
 ## How recommendations work
 
@@ -29,11 +31,15 @@ ScholarMatch checks every applicable scholarship requirement against the student
 
 Students record one latest study level, Currently Studying/Completed status, current year when studying, and a separately selected study level seeking funding. SPM requires completed exams and official As/credits. CGPA-based levels require the latest official cumulative CGPA, or final CGPA when completed. Results that are not yet available cannot be used to generate recommendations.
 
+Institution type and field of study are required on Academic Result beside the funding level. They describe the programme seeking funding. Profile contains personal/household information. Existing programme values are transferred during migration; a profile without an academic record prefills those choices when the student first enters official results.
+
+Nationality choices are Malaysian and Non-Malaysian for students and scholarship restrictions. An empty scholarship restriction accepts either category. Country-specific conditions belong in Special Requirements for provider verification.
+
 Requirements include nationality, funded level, accepted latest qualifications, study status/year, income, academics, field and institution. Within the student's qualification route, every configured minimum must pass. Empty criteria are not applicable. Results include each requirement, student value and outcome.
 
 Administrators add alternative qualification boxes directly on Add/Edit Scholarship or the Rules page. Each box has its own level, status, result minimums and optional current-year boundaries. Students must pass any one complete box plus the general requirements. For example, Completed Diploma with CGPA >= 3.00 OR Currently Studying Undergraduate with CGPA >= 3.30 in Years 1–3. Empty minimums/boundaries are unrestricted; no boxes means no academic restriction. The student still needs official results. Qualification level/status have required * markers; irrelevant result/year controls are hidden, disabled and cleared.
 
-Only active, open scholarships with configured rules are evaluated. Eligible (including !) and Not Eligible results are grouped separately and ordered by nearest deadline. Special requirements do not override a failed automatic condition. Providers make the final award decisions.
+Only active scholarships with configured rules and an unexpired or unknown deadline are evaluated. Eligible (including !) and Not Eligible results are grouped separately and ordered by nearest recorded deadline, with unknown dates last. Unknown dates require provider verification. Special requirements do not override a failed automatic condition. Providers make the final award decisions.
 
 ## Upgrading an existing installation
 
@@ -46,7 +52,7 @@ npm run build
 
 Existing profiles and scholarships are preserved. Existing students must confirm their study status and selected funding level, and supply official results, before generating new decisions. Old evaluation logs remain identified as Previous Evaluation until refreshed; their historical score data is preserved but not treated as a current decision.
 
-The qualification-route migration converts existing rules into equivalent child rows and retains the original columns. Rebuild assets so the repeatable editor is available. Keep a database backup before upgrades. Earlier evaluations refresh under decisions-v2-routes when the student opens recommendations.
+The qualification-route migration converts existing rules into equivalent child rows and retains the original columns. Rebuild assets so the repeatable editor is available. Keep a database backup before upgrades. Earlier evaluations refresh under decisions-v5-local-award-windows when the student opens recommendations. Legacy profile nationalities outside the two supported choices need confirmation on Profile; legacy country-specific rules remain awaiting configuration until an administrator updates them.
 
 ## Technology stack
 
@@ -102,6 +108,19 @@ Configure the database credentials in `.env`, then migrate and seed the applicat
 php artisan migrate --seed
 ```
 
+This installs **70 fictional demo scholarships** from `database/data/demo-scholarships.json`. Devices using this repository revision receive the same initial records and rules. `composer setup` also includes seeding. The earlier real-world catalogue is archived and is not seeded.
+
+For an existing database, update only the scholarship catalogue without running the account seeders:
+
+```bash
+php artisan migrate
+php artisan db:seed --class=ScholarshipCatalogSeeder
+```
+
+Re-seeding restores the checked-in demo catalogue and updates its rules without duplicates. Other custom scholarships, bookmarks and history remain; unchanged legacy demo metadata is deactivated. Local edits to these 70 catalogue records are overwritten when re-seeded. See the [demo catalogue guide](docs/SCHOLARSHIP_CATALOG.md). To switch an existing real-world database to exactly 70 demos, run `php artisan scholarships:replace-catalog` after migrating. It removes old scholarships, saved links and recommendation history after creating a full SQLite backup; users, profiles and academic results remain.
+
+All 70 demos are active and open: 60 use synthetic fixed dates in 2099, nine are rolling and one is automatic. The fictional dates are fixed across devices. Demo entries have no official-source claims. Apply buttons are available for presentations and use reserved placeholder URLs without real application submission. Mock interview/document conditions demonstrate Eligible !; ordinary academic thresholds are checked automatically.
+
 Build the frontend assets and start the application:
 
 ```bash
@@ -147,7 +166,8 @@ app/
 
 database/
 ├── migrations/             # Database schema
-└── seeders/                # Demo accounts, categories, scholarships, and rules
+├── data/                   # Fixed 70-award fictional demo catalogue
+└── seeders/                # Demo accounts, categories, and catalogue import
 
 resources/views/            # Blade pages, layouts, and reusable components
 tests/                      # Pest unit and feature tests
@@ -164,3 +184,11 @@ tests/                      # Pest unit and feature tests
 ## License
 
 This project was developed for academic purposes as a Final Year Project.
+
+## Fictional demonstration dataset
+
+The default initial catalogue now contains exactly 70 fictional awards. Academic cutoffs are stored in qualification rules, with varied nationality, income, funded level, status/year, field and institution restrictions. Most have no special conditions so plain Eligible appears; selected mock interviews/documents demonstrate Eligible !. All records are open, so unfiltered Eligible plus Not Eligible totals 70.
+
+Demo 51–60 add ten complex Diploma-funded scenarios and Demo 61–70 add ten Degree-funded scenarios (labelled Undergraduate in the app). They demonstrate progression from completed qualifications, support for current students in specific years, alternative entry routes and combined academic/household/programme restrictions. The original 50 awards are unchanged.
+
+See [the scenario guide](docs/DEMO_SCHOLARSHIPS.md). New devices use `php artisan migrate --seed`. On an existing SQLite installation, `php artisan scholarships:replace-catalog` backs up the database and replaces the old scholarships with these 70 demos while preserving student accounts/profiles/results. Normal seeding upserts without duplication but retains unrelated old rows. Build assets with `npm run build`. Demo application buttons use placeholder links and source-verification claims are omitted.

@@ -72,7 +72,7 @@ test('dashboard shows recent recommendations when profile and academic complete'
 });
 
 test('dashboard marks failed requirement explanations as failed', function () {
-    $user = makeStudent(['field_of_study' => 'Business'], ['education_level' => 'Diploma']);
+    $user = makeStudent([], ['field_of_study' => 'Business', 'education_level' => 'Diploma']);
     makeScholarship();
 
     $response = $this->actingAs($user)->get(route('student.dashboard'));
@@ -85,7 +85,7 @@ test('dashboard marks failed requirement explanations as failed', function () {
 
 test('dashboard shows no matches message when no scholarships match', function () {
     $user = makeStudent([
-        'nationality' => 'Singaporean',
+        'nationality' => 'Non-Malaysian',
     ]);
 
     $response = $this->actingAs($user)->get(route('student.dashboard'));

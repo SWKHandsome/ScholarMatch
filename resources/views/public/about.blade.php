@@ -41,7 +41,7 @@
                     <li>Every applicable requirement must pass for eligibility. Each result shows the requirement, student information and outcome.</li>
                     <li>Expand ! on an Eligible result to read any special conditions that need checking with the provider.</li>
                 </ol>
-                <p class="mt-4 text-on-surface-variant">Open scholarships appear by nearest deadline within each decision group. Scholarship providers make the final award decisions.</p>
+                <p class="mt-4 text-on-surface-variant">Scholarships appear by recorded deadline within each decision group, followed by those whose dates need confirmation. Check current availability with the provider. Scholarship providers make the final award decisions.</p>
             </section>
 
             <!-- Tech Stack -->

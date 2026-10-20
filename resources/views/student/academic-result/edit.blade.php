@@ -6,7 +6,7 @@
     <form method="POST" action="{{ route('student.academic-result.update') }}" class="card p-6 space-y-6" id="academic-form">
         @csrf
         @method('PATCH')
-        <p class="text-sm text-on-surface-variant"><span class="text-error">*</span> Required field. Only the result and year fields that apply to your selections are shown.</p>
+        <p class="text-sm text-on-surface-variant">Only the result and year fields that apply to your selections are shown.</p>
         @if($errors->any())
             <div role="alert" class="text-error"><ul class="list-disc pl-5">@foreach($errors->all() as $message)<li>{{ $message }}</li>@endforeach</ul></div>
         @endif
@@ -53,14 +53,40 @@
             <p class="mt-1 text-sm text-on-surface-variant">Currently studying: latest official cumulative CGPA. Completed: final CGPA.</p>
         </div>
         <div class="border-t border-outline-variant pt-5">
-            <label class="label" for="funding_study_level">Study Level Seeking Funding <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
-            <select class="input" id="funding_study_level" name="funding_study_level" required>
-                <option value="">Select the level you want funded</option>
-                @foreach($educationLevels as $level)
-                    <option value="{{ $level }}" @selected(old('funding_study_level', $academicResult->funding_study_level) === $level)>{{ $level }}</option>
-                @endforeach
-            </select>
-            <p class="mt-1 text-sm text-on-surface-variant">Select the level of the programme you want the scholarship to support.</p>
+            <fieldset class="min-w-0 space-y-5">
+                <legend class="font-semibold">Programme Seeking Funding</legend>
+                <p class="text-sm text-on-surface-variant">Describe the programme you want the scholarship to support. Its level, institution type and field can differ from your latest qualification above.</p>
+                <div>
+                    <label class="label" for="funding_study_level">Study Level Seeking Funding <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+                    <select class="input" id="funding_study_level" name="funding_study_level" required>
+                        <option value="">Select the level you want funded</option>
+                        @foreach($educationLevels as $level)
+                            <option value="{{ $level }}" @selected(old('funding_study_level', $academicResult->funding_study_level) === $level)>{{ $level }}</option>
+                        @endforeach
+                    </select>
+                    <p class="mt-1 text-sm text-on-surface-variant">Select the level of the programme you want the scholarship to support.</p>
+                </div>
+                <div>
+                    <label class="label" for="institution_type">Institution Type <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+                    <select class="input @error('institution_type') input-error @enderror" id="institution_type" name="institution_type" required>
+                        <option value="">Select Institution Type</option>
+                        @foreach(config('scholarship.institution_types') as $type)
+                            <option value="{{ $type }}" @selected(old('institution_type', $academicResult->institution_type) === $type)>{{ $type }}</option>
+                        @endforeach
+                    </select>
+                    @error('institution_type')<p class="mt-1 text-sm text-error">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label class="label" for="field_of_study">Field of Study <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
+                    <select class="input @error('field_of_study') input-error @enderror" id="field_of_study" name="field_of_study" required>
+                        <option value="">Select Field of Study</option>
+                        @foreach(config('scholarship.fields_of_study') as $field)
+                            <option value="{{ $field }}" @selected(old('field_of_study', $academicResult->field_of_study) === $field)>{{ $field }}</option>
+                        @endforeach
+                    </select>
+                    @error('field_of_study')<p class="mt-1 text-sm text-error">{{ $message }}</p>@enderror
+                </div>
+            </fieldset>
         </div>
         <label class="flex items-start gap-3">
             <input class="mt-1" type="checkbox" name="result_status" value="official" required @checked(old('result_status', $academicResult->result_status) === 'official')>

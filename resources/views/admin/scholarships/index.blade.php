@@ -71,10 +71,10 @@
                                     <span class="badge badge-info">{{ $scholarship->award_type }}</span>
                                 </td>
                                 <td class="px-4 py-4">
-                                    <span class="{{ \Carbon\Carbon::parse($scholarship->deadline)->isPast() ? 'text-error' : 'text-on-surface' }}">
-                                        {{ \Carbon\Carbon::parse($scholarship->deadline)->format('M d, Y') }}
+                                    <span class="{{ $scholarship->isExpired() ? 'text-error' : 'text-on-surface' }}">
+                                        {{ $scholarship->deadlineLabel() }}
                                     </span>
-                                    @if(\Carbon\Carbon::parse($scholarship->deadline)->isPast())
+                                    @if($scholarship->isExpired())
                                         <span class="ml-1 badge badge-error">Expired</span>
                                     @endif
                                 </td>

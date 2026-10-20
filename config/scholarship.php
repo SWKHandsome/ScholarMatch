@@ -1,11 +1,13 @@
 <?php
 
 return [
-    'nationalities' => ['Malaysian', 'Non-Malaysian', 'Singaporean', 'Indonesian', 'Bruneian', 'Other'],
+    'nationalities' => ['Malaysian', 'Non-Malaysian'],
+
+    'institution_types' => ['Public University', 'Private University', 'Polytechnic', 'Community College', 'Foundation College', 'Other'],
 
     /*
      * These labels are used by both students and administrators. Keeping one
-     * shared list prevents a field saved in a student profile from differing
+     * shared list prevents a field saved in academic information from differing
      * from the same field selected in a scholarship rule.
      */
     'fields_of_study' => [

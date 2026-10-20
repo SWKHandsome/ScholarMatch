@@ -66,7 +66,7 @@
     <label class="label" for="required_institution_type">Required Institution Type</label>
     <select class="input" id="required_institution_type" name="required_institution_type">
         <option value="">Any institution type</option>
-        @foreach(['Public University', 'Private University', 'Polytechnic', 'Community College', 'Foundation College', 'Other'] as $value)
+        @foreach(config('scholarship.institution_types') as $value)
             <option value="{{ $value }}" @selected(old('required_institution_type', $rule->required_institution_type) === $value)>{{ $value }}</option>
         @endforeach
     </select>

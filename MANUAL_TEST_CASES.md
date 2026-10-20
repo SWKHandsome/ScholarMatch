@@ -2,8 +2,8 @@
 
 **Project:** FYP ScholarMatch — Scholarship Recommendation Platform for Malaysian Students
 **Stack:** Laravel 13 + PHP 8.3 + Pest + Tailwind CSS + Vite + SQLite (dev)
-**Last Updated:** 2026-10-19 (Asia/Singapore)
-**Test Suite Status:** 185/185 automated tests passed (584 assertions); see improve.md for verification details.
+**Last Updated:** 2026-10-20 (Asia/Singapore)
+**Test Suite Status:** 226/226 automated tests passed (756 assertions); see improve.md for verification details.
 
 ---
 
@@ -55,8 +55,8 @@ npm run dev        # in separate terminal
 
 | # | Test Case | Steps | Expected |
 |---|-----------|-------|----------|
-| S1 | View profile edit | Login student → `/student/profile/edit` | Form with all fields |
-| S2 | Create profile (B40) | Fill: Malaysian, Selangor, 2500 income, 3 dependents, Public Uni, Engineering → Save | Success toast, income_category = "B40" auto-set |
+| S1 | View profile edit | Login student → `/student/profile` | Nationality, state, income and dependents; programme fields are linked to Academic Result |
+| S2 | Create profile (B40) | Fill: Malaysian, Selangor, 2500 income, 3 dependents → Save | Success toast, income_category = "B40" auto-set; no programme fields required here |
 | S3 | Create profile (M40) | Income: 5000 | income_category = "M40" |
 | S4 | Create profile (T20) | Income: 8000 | income_category = "T20" |
 | S5 | Update profile | Change state, income → Save | Values updated, income_category recalculated |
@@ -64,6 +64,10 @@ npm run dev        # in separate terminal
 | S7 | Validation: negative income | Income: -100 | Error "must be at least 0" |
 | S8 | Validation: negative dependents | Dependents: -1 | Error "must be at least 0" |
 | S9 | Role guard | Login admin → `/student/profile/edit` | 403 Forbidden |
+| S10 | Income input layout | Open Profile with income 3000.00 | Amount is fully readable with standard input padding; RM appears in the label, with no overlaid prefix |
+| S11 | Required-field markers | Open Profile, Academic Result and admin Add/Edit Scholarship | No separate “* Required field.” note; required labels retain stars and validation still applies |
+| S12 | Nationality choices and save | Open Profile, select Non-Malaysian and save | Only Malaysian and Non-Malaysian are selectable categories; the chosen value saves and reloads; individual-country/Other submissions fail validation |
+| S13 | Scholarship nationality matching | Compare each student category against Malaysian, Non-Malaysian and unrestricted rules | Exact categories pass, the other category fails, and unrestricted rules accept both; admin forms offer the same two specific choices plus Any nationality |
 
 ---
 
@@ -81,6 +85,11 @@ npm run dev        # in separate terminal
 | AR-08 | Enter CGPA 0.00 or 4.00 | Both boundaries are valid official numeric results. |
 | AR-09 | Change from SPM to Diploma and save | Old SPM counts are cleared. |
 | AR-10 | Open a legacy academic record missing new fields | Student must confirm status/funding level before recommendations. |
+| AR-11 | Enter Programme Seeking Funding | Funding level, institution type and field appear together and are required; supported options save and reload. |
+| AR-12 | Change institution or field on Academic Result | Matching uses the updated academic values immediately, including after earlier results were cached. |
+| AR-13 | Update Profile with extra institution/field values | Academic choices remain unchanged; Profile does not edit programme data. |
+| AR-14 | Upgrade existing profile/academic data | Programme choices are copied; results and existing record counts are preserved. A profile-only student keeps choices as first-form prefill without invented results. |
+| AR-15 | View Programme Seeking Funding on desktop and a narrow screen | A continuous divider appears above the heading, with consistent spacing and no line cutting through the legend; helper text and controls wrap within the form |
 
 
 ## 5. Student Recommendations (Core Feature)
@@ -104,6 +113,16 @@ npm run dev        # in separate terminal
 | REC-15 | Switch Eligible / Not Eligible tabs | Correct panel appears; Eligible ! stays in Eligible. |
 | REC-16 | Open an incomplete/legacy academic profile | Completion prompt appears; missing data is not classified as failure or !. |
 | REC-17 | Put HTML/script text in special requirements | It is shown as escaped text and does not execute. |
+| REC-21 | Inspect View Details on dashboard/recommendation cards | Visible outlined button matches Save; Apply Now stays filled; View Details still opens the scholarship. |
+| REC-22 | Inspect wide dashboard and narrow recommendation cards | Eligible/Not Eligible badge stays at the top right; long titles wrap without overlap; award type and deadline are highlighted. |
+| REC-23 | Expand card explanations and open scholarship/log details | Met checks are green, Not Met red, Not Applicable neutral; required/student values are bold; labels and symbols also explain the outcome. |
+| REC-25 | Expand View Explanation on a recommendation card | One readable message per applicable check with bold green Met/red Not Met label; no repeated value rows or individual boxes. Detailed tables retain their comparison styling. |
+| REC-26 | Open Recommendations on desktop and mobile | Filters appear beside a single column of full-width cards on desktop and above it on mobile; Dashboard cards are unchanged |
+| REC-27 | Apply search, award type, funded level, field and institution filters together | Name/provider search ignores case; all filters combine; unrestricted programme conditions and matching supported-field lists remain included; decisions are unchanged |
+| REC-28 | Open a group with more than 10 results and choose page 2 | First page has 10 cards; next page has the remaining cards in deadline order; counts/range/page are accurate; filters and group persist in navigation |
+| REC-29 | Change group or filters while on page 2, then Reset | Each action returns to page 1; group links preserve filters; Reset clears filters while keeping the chosen group |
+| REC-30 | Apply filters with no matching results or open an out-of-range page | Empty groups keep filters/reset and clear guidance; stale high page values show the last available page |
+| REC-24 | Activate the top-right Eligible ! badge with keyboard | Special text opens in a bounded amber panel and remains readable; the badge retains normal keyboard interaction. |
 
 
 ## 6. Student Saved Scholarships

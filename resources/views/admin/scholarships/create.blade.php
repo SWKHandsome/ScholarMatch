@@ -10,8 +10,6 @@
     <form method="POST" action="{{ route('admin.scholarships.store') }}" class="card p-6 space-y-6">
         @csrf
 
-        <p class="text-sm text-on-surface-variant"><span class="text-error">*</span> Required field.</p>
-
         <!-- Name -->
         <div>
             <label for="name" class="label">Scholarship Name <span class="text-error">*</span></label>
@@ -58,9 +56,10 @@
             </div>
 
             <div>
-                <label for="deadline" class="label">Application Deadline <span class="text-error">*</span></label>
+                <label for="deadline" class="label">Application Deadline (if confirmed)</label>
                 <input type="date" id="deadline" name="deadline" class="input @error('deadline') input-error @enderror"
-                    value="{{ old('deadline') }}" required min="{{ now()->format('Y-m-d') }}">
+                    value="{{ old('deadline') }}">
+                <p class="mt-1 text-sm text-on-surface-variant">Leave blank for unknown or intake-dependent dates. Students will see “Check provider”.</p>
                 @error('deadline')
                     <p class="mt-1 text-sm text-error">{{ $message }}</p>
                 @enderror
@@ -79,6 +78,7 @@
 
         <!-- Active Status -->
         @include('admin.scholarships._special-requirements')
+        @include('admin.scholarships._application-notes')
 
         <div class="flex items-center gap-3">
             <input type="checkbox" id="is_active" name="is_active" value="1" class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" {{ old('is_active', true) ? 'checked' : '' }}>

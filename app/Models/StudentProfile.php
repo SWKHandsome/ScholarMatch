@@ -18,8 +18,6 @@ class StudentProfile extends Model
         'household_income',
         'number_of_dependents',
         'income_category',
-        'institution_type',
-        'field_of_study',
     ];
 
     protected $casts = [

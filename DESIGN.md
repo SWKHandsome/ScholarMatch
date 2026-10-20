@@ -135,11 +135,11 @@ Headings use `text-primary` for high contrast and impact, while auxiliary inform
 
 ## Layout & Spacing
 
-The layout is based on a strict 4px grid system. For desktop, a two-column fluid grid is employed for results pages: a 3-column width sidebar for filters and a 9-column width area for scholarship cards. 
+The layout is based on a strict 4px grid system. On desktop, Recommendations uses a 15rem filter sidebar beside a flexible results column. Cards span the results column one per row, using the same shared component as Dashboard.
 
 **Breakpoints:**
-- **Mobile (< 768px):** Single column. Left-hand filters transition to a bottom-drawer mechanism. Horizontal scroll is enabled for comparison tables.
-- **Tablet (768px - 1024px):** Condensed two-column layout or stacked cards depending on content density.
+- **Mobile (< 768px):** Single column, with filters above the recommendation list. Horizontal scroll is enabled for comparison tables.
+- **Tablet (768px - 1024px):** Filters stack above the same single-column cards.
 - **Desktop (> 1024px):** Standard two-column results view with a maximum container width of 1280px.
 
 Spacing increments follow a linear scale (4, 8, 12, 16, 24, 32, 48, 64) to ensure mathematical harmony across all components.
@@ -168,10 +168,20 @@ Primary buttons use the Primary Blue (#1E40AF) with white text. Hover states tra
 ### Scholarship Cards
 Cards use the standard rounded corners and soft shadow. Show the scholarship name, provider, eligibility badge, description, award type, deadline and actions. Requirement explanations expand through native details/summary controls. Cards do not contain score rings, points or percentage matches.
 
+Place the eligibility badge at the top right of a flexible card header, with the title/provider on the left. Long titles wrap without overlapping the badge. Award type uses a blue-tinted chip, and the deadline date is bold inside a neutral chip. Expandable card explanations use a simple list: one message per applicable check, with a bold Met/Not Met label and green/red text. Avoid individual panels, extra outcome pills or duplicated required/student values here; detailed comparisons remain on View Details.
+
+View Details and Save use outlined buttons with a visible border and the same padding/radius. Apply Now remains the filled primary action. The shared card applies this consistently to dashboard and recommendation lists.
+
+Recommendations shows 10 cards per page in the chosen eligibility group, with the current range/page above and numbered previous/next navigation below. The filter sidebar contains name/provider search, award type, funded study level, field and institution selectors, plus Apply Filters and Reset. Preserve selections across page/group links and reset the page when filters or group change. Keep the filters available when no results match; show a clear empty message and guidance to adjust filters or check the other group. Anchor page navigation below the sticky header.
+
 ### Input Fields
 Standard text inputs use an 8px radius with a 1px border (#E2E8F0). On focus, the border shifts to Primary Blue with a subtle blue outer glow. Error states use the "Error Rose" (#E11D48) for both the border and the helper text below.
 
-Student profile, academic-result and scholarship Add/Edit forms explain that a red * marks a required field. Academic labels include the marker and screen-reader text; conditional result/year fields and their markers appear together only when applicable. Description and special requirements are explicitly optional. General admin restrictions and result/year minimums are optional to configure. Each added qualification box requires level and status. A * describes form completion, not a requirement weight or priority.
+Student profile, academic-result and scholarship Add/Edit forms mark required labels with a red *, without a separate required-field note at the top. Academic labels include the marker and screen-reader text; conditional result/year fields and their markers appear together only when applicable. Description and special requirements are explicitly optional. General admin restrictions and result/year minimums are optional to configure. Each added qualification box requires level and status. A * describes form completion, not a requirement weight or priority.
+
+Household Income shows its RM currency unit in the label. The numeric input contains only the amount, avoiding an overlapping currency overlay and preserving standard input padding.
+
+Nationality selectors offer Malaysian and Non-Malaysian. Profile retains an unanswered placeholder; scholarship rules additionally allow Any nationality to represent an unrestricted condition. Do not offer individual countries or Other as selectable nationality values.
 
 ### Administrator Qualification Boxes
 
@@ -182,11 +192,19 @@ Funded study level and general conditions remain outside the boxes. Explain AND 
 ### Badges & Chips
 Use green text and a pale green pill for Eligible, and rose text with a pale rose pill for Not Eligible. Eligible results with administrator-entered special requirements add an amber ! inside an expandable badge. Its accessible label explains that special requirements need verification; expanding it reveals the full plain text and a provider-verification action. Missing results never cause this warning. Not Eligible remains the decision when an automatic check fails. Previous evaluation logs use an informational badge until refreshed.
 
+On cards, special-condition text opens in a bounded amber panel anchored below the top-right badge. Keep it inside the viewport and preserve keyboard activation. Met/Not Met/Not Applicable requirement pills pair colour with explicit text and a check/cross/dash, so colour is not the only signal.
+
 ### Academic Form and Requirement Explanations
 
 Latest study level, completion status, conditional current year, official result fields and manually selected funding level are distinct controls. SPM fixes the study status to Completed. Hide and disable irrelevant result/year inputs, while preserving the same rules in server-side validation. The confirmation requires official results. Explain SPM credits as subjects graded C or above, including As.
 
-Use a responsive requirement table with Requirement, Required, Your Information and Result columns. Render Met, Not Met and Not Applicable explicitly; do not infer meaning from message wording or colour alone. Special text must remain escaped and keyboard-accessible. Decision tabs group Eligible (including !) and Not Eligible. Alpine controls tab visibility; x-cloak prevents the inactive panel flashing before initialization.
+Group Study Level Seeking Funding, Institution Type and Field of Study in a Programme Seeking Funding fieldset on Academic Result. All three have required * markers. Explain that this programme may differ from the latest qualification supplying results. Profile collects only personal/household details and links to this section. Preserve existing selections through migration and retain submitted values when validation fails.
+
+Place the programme section divider on an outer wrapper, with the fieldset legend below it. The divider spans the full content width without intersecting the heading; retain consistent spacing between the heading, helper text and fields.
+
+Use a responsive requirement table with Requirement, Required, Your Information and Result columns. Render Met, Not Met and Not Applicable explicitly; do not infer meaning from message wording or colour alone. Special text must remain escaped and keyboard-accessible. Eligibility navigation groups Eligible (including !) and Not Eligible using GET links, filtered counts and aria-current on the selected group. Render only the selected group's current page so filtering and pagination work without JavaScript.
+
+Use pale green for met rows and pale red for unmet rows, with darker green/red student values and outcome pills. Required and student values are bold for applicable checks; Not Applicable rows stay neutral. Apply the same treatment to alternative-route comparisons and administrator log explanations. Highlight award type/deadline on the detail page and use an amber special-requirements panel. These colours present existing outcomes without changing eligibility logic.
 
 ### Skeleton Screens
 During data fetching or match engine processing, use shimmering gray blocks that mirror the card layout to maintain user perceived performance.

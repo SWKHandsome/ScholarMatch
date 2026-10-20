@@ -141,7 +141,7 @@ test('admin can delete scholarship', function () {
     expect(Scholarship::where('id', $scholarship->id)->exists())->toBeFalse();
 });
 
-test('scholarship validation requires all fields', function () {
+test('scholarship validation requires identifying fields', function () {
     $admin = makeAdmin();
 
     $response = $this->actingAs($admin)->post(route('admin.scholarships.store'), [
@@ -156,7 +156,6 @@ test('scholarship validation requires all fields', function () {
         'name',
         'provider',
         'award_type',
-        'deadline',
         'application_link',
     ]);
 });

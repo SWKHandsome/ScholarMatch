@@ -11,8 +11,6 @@
         @csrf
         @method('PATCH')
 
-        <p class="text-sm text-on-surface-variant"><span class="text-error">*</span> Required field.</p>
-
         <!-- Nationality -->
         <div>
             <label for="nationality" class="label">Nationality <span class="text-error">*</span></label>
@@ -44,11 +42,8 @@
         <!-- Household Income -->
         <div>
             <label for="household_income" class="label">Household Income (RM) <span class="text-error">*</span></label>
-            <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">RM</span>
-                <input type="number" id="household_income" name="household_income" step="0.01" min="0" class="input pl-8 @error('household_income') input-error @enderror"
-                    value="{{ old('household_income', $profile->household_income) }}" required>
-            </div>
+            <input type="number" id="household_income" name="household_income" step="0.01" min="0" class="input @error('household_income') input-error @enderror"
+                value="{{ old('household_income', $profile->household_income) }}" required>
             @error('household_income')
                 <p class="mt-1 text-sm text-error">{{ $message }}</p>
             @enderror
@@ -83,34 +78,7 @@
             @enderror
         </div>
 
-        <!-- Institution Type -->
-        <p class="text-sm text-on-surface-variant">For institution type and field of study, describe the programme you want the scholarship to fund.</p>
-        <div>
-            <label for="institution_type" class="label">Institution Type <span class="text-error">*</span></label>
-            <select id="institution_type" name="institution_type" class="input @error('institution_type') input-error @enderror" required>
-                <option value="">Select Institution Type</option>
-                @foreach(['Public University', 'Private University', 'Polytechnic', 'Community College', 'Foundation College', 'Other'] as $type)
-                    <option value="{{ $type }}" {{ old('institution_type', $profile->institution_type) === $type ? 'selected' : '' }}>{{ $type }}</option>
-                @endforeach
-            </select>
-            @error('institution_type')
-                <p class="mt-1 text-sm text-error">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <!-- Field of Study -->
-        <div>
-            <label for="field_of_study" class="label">Field of Study <span class="text-error">*</span></label>
-            <select id="field_of_study" name="field_of_study" class="input @error('field_of_study') input-error @enderror" required>
-                <option value="">Select Field of Study</option>
-                @foreach(config('scholarship.fields_of_study') as $field)
-                    <option value="{{ $field }}" {{ old('field_of_study', $profile->field_of_study) === $field ? 'selected' : '' }}>{{ $field }}</option>
-                @endforeach
-            </select>
-            @error('field_of_study')
-                <p class="mt-1 text-sm text-error">{{ $message }}</p>
-            @enderror
-        </div>
+        <p class="text-sm text-on-surface-variant">Institution type and field of study are in <a class="text-primary underline" href="{{ route('student.academic-result.edit') }}">Academic Result</a>, under Programme Seeking Funding.</p>
 
         <!-- Income Category Reference -->
         <div class="bg-surface-container-low rounded-lg p-4 border border-outline-variant">

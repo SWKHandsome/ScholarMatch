@@ -25,7 +25,7 @@ test('admin sees current decision explanations without scores', function () {
 
 test('admin can filter decisions and verification flags', function () {
     decisionLog([], ['name' => 'Interview Award', 'special_requirements' => 'Interview']);
-    decisionLog(['nationality' => 'Singaporean'], ['name' => 'Rejected Award']);
+    decisionLog(['nationality' => 'Non-Malaysian'], ['name' => 'Rejected Award']);
     $this->actingAs(makeAdmin())->get(route('admin.recommendation-logs.index', ['status' => 'eligible_verification']))
         ->assertOk()->assertViewHas('logs', fn ($logs) => $logs->every(fn ($log) => $log->status === 'Eligible' && $log->requires_verification));
     $this->get(route('admin.recommendation-logs.index', ['status' => 'Not Eligible']))
@@ -42,7 +42,7 @@ test('admin can search by student and scholarship', function () {
 });
 
 test('failed requirement detail is explicit', function () {
-    $log = decisionLog(['nationality' => 'Singaporean']);
+    $log = decisionLog(['nationality' => 'Non-Malaysian']);
     $this->actingAs(makeAdmin())->get(route('admin.recommendation-logs.show', $log))->assertOk()
         ->assertSee('Not Eligible')->assertSee('Failed Requirements')->assertSee('nationality');
 });

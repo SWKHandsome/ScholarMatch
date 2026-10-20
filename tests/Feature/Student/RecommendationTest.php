@@ -31,7 +31,7 @@ test('failed requirements prevent eligibility and suppress the special warning',
 });
 
 test('detail shows the current evaluation instead of an old log', function () {
-    $user = makeStudent(['nationality' => 'Singaporean']);
+    $user = makeStudent(['nationality' => 'Non-Malaysian']);
     $scholarship = makeScholarship();
     RecommendationLog::create(['user_id' => $user->id, 'scholarship_id' => $scholarship->id,
         'status' => 'Eligible', 'explanation' => ['Old result']]);

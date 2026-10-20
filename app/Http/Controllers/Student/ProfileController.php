@@ -25,12 +25,10 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         $validated = $request->validate([
-            'nationality' => ['required', Rule::in(config('scholarship.nationalities'))],
+            'nationality' => ['required', 'string', Rule::in(config('scholarship.nationalities'))],
             'state' => ['required', 'string', 'max:255'],
             'household_income' => ['required', 'numeric', 'min:0'],
             'number_of_dependents' => ['required', 'integer', 'min:0'],
-            'institution_type' => ['required', 'string', 'max:255'],
-            'field_of_study' => ['required', Rule::in(config('scholarship.fields_of_study'))],
         ]);
 
         $incomeCategory = IncomeCategory::classifyIncome((float) $validated['household_income']);

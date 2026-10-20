@@ -24,8 +24,6 @@ function makeStudent(array $profileAttributes = [], array $academicAttributes = 
         'household_income' => 2500,
         'number_of_dependents' => 3,
         'income_category' => 'B40',
-        'institution_type' => 'Public University',
-        'field_of_study' => 'Engineering',
     ], $profileAttributes));
 
     AcademicResult::create(array_merge([
@@ -34,6 +32,8 @@ function makeStudent(array $profileAttributes = [], array $academicAttributes = 
         'study_status' => 'studying',
         'year_of_study' => 2,
         'funding_study_level' => 'Undergraduate',
+        'institution_type' => 'Public University',
+        'field_of_study' => 'Engineering',
         'spm_as' => null,
         'spm_credits' => null,
         'cgpa' => 3.50,

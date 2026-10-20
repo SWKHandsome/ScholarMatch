@@ -24,12 +24,12 @@ test('each specified requirement can independently reject the application', func
     expect($rec['status'])->toBe('Not Eligible');
     expect($rec['failed_requirements'])->toContain($failure);
 })->with([
-    'nationality' => [['nationality' => 'Singaporean'], [], [], 'nationality'],
+    'nationality' => [['nationality' => 'Non-Malaysian'], [], [], 'nationality'],
     'category' => [['household_income' => 8000], [], [], 'income_category'],
     'income amount' => [[], [], ['max_household_income' => 2499.99], 'max_household_income'],
     'CGPA' => [[], ['cgpa' => 2.99], [], 'min_cgpa'],
-    'field' => [['field_of_study' => 'Business'], [], [], 'field_of_study'],
-    'institution' => [['institution_type' => 'Private University'], [], [], 'institution_type'],
+    'field' => [[], ['field_of_study' => 'Business'], [], 'field_of_study'],
+    'institution' => [[], ['institution_type' => 'Private University'], [], 'institution_type'],
     'funding level' => [[], ['funding_study_level' => 'Diploma'], [], 'funding_level'],
     'qualification' => [[], [], ['accepted_education_levels' => ['Diploma']], 'qualification'],
     'study status' => [[], [], ['required_study_status' => 'completed'], 'study_status'],
@@ -75,6 +75,9 @@ test('pending incomplete and legacy academic records block recommendations', fun
     [['result_status' => 'pending']],
     [['cgpa' => null]],
     [['funding_study_level' => null]],
+    [['institution_type' => null]],
+    [['field_of_study' => null]],
+    [['field_of_study' => 'Unlisted Field']],
     [['study_status' => null]],
     [['year_of_study' => null]],
     [['education_level' => 'SPM', 'study_status' => 'studying', 'spm_as' => 8, 'spm_credits' => 9]],
@@ -128,7 +131,7 @@ test('matching any supported field passes and unspecified criteria are not appli
 });
 
 test('all failures remain visible instead of stopping at the first failure', function () {
-    $user = makeStudent(['field_of_study' => 'Business', 'institution_type' => 'Private University'], ['cgpa' => 2]);
+    $user = makeStudent([], ['field_of_study' => 'Business', 'institution_type' => 'Private University', 'cgpa' => 2]);
     makeScholarship();
     $rec = app(ScholarshipRecommendationService::class)->getRecommendations($user)['recommendations'][0];
     expect($rec['failed_requirements'])->toContain('field_of_study', 'institution_type', 'min_cgpa');
@@ -158,13 +161,36 @@ test('current income classification overrides the stored category', function () 
     expect(app(ScholarshipRecommendationService::class)->getRecommendations($user)['recommendations'][0]['status'])->toBe('Eligible');
 });
 
-test('a broad nationality does not become a false failure against a specific country requirement', function () {
+test('binary nationality requirements match exactly and unrestricted rules accept both categories', function ($nationality, $required, $status) {
+    $user = makeStudent(['nationality' => $nationality]);
+    makeScholarship([], ['required_nationality' => $required]);
+    $result = app(ScholarshipRecommendationService::class)->getRecommendations($user);
+    expect($result['error'])->toBeNull()->and($result['recommendations'][0]['status'])->toBe($status);
+})->with([
+    ['Malaysian', 'Malaysian', 'Eligible'],
+    ['Non-Malaysian', 'Non-Malaysian', 'Eligible'],
+    ['Malaysian', 'Non-Malaysian', 'Not Eligible'],
+    ['Non-Malaysian', 'Malaysian', 'Not Eligible'],
+    ['Malaysian', null, 'Eligible'],
+    ['Non-Malaysian', null, 'Eligible'],
+]);
+
+test('unsupported legacy country rules await configuration without blocking other recommendations', function () {
     $user = makeStudent(['nationality' => 'Non-Malaysian']);
     makeScholarship([], ['required_nationality' => 'Singaporean']);
-    $service = app(ScholarshipRecommendationService::class);
-    expect($service->getRecommendations($user)['error'])->toContain('specific nationality');
-    $user->studentProfile->update(['nationality' => 'Singaporean']);
-    expect($service->getRecommendations($user->fresh())['recommendations'][0]['status'])->toBe('Eligible');
+    makeScholarship(['name' => 'International Award'], ['required_nationality' => 'Non-Malaysian']);
+    $result = app(ScholarshipRecommendationService::class)->getRecommendations($user);
+    expect($result['error'])->toBeNull()->and($result['unconfigured_count'])->toBe(1);
+    expect($result['recommendations'])->toHaveCount(1)
+        ->and($result['recommendations'][0]['scholarship_data']['name'])->toBe('International Award')
+        ->and($result['recommendations'][0]['status'])->toBe('Eligible');
+});
+
+test('a legacy country profile requires a binary selection before evaluation', function () {
+    $user = makeStudent(['nationality' => 'Singaporean']);
+    makeScholarship();
+    $result = app(ScholarshipRecommendationService::class)->getRecommendations($user);
+    expect($result['error'])->toContain('select Malaysian or Non-Malaysian')->and($result['recommendations'])->toBe([]);
 });
 
 test('logs store decisions and structured explanations without score fields in the result', function () {
@@ -227,7 +253,7 @@ test('requirements from different boxes cannot be combined to invent a passing r
 });
 
 test('general conditions still reject a student who passes a qualification box', function () {
-    $user = makeStudent(['nationality' => 'Singaporean']);
+    $user = makeStudent(['nationality' => 'Non-Malaysian']);
     $scholarship = makeScholarship(['special_requirements' => 'Interview']);
     $scholarship->rule->qualificationRoutes()->create(['education_level' => 'Undergraduate', 'study_status' => 'studying', 'min_cgpa' => 0]);
     $rec = app(ScholarshipRecommendationService::class)->getRecommendations($user)['recommendations'][0];

@@ -13,7 +13,8 @@ test('admin rule forms expose requirements without hard soft or scoring selector
         $this->actingAs($admin)->get(route('admin.scholarships.rules.'.$action, $parameters))->assertOk()
             ->assertSee('Funded Study Level')->assertSee('Accepted Qualification Routes')->assertSee('+ Add Qualification')
             ->assertSee('Supported Fields of Study')->assertDontSee('Income Rule Type')
-            ->assertDontSee('Soft (scoring)')->assertDontSee('Hard (filter)');
+            ->assertDontSee('Soft (scoring)')->assertDontSee('Hard (filter)')
+            ->assertSee('Any nationality')->assertSee('Non-Malaysian')->assertDontSee('Singaporean');
     }
 });
 
@@ -46,11 +47,20 @@ test('admin rule edits invalidate cached decisions', function () {
     expect($service->getRecommendations($user->fresh())['recommendations'][0]['status'])->toBe('Not Eligible');
 });
 
+test('admin can save either binary nationality or an unrestricted rule', function ($nationality) {
+    $scholarship = makeScholarship();
+    $this->actingAs(makeAdmin())->put(route('admin.scholarships.rules.update', [$scholarship, $scholarship->rule]), [
+        'required_nationality' => $nationality,
+    ])->assertSessionHasNoErrors();
+    expect($scholarship->fresh()->rule->required_nationality)->toBe($nationality);
+})->with(['Malaysian', 'Non-Malaysian', null]);
+
 test('rule validation rejects inconsistent qualification and year settings', function ($payload, $field) {
     $scholarship = makeScholarship();
     $this->actingAs(makeAdmin())->post(route('admin.scholarships.rules.store', $scholarship), $payload)
         ->assertSessionHasErrors($field);
 })->with([
+    [['required_nationality' => 'Singaporean'], 'required_nationality'],
     [['required_fields_of_study' => ['Unlisted Field']], 'required_fields_of_study.0'],
     [['qualification_routes' => [['education_level' => 'Unknown', 'study_status' => 'completed']]], 'qualification_routes.0.education_level'],
     [['qualification_routes' => [['education_level' => 'SPM', 'study_status' => 'studying']]], 'qualification_routes.0.study_status'],

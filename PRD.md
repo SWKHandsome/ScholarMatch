@@ -1,7 +1,7 @@
 # ScholarMatch — Product Requirements Document (PRD)
 
-**Version:** 3.1 — Alternative qualification routes
-**Updated:** 2026-10-19 (Asia/Singapore)
+**Version:** 3.6 — Local scholarship replacement and deadline rules
+**Updated:** 2026-10-20 (Asia/Singapore)
 **Project:** Final Year Project for Malaysian scholarship discovery
 **Stack:** Laravel 13, PHP 8.3+, MySQL/SQLite, Blade, Tailwind CSS, Alpine.js and Vite
 
@@ -15,7 +15,7 @@ ScholarMatch compares a student's official academic results and socioeconomic pr
 | Eligible ! | Automatic requirements are met, and the administrator has entered special requirements that the student must verify with the provider. |
 | Not Eligible | At least one applicable automatic requirement is not met. |
 
-The exclamation warning is only for special requirements. It is not a separate decision category and does not certify that special conditions have been met.
+The exclamation warning identifies provider checks, including special requirements and unconfirmed application dates. It is not a separate decision category and does not certify that those conditions have been met.
 
 ## 2. Problem Statement
 
@@ -45,7 +45,9 @@ Registration and login use Laravel Breeze. Student and administrator routes are 
 
 ### 6.2 Student Profile Management
 
-Collect nationality, state, household income, number of dependents, field of study and institution type. The field and institution should describe the programme for which funding is sought. Income categories are configured in the income_categories table. Recommendation evaluation reclassifies the current household income rather than trusting a stale stored category.
+Collect nationality, state, household income and number of dependents. Income categories are configured in the income_categories table. Recommendation evaluation reclassifies the current household income rather than trusting a stale stored category. Programme details are entered on Academic Result; Profile links to that page.
+
+Nationality has exactly two student choices: Malaysian and Non-Malaysian. Scholarship nationality restrictions use the same two choices; leaving the restriction empty means Any nationality. Matching compares the selected categories exactly. Country-specific conditions can be recorded as Special Requirements for provider verification.
 
 State and number of dependents are recorded but are not automatic eligibility criteria in this version.
 
@@ -59,6 +61,8 @@ Store one latest academic record per student:
 | study_status | studying or completed |
 | year_of_study | Required for currently studying CGPA-based students; empty when completed |
 | funding_study_level | Student's manually selected programme level seeking funding |
+| institution_type | Required type of institution for the programme seeking funding |
+| field_of_study | Required field of the programme seeking funding |
 | spm_as | Official number of A+, A and A− subjects |
 | spm_credits | Official number of subjects graded C or above, including A subjects |
 | cgpa | Latest official cumulative CGPA when studying; final CGPA when completed |
@@ -68,9 +72,13 @@ SPM requires completed exams and received official results. SPM does not offer a
 
 SPM credits must be at least the number of As. Changing qualification or completion status clears irrelevant grade/year fields.
 
+Programme Seeking Funding groups funding_study_level, institution_type and field_of_study. These describe the target programme and may differ from the latest qualification supplying results. The shared institution/field options are validated server-side and are required before recommendations. The recommendation engine reads these values from academic_results.
+
 ### 6.4 Scholarship Management
 
-Administrators manage name, provider, description, award type, deadline, application link, active status, and an optional special_requirements textbox on both Add and Edit Scholarship.
+Administrators manage name, provider, description, award type, confirmed deadline (optional), application/intake notes, application link, active status, and an optional special_requirements textbox on both Add and Edit Scholarship. Seeded records display their official source and check date.
+
+Fresh installations receive 50 sourced scholarships and tuition awards for study in Malaysia (pre-university/diploma/bachelor’s), checked on 20 October 2026. All 34 recorded dates are after this date; 16 rolling/automatic/intake-based awards retain their real rules and labels. Ordinary reseeding upserts stable keys. The explicit replacement command backs up SQLite then removes all scholarship rows and related rules/saved links/history before installing exactly 50, preserving student data. See docs/SCHOLARSHIP_CATALOG.md for sources and limits.
 
 Special requirements are plain text, limited to 5,000 characters. The system displays this text safely rather than interpreting it as automatic eligibility logic.
 
@@ -97,17 +105,21 @@ Existing rules are converted into equivalent route rows during migration, retain
 
 1. Require a student profile and a complete latest academic record with official results, study status, required year and selected funding level.
 2. Reclassify income using the administrator's current ranges. Unclassifiable income shows an action message rather than an invented decision.
-3. Load active scholarships whose deadline has not passed. Skip scholarships without a configured rule record.
+3. Load active scholarships whose deadline has not passed or whose date needs confirmation. Unknown dates require provider verification and are never shown as a passed deadline check. Skip scholarships without a configured rule record.
 4. Evaluate general requirements and every complete academic route. Retain each route's comparison results.
 5. Return Not Eligible if a general requirement fails or no configured route passes. Otherwise return Eligible. Failure explanations use the closest relevant route; other alternatives are available in an expandable comparison.
 6. Attach requires_verification only when the result is Eligible and trimmed special_requirements is non-empty.
-7. Group by decision and order by earliest deadline, then name and ID for deterministic ties.
+7. Group by decision and order by earliest confirmed deadline (unknown dates last), then name and ID for deterministic ties.
 
 There are no points, weights, percentage match scores or hard/soft rule settings in the active evaluation.
 
 ### 6.7 Recommendation Explanation
 
 Each requirement records its key, label, required value, student value, outcome (met, not_met or not_applicable), and explanation. Scholarship cards and detail pages show these results. Eligible ! includes an expandable, keyboard-accessible explanation of special conditions.
+
+The recommendation page provides a filter sidebar beside a single column of full-width cards. Students can search scholarship/provider names and filter by award type, funded study level, supported field and institution type. All active filters combine; unrestricted programme criteria also match the selected programme choice. Filters narrow existing evaluations without changing the student's information or eligibility decision.
+
+Eligible and Not Eligible links display filtered group totals. Each group shows at most 10 scholarships per page, ordered by the existing deadline/name/ID rules. Numbered and previous/next links preserve filters and the chosen group. Applying filters, resetting or switching groups starts at page 1; out-of-range page numbers resolve to the last available page. On narrow screens, filters stack above the list. Empty filtered groups retain filters and offer a reset action.
 
 ### 6.8 Saved Scholarships
 
@@ -132,10 +144,10 @@ Recommendations have Eligible and Not Eligible groups. Eligible ! is included in
 | Table | Relevant fields / relationships |
 | --- | --- |
 | users | Authentication and student/admin role |
-| student_profiles | user_id, nationality, state, household_income, number_of_dependents, income_category, institution_type, field_of_study |
-| academic_results | Unique user_id; education_level, study_status, year_of_study, funding_study_level, spm_as, spm_credits, cgpa, result_status |
+| student_profiles | user_id, nationality, state, household_income, number_of_dependents, income_category; inactive legacy institution/field values retained |
+| academic_results | Unique user_id; education_level, study_status, year_of_study, funding_study_level, institution_type, field_of_study, spm_as, spm_credits, cgpa, result_status |
 | income_categories | name, min_income, max_income |
-| scholarships | name, provider, description, award_type, deadline, application_link, is_active, special_requirements |
+| scholarships | name, provider, description, award_type, nullable deadline, deadline_type, application_link, is_active, special_requirements, catalog_key, source_url, source_checked_at, application_notes |
 | scholarship_rules | Unique scholarship_id; general nationality/funding/income/field/institution conditions; legacy academic columns retained |
 | scholarship_qualification_routes | scholarship_rule_id; education_level, study_status, min_spm_as, min_spm_credits, min_cgpa, min_year_of_study, max_year_of_study |
 | saved_scholarships | user_id and scholarship_id |
@@ -143,9 +155,11 @@ Recommendations have Eligible and Not Eligible groups. Eligible ! is included in
 
 Migration 2026_10_19_000000_add_decision_based_recommendations adds the new fields while preserving existing records. Legacy rule-type and score columns remain inactive for compatibility. Existing students must confirm their study status and funding level rather than having those answers invented during migration.
 
-Migration 2026_10_19_010000_create_scholarship_qualification_routes_table adds the one-to-many route table and converts existing qualification/status/year/result settings without changing student or scholarship records. Route rows are deleted automatically when their parent rule/scholarship is deleted. The route evaluator uses algorithm version decisions-v2-routes, so earlier cached decisions/logs refresh rather than being treated as current route evaluations.
+Migration 2026_10_19_010000_create_scholarship_qualification_routes_table adds the one-to-many route table and converts existing qualification/status/year/result settings without changing student or scholarship records. Route rows are deleted automatically when their parent rule/scholarship is deleted. The current evaluator uses algorithm version decisions-v5-local-award-windows, so earlier cached decisions/logs refresh rather than being treated as current evaluations.
 
 ## 9. Missing Data Handling
+
+Migration 2026_10_20_000000_move_programme_details_to_academic_results copies programme choices from profiles to existing academic records without creating qualifications/results. Legacy profile columns are nullable and no longer edited or used for matching. If a student has only a legacy profile, its programme choices prefill the first academic form; no academic record is created until valid official results are submitted. Rollback copies current programme choices back to existing profiles.
 
 Missing profile, academic record or required official academic information blocks recommendation generation and identifies the required update. Pending legacy records cannot generate decisions. An absent scholarship rule record is excluded with an administrator-configuration notice. Missing values are never converted to zero.
 
@@ -153,11 +167,12 @@ This version collects one latest qualification. Earlier qualifications are not i
 
 ## 10. Data Seeding Strategy
 
-Seeders provide local demonstration users, income ranges, scholarships and requirements. Sample provider criteria are demonstration data and must be checked against providers before real use. Students complete the new academic fields before recommendations. Automated tests use an isolated in-memory SQLite database.
+Seeders provide local demonstration users, income ranges, scholarships and requirements. The catalogue is sourced from provider material; conditions outside the supported academic/profile model require provider verification. Students complete the new academic fields before recommendations. Automated tests use an isolated in-memory SQLite database.
 
 ## 11. Validation Rules
 
 - Latest level and funding level must be supported education levels.
+- Institution type and field are required academic programme inputs using shared supported choices.
 - Study status is studying/completed; SPM requires completed.
 - Current year is 1–10 for studying CGPA-based records.
 - SPM counts are integers from 0–12; credits must include As.
@@ -166,7 +181,7 @@ Seeders provide local demonstration users, income ranges, scholarships and requi
 - Monetary limits are nonnegative; zero is a real limit.
 - Qualification boxes require a supported level and study status. SPM requires Completed. Year boundaries are optional individually, within 1–10, and ordered when both are specified; non-studying routes clear them.
 - Inapplicable SPM/CGPA fields are cleared server-side. Route forms require a JavaScript-initialization marker to prevent an uninitialized editor from accidentally removing existing routes.
-- A scholarship deadline is a date and its application link is a URL.
+- A confirmed scholarship deadline is a date; an unconfirmed date stays empty. Its application link is a URL.
 
 ## 12. Non-Functional Requirements
 

@@ -20,7 +20,7 @@ test('student can view profile edit page', function () {
     $response->assertSee('Edit Profile');
 });
 
-test('student can create profile with all fields', function () {
+test('student can create a personal profile without academic programme fields', function () {
     $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
 
     $response = $this->actingAs($user)->patch(route('student.profile.update'), [
@@ -28,8 +28,6 @@ test('student can create profile with all fields', function () {
         'state' => 'Selangor',
         'household_income' => 2500,
         'number_of_dependents' => 3,
-        'institution_type' => 'Public University',
-        'field_of_study' => 'Engineering',
     ]);
 
     $response->assertRedirect(route('student.dashboard'));
@@ -41,8 +39,8 @@ test('student can create profile with all fields', function () {
     expect($profile->state)->toBe('Selangor');
     expect((float) $profile->household_income)->toBe(2500.0);
     expect($profile->number_of_dependents)->toBe(3);
-    expect($profile->institution_type)->toBe('Public University');
-    expect($profile->field_of_study)->toBe('Engineering');
+    expect($profile->institution_type)->toBeNull();
+    expect($profile->field_of_study)->toBeNull();
     expect($profile->income_category)->toBe('B40');
 });
 
@@ -54,8 +52,6 @@ test('profile creation auto-classifies income category', function () {
         'state' => 'Kuala Lumpur',
         'household_income' => 5000,
         'number_of_dependents' => 2,
-        'institution_type' => 'Private University',
-        'field_of_study' => 'Business',
     ]);
 
     $profile = StudentProfile::where('user_id', $user->id)->first();
@@ -70,8 +66,6 @@ test('profile creation classifies T20 for high income', function () {
         'state' => 'Penang',
         'household_income' => 10000,
         'number_of_dependents' => 1,
-        'institution_type' => 'Public University',
-        'field_of_study' => 'Medicine',
     ]);
 
     $profile = StudentProfile::where('user_id', $user->id)->first();
@@ -88,8 +82,6 @@ test('student can update existing profile', function () {
         'household_income' => 3000,
         'number_of_dependents' => 4,
         'income_category' => 'B40',
-        'institution_type' => 'Public University',
-        'field_of_study' => 'Science',
     ]);
 
     $response = $this->actingAs($user)->patch(route('student.profile.update'), [
@@ -97,8 +89,6 @@ test('student can update existing profile', function () {
         'state' => 'Kuala Lumpur',
         'household_income' => 4000,
         'number_of_dependents' => 2,
-        'institution_type' => 'Private University',
-        'field_of_study' => 'Engineering',
     ]);
 
     $response->assertRedirect(route('student.dashboard'));
@@ -108,7 +98,6 @@ test('student can update existing profile', function () {
     expect($profile->state)->toBe('Kuala Lumpur');
     expect((float) $profile->household_income)->toBe(4000.0);
     expect($profile->income_category)->toBe('M40');
-    expect($profile->field_of_study)->toBe('Engineering');
 });
 
 test('profile validation requires all fields', function () {
@@ -119,8 +108,6 @@ test('profile validation requires all fields', function () {
         'state' => '',
         'household_income' => '',
         'number_of_dependents' => '',
-        'institution_type' => '',
-        'field_of_study' => '',
     ]);
 
     $response->assertSessionHasErrors([
@@ -128,8 +115,6 @@ test('profile validation requires all fields', function () {
         'state',
         'household_income',
         'number_of_dependents',
-        'institution_type',
-        'field_of_study',
     ]);
 });
 
@@ -141,8 +126,6 @@ test('profile validation requires numeric household income', function () {
         'state' => 'Selangor',
         'household_income' => 'abc',
         'number_of_dependents' => 3,
-        'institution_type' => 'Public University',
-        'field_of_study' => 'Engineering',
     ]);
 
     $response->assertSessionHasErrors('household_income');
@@ -156,26 +139,27 @@ test('profile nationality must be selected from the available options', function
         'state' => 'Selangor',
         'household_income' => 2500,
         'number_of_dependents' => 3,
-        'institution_type' => 'Public University',
-        'field_of_study' => 'Engineering',
     ]);
 
     $response->assertSessionHasErrors('nationality');
 });
 
-test('profile field of study must be one of the available options', function () {
-    $user = User::factory()->create(['role' => User::ROLE_STUDENT]);
+test('profile updates cannot change academic programme details', function () {
+    $user = makeStudent();
 
     $response = $this->actingAs($user)->patch(route('student.profile.update'), [
         'nationality' => 'Malaysian',
         'state' => 'Selangor',
         'household_income' => 2500,
         'number_of_dependents' => 3,
-        'institution_type' => 'Public University',
+        'institution_type' => 'Private University',
         'field_of_study' => 'Unlisted Field',
     ]);
 
-    $response->assertSessionHasErrors('field_of_study');
+    $response->assertSessionHasNoErrors();
+    expect($user->fresh()->academicResult->institution_type)->toBe('Public University');
+    expect($user->fresh()->academicResult->field_of_study)->toBe('Engineering');
+    expect($user->fresh()->studentProfile->field_of_study)->toBeNull();
 });
 
 test('profile validation requires non-negative dependents', function () {
@@ -186,20 +170,29 @@ test('profile validation requires non-negative dependents', function () {
         'state' => 'Selangor',
         'household_income' => 2500,
         'number_of_dependents' => -1,
-        'institution_type' => 'Public University',
-        'field_of_study' => 'Engineering',
     ]);
 
     $response->assertSessionHasErrors('number_of_dependents');
 });
 
-test('student can supply the same specific nationalities available in scholarship rules', function () {
+test('student can select non Malaysian nationality and only binary choices are offered', function () {
     $user = makeStudent();
-    $payload = $user->studentProfile->only(['nationality', 'state', 'household_income', 'number_of_dependents', 'institution_type', 'field_of_study']);
-    $payload['nationality'] = 'Singaporean';
+    $payload = $user->studentProfile->only(['nationality', 'state', 'household_income', 'number_of_dependents']);
+    $payload['nationality'] = 'Non-Malaysian';
     $this->actingAs($user)->patch(route('student.profile.update'), $payload)->assertSessionHasNoErrors();
-    expect($user->fresh()->studentProfile->nationality)->toBe('Singaporean');
+    expect($user->fresh()->studentProfile->nationality)->toBe('Non-Malaysian');
+    $this->get(route('student.profile.edit'))->assertOk()->assertSee('Malaysian')->assertSee('Non-Malaysian')
+        ->assertDontSee('Singaporean')->assertDontSee('Indonesian')->assertDontSee('Bruneian');
+    expect(config('scholarship.nationalities'))->toBe(['Malaysian', 'Non-Malaysian']);
 });
+
+test('former country and other nationality choices are rejected when saving a profile', function ($nationality) {
+    $user = makeStudent();
+    $payload = $user->studentProfile->only(['nationality', 'state', 'household_income', 'number_of_dependents']);
+    $payload['nationality'] = $nationality;
+    $this->actingAs($user)->patch(route('student.profile.update'), $payload)->assertSessionHasErrors('nationality');
+    expect($user->fresh()->studentProfile->nationality)->toBe('Malaysian');
+})->with(['Singaporean', 'Indonesian', 'Bruneian', 'Other']);
 
 test('profile requires student role', function () {
     $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);

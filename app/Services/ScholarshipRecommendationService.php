@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 
 class ScholarshipRecommendationService
 {
-    public const ALGORITHM_VERSION = 'decisions-v2-routes';
+    public const ALGORITHM_VERSION = 'decisions-v5-local-award-windows';
 
     private const CATALOG_VERSION_CACHE_KEY = 'recommendation_catalog_version';
 
@@ -21,12 +21,15 @@ class ScholarshipRecommendationService
         if (! $profile) {
             return ['error' => 'Please complete your student profile first.', 'recommendations' => []];
         }
+        if (! in_array($profile->nationality, config('scholarship.nationalities'), true)) {
+            return ['error' => 'Please update your student profile and select Malaysian or Non-Malaysian nationality.', 'recommendations' => []];
+        }
         if (! $academic) {
             return ['error' => 'Please enter your academic result first.', 'recommendations' => []];
         }
         if (! $academic->isReadyForRecommendations()) {
             return [
-                'error' => 'Complete your academic information and funding level using official results. SPM requires completed exams; other levels require an official CGPA.',
+                'error' => 'Complete your academic information and programme seeking funding, including institution type and field of study, using official results. SPM requires completed exams; other levels require an official CGPA.',
                 'recommendations' => [],
             ];
         }
@@ -43,7 +46,8 @@ class ScholarshipRecommendationService
 
         return Cache::remember($key, 1800, function () use ($profile, $academic, $incomeCategory) {
             $scholarships = Scholarship::where('is_active', true)
-                ->whereDate('deadline', '>=', today()->toDateString())->with('rule.qualificationRoutes')->get();
+                ->where(fn ($query) => $query->whereNull('deadline')->orWhereDate('deadline', '>=', today()->toDateString()))
+                ->with('rule.qualificationRoutes')->get();
             $recommendations = [];
             $unconfigured = 0;
             foreach ($scholarships as $scholarship) {
@@ -58,11 +62,6 @@ class ScholarshipRecommendationService
 
                     continue;
                 }
-                if ($profile->nationality === 'Non-Malaysian'
-                    && $rule->required_nationality
-                    && ! in_array($rule->required_nationality, ['Malaysian', 'Non-Malaysian'], true)) {
-                    return ['error' => 'Please select your specific nationality in your student profile to check nationality-specific scholarships.', 'recommendations' => []];
-                }
                 $checks = [];
                 $add = function (string $key, string $label, mixed $required, mixed $actual, bool $met, string $message, bool $applicable = true) use (&$checks) {
                     $checks[] = [
@@ -72,8 +71,7 @@ class ScholarshipRecommendationService
                     ];
                 };
                 $nationalityMatches = ! $rule->required_nationality
-                    || $profile->nationality === $rule->required_nationality
-                    || ($rule->required_nationality === 'Non-Malaysian' && $profile->nationality !== 'Malaysian');
+                    || $profile->nationality === $rule->required_nationality;
                 $add('nationality', 'Nationality', $rule->required_nationality, $profile->nationality,
                     $nationalityMatches, $nationalityMatches ? 'You meet the nationality requirement.'
                         : "This scholarship requires {$rule->required_nationality} nationality.", (bool) $rule->required_nationality);
@@ -91,27 +89,45 @@ class ScholarshipRecommendationService
                     "Maximum household income: RM {$rule->max_household_income}; your income: RM {$profile->household_income}.",
                     $rule->max_household_income !== null);
                 $fields = $rule->supportedFieldsOfStudy();
-                $add('field_of_study', 'Field of study', $fields, $profile->field_of_study,
-                    in_array($profile->field_of_study, $fields, true),
-                    'Supported fields: '.implode(', ', $fields)."; your field: {$profile->field_of_study}.", ! empty($fields));
-                $add('institution_type', 'Institution type', $rule->required_institution_type, $profile->institution_type,
-                    $profile->institution_type === $rule->required_institution_type,
-                    "Required institution: {$rule->required_institution_type}; your institution: {$profile->institution_type}.",
+                $add('field_of_study', 'Field of study', $fields, $academic->field_of_study,
+                    in_array($academic->field_of_study, $fields, true),
+                    'Supported fields: '.implode(', ', $fields)."; your field: {$academic->field_of_study}.", ! empty($fields));
+                $add('institution_type', 'Institution type', $rule->required_institution_type, $academic->institution_type,
+                    $academic->institution_type === $rule->required_institution_type,
+                    "Required institution: {$rule->required_institution_type}; your institution: {$academic->institution_type}.",
                     (bool) $rule->required_institution_type);
 
-                $add('deadline', 'Application deadline', $scholarship->deadline->toDateString(), today()->toDateString(),
-                    ! $scholarship->isExpired(), 'This scholarship is open for applications.');
+                if ($scholarship->deadline !== null) {
+                    $add('deadline', 'Application deadline', $scholarship->deadline->toDateString(), today()->toDateString(),
+                        ! $scholarship->isExpired(), $scholarship->isDemo()
+                            ? 'The fictional demo deadline has not passed.'
+                            : 'The recorded closing date has not passed. Confirm the current application window with the provider.');
+                } else {
+                    // A rolling or automatic award has no single calendar closing date.
+                    $checks[] = [
+                        'key' => 'deadline', 'label' => 'Application deadline',
+                        'required' => $scholarship->deadlineLabel(), 'actual' => null, 'outcome' => 'not_applicable',
+                        'message' => $scholarship->application_notes ?: 'The closing date needs confirmation with the provider.',
+                    ];
+                }
                 $failed = array_values(array_map(fn ($check) => $check['key'],
                     array_filter($checks, fn ($check) => $check['outcome'] === 'not_met')));
                 $eligible = empty($failed);
                 $special = trim((string) $scholarship->special_requirements);
+                if ($scholarship->deadline === null && ! in_array($scholarship->deadline_type, ['rolling', 'automatic'], true)) {
+                    $special = trim($special."\n\nApplication dates must be confirmed with the provider.");
+                }
                 $recommendations[] = [
                     'scholarship_id' => $scholarship->id,
                     'scholarship_data' => [
                         'id' => $scholarship->id, 'name' => $scholarship->name,
                         'description' => $scholarship->description, 'provider_name' => $scholarship->provider,
-                        'award_type' => $scholarship->award_type, 'deadline' => $scholarship->deadline->toDateString(),
+                        'award_type' => $scholarship->award_type, 'deadline' => $scholarship->deadline?->toDateString(),
+                        'deadline_label' => $scholarship->deadlineLabel(),
+                        'deadline_type' => $scholarship->deadline_type,
                         'application_link' => $scholarship->application_link,
+                        'application_notes' => $scholarship->application_notes,
+                        'is_demo' => $scholarship->isDemo(),
                     ],
                     'status' => $eligible ? 'Eligible' : 'Not Eligible',
                     'requires_verification' => $eligible && $special !== '',
@@ -122,7 +138,7 @@ class ScholarshipRecommendationService
                 ];
             }
             usort($recommendations, fn ($a, $b) => (($a['status'] === 'Eligible' ? 0 : 1) <=> ($b['status'] === 'Eligible' ? 0 : 1))
-                ?: ($a['scholarship_data']['deadline'] <=> $b['scholarship_data']['deadline'])
+                ?: (($a['scholarship_data']['deadline'] ?? '9999-12-31') <=> ($b['scholarship_data']['deadline'] ?? '9999-12-31'))
                 ?: strcasecmp($a['scholarship_data']['name'], $b['scholarship_data']['name'])
                 ?: ($a['scholarship_id'] <=> $b['scholarship_id']));
 

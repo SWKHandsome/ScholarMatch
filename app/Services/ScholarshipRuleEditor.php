@@ -16,13 +16,13 @@ class ScholarshipRuleEditor
     {
         $validator = Validator::make($request->all(), [
             'qualification_routes_submitted' => $request->boolean('rules_submitted') ? ['required', 'accepted'] : ['sometimes', 'accepted'],
-            'required_nationality' => ['nullable', Rule::in(config('scholarship.nationalities'))],
+            'required_nationality' => ['nullable', 'string', Rule::in(config('scholarship.nationalities'))],
             'required_study_level' => ['nullable', Rule::in(AcademicResult::EDUCATION_LEVELS)],
             'required_income_category' => ['nullable', Rule::in(['B40', 'M40', 'T20'])],
             'max_household_income' => ['nullable', 'numeric', 'min:0'],
             'required_fields_of_study' => ['nullable', 'array'],
             'required_fields_of_study.*' => [Rule::in(config('scholarship.fields_of_study')), 'distinct'],
-            'required_institution_type' => ['nullable', Rule::in(['Public University', 'Private University', 'Polytechnic', 'Community College', 'Foundation College', 'Other'])],
+            'required_institution_type' => ['nullable', Rule::in(config('scholarship.institution_types'))],
             'qualification_routes' => ['nullable', 'array', 'max:50'],
             'qualification_routes.*' => ['array:education_level,study_status,min_spm_as,min_spm_credits,min_cgpa,min_year_of_study,max_year_of_study'],
             'qualification_routes.*.education_level' => ['required', Rule::in(AcademicResult::EDUCATION_LEVELS)],

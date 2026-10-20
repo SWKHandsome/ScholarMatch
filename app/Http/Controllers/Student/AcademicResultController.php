@@ -11,7 +11,13 @@ class AcademicResultController extends Controller
 {
     public function edit(Request $request)
     {
-        $academicResult = $request->user()->academicResult ?? new AcademicResult;
+        $academicResult = $request->user()->academicResult;
+        if (! $academicResult) {
+            $profile = $request->user()->studentProfile;
+            $academicResult = new AcademicResult([
+                'institution_type' => $profile?->institution_type, 'field_of_study' => $profile?->field_of_study,
+            ]);
+        }
         $educationLevels = AcademicResult::EDUCATION_LEVELS;
 
         return view('student.academic-result.edit', compact('academicResult', 'educationLevels'));
@@ -25,6 +31,8 @@ class AcademicResultController extends Controller
             'study_status' => ['required', Rule::in($isSpm ? ['completed'] : ['studying', 'completed'])],
             'year_of_study' => ['exclude_unless:study_status,studying', 'required', 'integer', 'between:1,10'],
             'funding_study_level' => ['required', Rule::in(AcademicResult::EDUCATION_LEVELS)],
+            'institution_type' => ['required', Rule::in(config('scholarship.institution_types'))],
+            'field_of_study' => ['required', Rule::in(config('scholarship.fields_of_study'))],
             'spm_as' => ['exclude_unless:education_level,SPM', 'required', 'integer', 'between:0,12'],
             'spm_credits' => [
                 'exclude_unless:education_level,SPM', 'required', 'integer', 'between:0,12', 'gte:spm_as',

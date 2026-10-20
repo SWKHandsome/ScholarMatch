@@ -1,0 +1,2568 @@
+{
+  "version": "scholarmatch-demo-70-v2",
+  "mode": "demo",
+  "created_on": "2026-10-20",
+  "scope": "70 fictional Malaysian-study awards covering requirements supported by the current matcher. Includes 20 additional complex scenarios: 10 funding Diploma and 10 funding Undergraduate (Degree). All active and open; no real providers, funding, verified sources or application destinations.",
+  "scholarships": [
+    {
+      "catalog_key": "demo-01",
+      "name": "Demo 01: Open Access Award",
+      "provider": "ScholarMatch Demo Access Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. No additional qualification or result threshold.",
+      "award_type": "Full Scholarship",
+      "deadline": null,
+      "deadline_type": "rolling",
+      "application_link": "https://scholarmatch.example/demo/01",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "demo-02",
+      "name": "Demo 02: Interview Access Award",
+      "provider": "ScholarMatch Demo Academic Foundation",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. No additional qualification or result threshold.",
+      "award_type": "Partial Scholarship",
+      "deadline": null,
+      "deadline_type": "rolling",
+      "application_link": "https://scholarmatch.example/demo/02",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: attend a mock interview.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "demo-03",
+      "name": "Demo 03: Malaysian Student Award",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. No additional qualification or result threshold.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-03-03",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/03",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": null,
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "demo-04",
+      "name": "Demo 04: International Tuition Award",
+      "provider": "ScholarMatch Demo Campus Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Non-Malaysian. Funds: Undergraduate. Institution: Private University. No additional qualification or result threshold.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2099-04-04",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/04",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Non-Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "demo-05",
+      "name": "Demo 05: B40 Household Support",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Income category: B40. Household income <= RM3169.00 per month. No additional qualification or result threshold.",
+      "award_type": "Living Allowance",
+      "deadline": "2099-05-05",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/05",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": "B40",
+        "max_household_income": 3169,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "demo-06",
+      "name": "Demo 06: Foundation Low Income Award",
+      "provider": "ScholarMatch Demo Global Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Foundation. Household income <= RM2000.00 per month. Pass any one qualification route: SPM (completed), SPM As >= 3, SPM credits >= 5.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-06-06",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/06",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Foundation",
+        "required_income_category": null,
+        "max_household_income": 2000,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 3,
+            "min_spm_credits": 5
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-07",
+      "name": "Demo 07: M40 Progression Award",
+      "provider": "ScholarMatch Demo Access Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Income category: M40. Pass any one qualification route: STPM (completed), CGPA >= 3.00 OR Foundation (completed), CGPA >= 3.00 OR Matriculation (completed), CGPA >= 3.00 OR Diploma (completed), CGPA >= 3.00.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-07-07",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/07",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": "M40",
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Matriculation",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-08",
+      "name": "Demo 08: T20 Academic Excellence",
+      "provider": "ScholarMatch Demo Academic Foundation",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Income category: T20. Pass any one qualification route: STPM (completed), CGPA >= 3.75 OR Foundation (completed), CGPA >= 3.75 OR Matriculation (completed), CGPA >= 3.75 OR Diploma (completed), CGPA >= 3.75.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-08-08",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/08",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": "T20",
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 3.75
+          },
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.75
+          },
+          {
+            "education_level": "Matriculation",
+            "study_status": "completed",
+            "min_cgpa": 3.75
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.75
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-09",
+      "name": "Demo 09: Flexible Income Support",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Household income <= RM7000.00 per month. Pass any one qualification route: Undergraduate (studying or completed), CGPA >= 2.75.",
+      "award_type": "Living Allowance",
+      "deadline": "2099-09-09",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/09",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": 7000,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "any",
+            "min_cgpa": 2.75
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-10",
+      "name": "Demo 10: SPM Foundation Entry",
+      "provider": "ScholarMatch Demo Campus Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Foundation. Pass any one qualification route: SPM (completed), SPM As >= 0, SPM credits >= 5.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2099-10-10",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/10",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Foundation",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 0,
+            "min_spm_credits": 5
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-11",
+      "name": "Demo 11: SPM Three As Diploma",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Diploma. Pass any one qualification route: SPM (completed), SPM As >= 3, SPM credits >= 5.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-11-11",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/11",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Diploma",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 3,
+            "min_spm_credits": 5
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-12",
+      "name": "Demo 12: SPM Seven As Foundation",
+      "provider": "ScholarMatch Demo Global Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Foundation. Pass any one qualification route: SPM (completed), SPM As >= 7, SPM credits >= 7.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-12-12",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/12",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Foundation",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 7,
+            "min_spm_credits": 7
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-13",
+      "name": "Demo 13: SPM Nine As Matriculation",
+      "provider": "ScholarMatch Demo Access Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Matriculation. Pass any one qualification route: SPM (completed), SPM As >= 9, SPM credits >= 9.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-01-13",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/13",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Matriculation",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 9,
+            "min_spm_credits": 9
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-14",
+      "name": "Demo 14: SPM Credit Focus Diploma",
+      "provider": "ScholarMatch Demo Academic Foundation",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Diploma. Pass any one qualification route: SPM (completed), SPM As >= 0, SPM credits >= 3.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-02-14",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/14",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Diploma",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 0,
+            "min_spm_credits": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-15",
+      "name": "Demo 15: SPM As and Credits Award",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Foundation. Institution: Foundation College. Pass any one qualification route: SPM (completed), SPM As >= 5, SPM credits >= 8.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-03-15",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/15",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Foundation",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": "Foundation College",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 5,
+            "min_spm_credits": 8
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-16",
+      "name": "Demo 16: Completed STPM Progression",
+      "provider": "ScholarMatch Demo Campus Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Pass any one qualification route: STPM (completed), CGPA >= 2.50.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-04-16",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/16",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 2.5
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-17",
+      "name": "Demo 17: Current STPM Support",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: STPM. Pass any one qualification route: STPM (studying), CGPA >= 3.00, year >= 1, year <= 2.",
+      "award_type": "Living Allowance",
+      "deadline": "2099-05-17",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/17",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "STPM",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "studying",
+            "min_cgpa": 3,
+            "min_year_of_study": 1,
+            "max_year_of_study": 2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-18",
+      "name": "Demo 18: Foundation to Degree Award",
+      "provider": "ScholarMatch Demo Global Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Pass any one qualification route: Foundation (completed), CGPA >= 3.00.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2099-06-18",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/18",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-19",
+      "name": "Demo 19: Diploma to Degree Award",
+      "provider": "ScholarMatch Demo Access Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Pass any one qualification route: Diploma (completed), CGPA >= 3.25.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-07-19",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/19",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.25
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-20",
+      "name": "Demo 20: Matriculation to Degree Award",
+      "provider": "ScholarMatch Demo Academic Foundation",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Pass any one qualification route: Matriculation (completed), CGPA >= 3.50.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-08-20",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/20",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Matriculation",
+            "study_status": "completed",
+            "min_cgpa": 3.5
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-21",
+      "name": "Demo 21: First Year Degree Support",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Pass any one qualification route: Undergraduate (studying), CGPA >= 2.50, year >= 1, year <= 1.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-09-21",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/21",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 2.5,
+            "min_year_of_study": 1,
+            "max_year_of_study": 1
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-22",
+      "name": "Demo 22: Middle Years Degree Award",
+      "provider": "ScholarMatch Demo Campus Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.00, year >= 2, year <= 3.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-10-22",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/22",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3,
+            "min_year_of_study": 2,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-23",
+      "name": "Demo 23: Fourth Year Completion Award",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.50, year >= 4, year <= 4.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-11-23",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/23",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: present a final-year project plan.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.5,
+            "min_year_of_study": 4,
+            "max_year_of_study": 4
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-24",
+      "name": "Demo 24: Graduate Return Award",
+      "provider": "ScholarMatch Demo Global Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Pass any one qualification route: Undergraduate (completed), CGPA >= 3.75.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "automatic",
+      "application_link": "https://scholarmatch.example/demo/24",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "completed",
+            "min_cgpa": 3.75
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-25",
+      "name": "Demo 25: Diploma Either Status Award",
+      "provider": "ScholarMatch Demo Access Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Diploma. Pass any one qualification route: Diploma (studying or completed), CGPA >= 2.75.",
+      "award_type": "Partial Scholarship",
+      "deadline": null,
+      "deadline_type": "rolling",
+      "application_link": "https://scholarmatch.example/demo/25",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Diploma",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Diploma",
+            "study_status": "any",
+            "min_cgpa": 2.75
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-26",
+      "name": "Demo 26: Diploma or Current Degree Award",
+      "provider": "ScholarMatch Demo Academic Foundation",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Pass any one qualification route: Diploma (completed), CGPA >= 3.00 OR Undergraduate (studying), CGPA >= 3.25, year >= 1, year <= 3.",
+      "award_type": "Partial Scholarship",
+      "deadline": null,
+      "deadline_type": "rolling",
+      "application_link": "https://scholarmatch.example/demo/26",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.25,
+            "min_year_of_study": 1,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-27",
+      "name": "Demo 27: Three Qualification Choices",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Pass any one qualification route: SPM (completed), SPM As >= 5, SPM credits >= 5 OR STPM (completed), CGPA >= 3.00 OR Foundation (completed), CGPA >= 3.20.",
+      "award_type": "Partial Scholarship",
+      "deadline": null,
+      "deadline_type": "rolling",
+      "application_link": "https://scholarmatch.example/demo/27",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 5,
+            "min_spm_credits": 5
+          },
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-28",
+      "name": "Demo 28: Different Progression Thresholds",
+      "provider": "ScholarMatch Demo Campus Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Undergraduate. Pass any one qualification route: Foundation (completed), CGPA >= 3.50 OR Diploma (completed), CGPA >= 3.00.",
+      "award_type": "Partial Scholarship",
+      "deadline": null,
+      "deadline_type": "rolling",
+      "application_link": "https://scholarmatch.example/demo/28",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.5
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-29",
+      "name": "Demo 29: Public Engineering Award",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Institution: Public University. Field: Engineering. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.00.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-05-02",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/29",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Engineering"
+        ],
+        "required_institution_type": "Public University",
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-30",
+      "name": "Demo 30: Private Business Award",
+      "provider": "ScholarMatch Demo Global Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Institution: Private University. Field: Business. Pass any one qualification route: Undergraduate (studying or completed), CGPA >= 2.80.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-06-03",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/30",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Business"
+        ],
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "any",
+            "min_cgpa": 2.8
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-31",
+      "name": "Demo 31: Polytechnic Practical Skills",
+      "provider": "ScholarMatch Demo Access Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Diploma. Institution: Polytechnic. Pass any one qualification route: Diploma (studying or completed), CGPA >= 2.50.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-07-04",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/31",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Diploma",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": "Polytechnic",
+        "qualification_routes": [
+          {
+            "education_level": "Diploma",
+            "study_status": "any",
+            "min_cgpa": 2.5
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-32",
+      "name": "Demo 32: Community College Support",
+      "provider": "ScholarMatch Demo Academic Foundation",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Diploma. Household income <= RM4000.00 per month. Institution: Community College. No additional qualification or result threshold.",
+      "award_type": "Partial Scholarship",
+      "deadline": null,
+      "deadline_type": "rolling",
+      "application_link": "https://scholarmatch.example/demo/32",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Diploma",
+        "required_income_category": null,
+        "max_household_income": 4000,
+        "required_fields_of_study": [],
+        "required_institution_type": "Community College",
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "demo-33",
+      "name": "Demo 33: Foundation College Science",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Foundation. Institution: Foundation College. Field: Science or Natural Sciences or STEM. Pass any one qualification route: SPM (completed), SPM As >= 3, SPM credits >= 5.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-09-06",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/33",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Foundation",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Science",
+          "Natural Sciences",
+          "STEM"
+        ],
+        "required_institution_type": "Foundation College",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 3,
+            "min_spm_credits": 5
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-34",
+      "name": "Demo 34: Other Institution Access",
+      "provider": "ScholarMatch Demo Campus Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Diploma. Institution: Other. Pass any one qualification route: Diploma (studying or completed), CGPA >= 2.50.",
+      "award_type": "Partial Scholarship",
+      "deadline": null,
+      "deadline_type": "rolling",
+      "application_link": "https://scholarmatch.example/demo/34",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Diploma",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": "Other",
+        "qualification_routes": [
+          {
+            "education_level": "Diploma",
+            "study_status": "any",
+            "min_cgpa": 2.5
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-35",
+      "name": "Demo 35: Computing and Engineering",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Field: Computer Science or Engineering. Pass any one qualification route: Foundation (completed), CGPA >= 3.00 OR Matriculation (completed), CGPA >= 3.00 OR Diploma (completed), CGPA >= 3.00 OR Undergraduate (studying), CGPA >= 3.20.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-11-08",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/35",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Computer Science",
+          "Engineering"
+        ],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Matriculation",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-36",
+      "name": "Demo 36: Accounting and Finance",
+      "provider": "ScholarMatch Demo Global Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Field: Accounting & Finance. Pass any one qualification route: STPM (completed), CGPA >= 3.25 OR Foundation (completed), CGPA >= 3.25 OR Diploma (completed), CGPA >= 3.25 OR Undergraduate (studying), CGPA >= 3.25.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-12-09",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/36",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Accounting & Finance"
+        ],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 3.25
+          },
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.25
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.25
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.25
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-37",
+      "name": "Demo 37: Arts and Design Portfolio",
+      "provider": "ScholarMatch Demo Access Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Diploma. Field: Arts & Design. Pass any one qualification route: SPM (completed), SPM As >= 3, SPM credits >= 3.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-01-10",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/37",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: submit a sample creative portfolio.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Diploma",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Arts & Design"
+        ],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 3,
+            "min_spm_credits": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-38",
+      "name": "Demo 38: Communication and Media",
+      "provider": "ScholarMatch Demo Academic Foundation",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Field: Communication & Media. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.00, year >= 1, year <= 4.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-02-11",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/38",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: give a short mock presentation.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Communication & Media"
+        ],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3,
+            "min_year_of_study": 1,
+            "max_year_of_study": 4
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-39",
+      "name": "Demo 39: Future Educator Award",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Institution: Public University. Field: Education. Pass any one qualification route: Undergraduate (studying), CGPA >= 2.80.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-03-12",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/39",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: submit a short personal statement.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Education"
+        ],
+        "required_institution_type": "Public University",
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 2.8
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-40",
+      "name": "Demo 40: Health and Care Merit",
+      "provider": "ScholarMatch Demo Campus Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Field: Health Sciences or Medicine or Pharmacy or Psychology. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.30.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-04-13",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/40",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Health Sciences",
+          "Medicine",
+          "Pharmacy",
+          "Psychology"
+        ],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-41",
+      "name": "Demo 41: Hospitality Diploma Award",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Diploma. Field: Hospitality & Tourism. Pass any one qualification route: SPM (completed), SPM As >= 2, SPM credits >= 3.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-05-14",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/41",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Diploma",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Hospitality & Tourism"
+        ],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 2,
+            "min_spm_credits": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-42",
+      "name": "Demo 42: Law and Social Sciences",
+      "provider": "ScholarMatch Demo Global Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Field: Law or Social Sciences. Pass any one qualification route: STPM (completed), CGPA >= 3.00 OR Undergraduate (studying), CGPA >= 3.20, year >= 1, year <= 3.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-06-15",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/42",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: attend a mock selection discussion.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Law",
+          "Social Sciences"
+        ],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.2,
+            "min_year_of_study": 1,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-43",
+      "name": "Demo 43: Agriculture and Veterinary",
+      "provider": "ScholarMatch Demo Access Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Income category: B40. Institution: Public University. Field: Agriculture & Veterinary Science. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.00, year >= 2, year <= 4.",
+      "award_type": "Living Allowance",
+      "deadline": "2099-07-16",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/43",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": "B40",
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Agriculture & Veterinary Science"
+        ],
+        "required_institution_type": "Public University",
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3,
+            "min_year_of_study": 2,
+            "max_year_of_study": 4
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-44",
+      "name": "Demo 44: Mathematics and Statistics",
+      "provider": "ScholarMatch Demo Academic Foundation",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Field: Mathematics & Statistics. Pass any one qualification route: Matriculation (completed), CGPA >= 3.25 OR Foundation (completed), CGPA >= 3.25 OR Undergraduate (studying), CGPA >= 3.25.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-08-17",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/44",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Mathematics & Statistics"
+        ],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Matriculation",
+            "study_status": "completed",
+            "min_cgpa": 3.25
+          },
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.25
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.25
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-45",
+      "name": "Demo 45: Built Environment and Discovery",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Field: Architecture & Built Environment or Natural Sciences or Other. Pass any one qualification route: Undergraduate (studying or completed), CGPA >= 2.75.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-09-18",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/45",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Architecture & Built Environment",
+          "Natural Sciences",
+          "Other"
+        ],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "any",
+            "min_cgpa": 2.75
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-46",
+      "name": "Demo 46: Diploma Study Loan",
+      "provider": "ScholarMatch Demo Campus Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Diploma. Household income <= RM6000.00 per month. Institution: Polytechnic. Pass any one qualification route: Diploma (studying), CGPA >= 2.00.",
+      "award_type": "Loan",
+      "deadline": "2099-10-19",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/46",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: review a fictional repayment schedule. No real loan is offered.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Diploma",
+        "required_income_category": null,
+        "max_household_income": 6000,
+        "required_fields_of_study": [],
+        "required_institution_type": "Polytechnic",
+        "qualification_routes": [
+          {
+            "education_level": "Diploma",
+            "study_status": "studying",
+            "min_cgpa": 2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-47",
+      "name": "Demo 47: STEM Convertible Study Loan",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Field: Computer Science or Engineering or STEM. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.25, year >= 1, year <= 3.",
+      "award_type": "Convertible Loan",
+      "deadline": "2099-11-20",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/47",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: review a fictional loan-conversion agreement. No real contract is offered.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Computer Science",
+          "Engineering",
+          "STEM"
+        ],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.25,
+            "min_year_of_study": 1,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-48",
+      "name": "Demo 48: Low Income Living Allowance",
+      "provider": "ScholarMatch Demo Global Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Income category: B40. Household income <= RM2500.00 per month. Pass any one qualification route: Diploma (studying), CGPA >= 2.00 OR Undergraduate (studying), CGPA >= 2.00.",
+      "award_type": "Living Allowance",
+      "deadline": null,
+      "deadline_type": "rolling",
+      "application_link": "https://scholarmatch.example/demo/48",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: provide sample proof of household income.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_income_category": "B40",
+        "max_household_income": 2500,
+        "required_fields_of_study": [],
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Diploma",
+            "study_status": "studying",
+            "min_cgpa": 2
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-49",
+      "name": "Demo 49: Private Campus Tuition Waiver",
+      "provider": "ScholarMatch Demo Access Fund",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Institution: Private University. Pass any one qualification route: Foundation (completed), CGPA >= 3.80 OR Undergraduate (studying), CGPA >= 3.80, year >= 1, year <= 2.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2099-01-22",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/49",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [],
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.8
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.8,
+            "min_year_of_study": 1,
+            "max_year_of_study": 2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-50",
+      "name": "Demo 50: Combined Requirements Challenge",
+      "provider": "ScholarMatch Demo Academic Foundation",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Undergraduate. Income category: B40. Household income <= RM3000.00 per month. Institution: Public University. Field: Computer Science or Engineering. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.70, year >= 2, year <= 3.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-02-23",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/50",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: attend a mock interview and describe a community activity.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": "B40",
+        "max_household_income": 3000,
+        "required_fields_of_study": [
+          "Computer Science",
+          "Engineering"
+        ],
+        "required_institution_type": "Public University",
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.7,
+            "min_year_of_study": 2,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-51",
+      "name": "Demo 51: Diploma Public STEM Entry",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Diploma. Income category: B40. Household income <= RM3000.00 per month. Institution: Polytechnic. Field: Engineering or Computer Science. Pass any one qualification route: SPM (completed), SPM As >= 4, SPM credits >= 5 OR STPM (completed), CGPA >= 2.50.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-11-01",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/51",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Diploma",
+        "required_income_category": "B40",
+        "max_household_income": 3000,
+        "required_fields_of_study": [
+          "Engineering",
+          "Computer Science"
+        ],
+        "required_institution_type": "Polytechnic",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 4,
+            "min_spm_credits": 5
+          },
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 2.5
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-52",
+      "name": "Demo 52: Diploma Community Access and Retention",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Diploma. Income category: B40. Household income <= RM2500.00 per month. Institution: Community College. Field: Hospitality & Tourism or Business. Pass any one qualification route: SPM (completed), SPM As >= 0, SPM credits >= 3 OR Diploma (studying), CGPA >= 2.50, year >= 1, year <= 2.",
+      "award_type": "Living Allowance",
+      "deadline": "2099-11-02",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/52",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: present household-income evidence at a mock document check.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Diploma",
+        "required_income_category": "B40",
+        "max_household_income": 2500,
+        "required_fields_of_study": [
+          "Hospitality & Tourism",
+          "Business"
+        ],
+        "required_institution_type": "Community College",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 0,
+            "min_spm_credits": 3
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "studying",
+            "min_cgpa": 2.5,
+            "min_year_of_study": 1,
+            "max_year_of_study": 2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-53",
+      "name": "Demo 53: Diploma Private Computing Merit",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Diploma. Income category: M40. Household income <= RM6000.00 per month. Institution: Private University. Field: Computer Science. Pass any one qualification route: SPM (completed), SPM As >= 5, SPM credits >= 6 OR Foundation (completed), CGPA >= 3.00 OR Diploma (studying), CGPA >= 3.25, year >= 1, year <= 2.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-11-03",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/53",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Diploma",
+        "required_income_category": "M40",
+        "max_household_income": 6000,
+        "required_fields_of_study": [
+          "Computer Science"
+        ],
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 5,
+            "min_spm_credits": 6
+          },
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "studying",
+            "min_cgpa": 3.25,
+            "min_year_of_study": 1,
+            "max_year_of_study": 2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-54",
+      "name": "Demo 54: Diploma International Business",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Non-Malaysian. Funds: Diploma. Institution: Private University. Field: Business or Accounting & Finance. Pass any one qualification route: SPM (completed), SPM As >= 3, SPM credits >= 5 OR Diploma (studying), CGPA >= 3.25, year >= 1, year <= 2.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2099-11-04",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/54",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Non-Malaysian",
+        "required_study_level": "Diploma",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Business",
+          "Accounting & Finance"
+        ],
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 3,
+            "min_spm_credits": 5
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "studying",
+            "min_cgpa": 3.25,
+            "min_year_of_study": 1,
+            "max_year_of_study": 2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-55",
+      "name": "Demo 55: Diploma Polytechnic Continuing Support",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Diploma. Household income <= RM6500.00 per month. Institution: Polytechnic. Field: Engineering or Architecture & Built Environment. Pass any one qualification route: Diploma (studying), CGPA >= 3.00, year >= 2, year <= 3.",
+      "award_type": "Living Allowance",
+      "deadline": "2099-11-05",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/55",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Diploma",
+        "required_income_category": null,
+        "max_household_income": 6500,
+        "required_fields_of_study": [
+          "Engineering",
+          "Architecture & Built Environment"
+        ],
+        "required_institution_type": "Polytechnic",
+        "qualification_routes": [
+          {
+            "education_level": "Diploma",
+            "study_status": "studying",
+            "min_cgpa": 3,
+            "min_year_of_study": 2,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-56",
+      "name": "Demo 56: Diploma Arts Entry and Portfolio",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Diploma. Income category: M40. Household income <= RM5500.00 per month. Institution: Private University. Field: Arts & Design or Communication & Media. Pass any one qualification route: SPM (completed), SPM As >= 2, SPM credits >= 5 OR Diploma (studying), CGPA >= 3.00, year >= 1, year <= 2.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-11-06",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/56",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: present a sample portfolio for mock review.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Diploma",
+        "required_income_category": "M40",
+        "max_household_income": 5500,
+        "required_fields_of_study": [
+          "Arts & Design",
+          "Communication & Media"
+        ],
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 2,
+            "min_spm_credits": 5
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "studying",
+            "min_cgpa": 3,
+            "min_year_of_study": 1,
+            "max_year_of_study": 2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-57",
+      "name": "Demo 57: Diploma Health Pathways",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Diploma. Income category: B40. Household income <= RM3169.00 per month. Institution: Private University. Field: Health Sciences. Pass any one qualification route: SPM (completed), SPM As >= 5, SPM credits >= 6 OR Diploma (studying), CGPA >= 3.50, year >= 1, year <= 2.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-11-07",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/57",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: attend a mock healthcare-interest interview.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Diploma",
+        "required_income_category": "B40",
+        "max_household_income": 3169,
+        "required_fields_of_study": [
+          "Health Sciences"
+        ],
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 5,
+            "min_spm_credits": 6
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "studying",
+            "min_cgpa": 3.5,
+            "min_year_of_study": 1,
+            "max_year_of_study": 2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-58",
+      "name": "Demo 58: Diploma Hospitality Final Year",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Diploma. Income category: M40. Household income <= RM5000.00 per month. Institution: Polytechnic. Field: Hospitality & Tourism. Pass any one qualification route: Diploma (studying), CGPA >= 3.20, year >= 3, year <= 3.",
+      "award_type": "Living Allowance",
+      "deadline": "2099-11-08",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/58",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Diploma",
+        "required_income_category": "M40",
+        "max_household_income": 5000,
+        "required_fields_of_study": [
+          "Hospitality & Tourism"
+        ],
+        "required_institution_type": "Polytechnic",
+        "qualification_routes": [
+          {
+            "education_level": "Diploma",
+            "study_status": "studying",
+            "min_cgpa": 3.2,
+            "min_year_of_study": 3,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-59",
+      "name": "Demo 59: Diploma Business Merit No Income Ceiling",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Diploma. Income category: T20. Institution: Private University. Field: Business or Accounting & Finance. Pass any one qualification route: SPM (completed), SPM As >= 7, SPM credits >= 7 OR Diploma (studying), CGPA >= 3.75, year >= 1, year <= 3.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-11-09",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/59",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Diploma",
+        "required_income_category": "T20",
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Business",
+          "Accounting & Finance"
+        ],
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 7,
+            "min_spm_credits": 7
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "studying",
+            "min_cgpa": 3.75,
+            "min_year_of_study": 1,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-60",
+      "name": "Demo 60: Diploma Combined Requirements Challenge",
+      "provider": "ScholarMatch Demo Skills Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Diploma. Income category: B40. Household income <= RM2800.00 per month. Institution: Polytechnic. Field: Computer Science or Engineering. Pass any one qualification route: SPM (completed), SPM As >= 6, SPM credits >= 7 OR Diploma (studying), CGPA >= 3.60, year >= 2, year <= 3.",
+      "award_type": "Convertible Loan",
+      "deadline": "2099-11-10",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/60",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: review a sample convertible-loan agreement in a mock briefing.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Diploma",
+        "required_income_category": "B40",
+        "max_household_income": 2800,
+        "required_fields_of_study": [
+          "Computer Science",
+          "Engineering"
+        ],
+        "required_institution_type": "Polytechnic",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed",
+            "min_spm_as": 6,
+            "min_spm_credits": 7
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "studying",
+            "min_cgpa": 3.6,
+            "min_year_of_study": 2,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-61",
+      "name": "Demo 61: Degree Public STEM Bridge",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Undergraduate. Income category: B40. Household income <= RM3000.00 per month. Institution: Public University. Field: Computer Science or Engineering. Pass any one qualification route: Diploma (completed), CGPA >= 3.20 OR Foundation (completed), CGPA >= 3.60 OR Matriculation (completed), CGPA >= 3.50.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-11-11",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/61",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": "B40",
+        "max_household_income": 3000,
+        "required_fields_of_study": [
+          "Computer Science",
+          "Engineering"
+        ],
+        "required_institution_type": "Public University",
+        "qualification_routes": [
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.2
+          },
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.6
+          },
+          {
+            "education_level": "Matriculation",
+            "study_status": "completed",
+            "min_cgpa": 3.5
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-62",
+      "name": "Demo 62: Degree Private Business Progression",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Undergraduate. Income category: M40. Household income <= RM6000.00 per month. Institution: Private University. Field: Business or Accounting & Finance. Pass any one qualification route: STPM (completed), CGPA >= 3.00 OR Diploma (completed), CGPA >= 3.10 OR Undergraduate (studying), CGPA >= 3.40, year >= 1, year <= 2.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-11-12",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/62",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": "M40",
+        "max_household_income": 6000,
+        "required_fields_of_study": [
+          "Business",
+          "Accounting & Finance"
+        ],
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.1
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.4,
+            "min_year_of_study": 1,
+            "max_year_of_study": 2
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-63",
+      "name": "Demo 63: Degree International Computing",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Non-Malaysian. Funds: Undergraduate. Institution: Private University. Field: Computer Science or Mathematics & Statistics. Pass any one qualification route: Foundation (completed), CGPA >= 3.50 OR Diploma (completed), CGPA >= 3.30 OR Undergraduate (studying), CGPA >= 3.60, year >= 1, year <= 3.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2099-11-13",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/63",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Non-Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Computer Science",
+          "Mathematics & Statistics"
+        ],
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.5
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.3
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.6,
+            "min_year_of_study": 1,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-64",
+      "name": "Demo 64: Degree Public Health Excellence",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Undergraduate. Income category: B40. Household income <= RM3169.00 per month. Institution: Public University. Field: Medicine or Pharmacy or Health Sciences. Pass any one qualification route: STPM (completed), CGPA >= 3.80 OR Matriculation (completed), CGPA >= 3.75 OR Undergraduate (studying), CGPA >= 3.70, year >= 2, year <= 4.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-11-14",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/64",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: attend a mock professional-interest interview.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": "B40",
+        "max_household_income": 3169,
+        "required_fields_of_study": [
+          "Medicine",
+          "Pharmacy",
+          "Health Sciences"
+        ],
+        "required_institution_type": "Public University",
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 3.8
+          },
+          {
+            "education_level": "Matriculation",
+            "study_status": "completed",
+            "min_cgpa": 3.75
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.7,
+            "min_year_of_study": 2,
+            "max_year_of_study": 4
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-65",
+      "name": "Demo 65: Degree Final Year Engineering",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Undergraduate. Income category: M40. Household income <= RM5500.00 per month. Institution: Public University. Field: Engineering or Architecture & Built Environment. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.50, year >= 4, year <= 4.",
+      "award_type": "Living Allowance",
+      "deadline": "2099-11-15",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/65",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: discuss a sample final-year project in a mock review.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": "M40",
+        "max_household_income": 5500,
+        "required_fields_of_study": [
+          "Engineering",
+          "Architecture & Built Environment"
+        ],
+        "required_institution_type": "Public University",
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.5,
+            "min_year_of_study": 4,
+            "max_year_of_study": 4
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-66",
+      "name": "Demo 66: Degree Arts Portfolio Bridge",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Undergraduate. Household income <= RM7000.00 per month. Institution: Private University. Field: Arts & Design or Communication & Media. Pass any one qualification route: Foundation (completed), CGPA >= 3.00 OR Diploma (completed), CGPA >= 2.90 OR Undergraduate (studying), CGPA >= 3.25, year >= 1, year <= 3.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2099-11-16",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/66",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: present a sample portfolio for mock review.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": null,
+        "max_household_income": 7000,
+        "required_fields_of_study": [
+          "Arts & Design",
+          "Communication & Media"
+        ],
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 2.9
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.25,
+            "min_year_of_study": 1,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-67",
+      "name": "Demo 67: Degree Education and Community",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Undergraduate. Income category: B40. Household income <= RM2500.00 per month. Institution: Public University. Field: Education or Social Sciences. Pass any one qualification route: STPM (completed), CGPA >= 2.75 OR Diploma (completed), CGPA >= 3.00 OR Undergraduate (studying), CGPA >= 3.10, year >= 2, year <= 4.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-11-17",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/67",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: attend a mock community-service interview.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": "B40",
+        "max_household_income": 2500,
+        "required_fields_of_study": [
+          "Education",
+          "Social Sciences"
+        ],
+        "required_institution_type": "Public University",
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 2.75
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.1,
+            "min_year_of_study": 2,
+            "max_year_of_study": 4
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-68",
+      "name": "Demo 68: Degree Merit No Income Ceiling",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Undergraduate. Income category: T20. Institution: Public University. Field: Engineering or Science or Mathematics & Statistics. Pass any one qualification route: STPM (completed), CGPA >= 3.85 OR Foundation (completed), CGPA >= 3.90 OR Matriculation (completed), CGPA >= 3.85 OR Diploma (completed), CGPA >= 3.80 OR Undergraduate (studying), CGPA >= 3.90, year >= 1, year <= 3.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2099-11-18",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/68",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": "T20",
+        "max_household_income": null,
+        "required_fields_of_study": [
+          "Engineering",
+          "Science",
+          "Mathematics & Statistics"
+        ],
+        "required_institution_type": "Public University",
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 3.85
+          },
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.9
+          },
+          {
+            "education_level": "Matriculation",
+            "study_status": "completed",
+            "min_cgpa": 3.85
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.8
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.9,
+            "min_year_of_study": 1,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-69",
+      "name": "Demo 69: Degree Independent Institution Retention",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Funds: Undergraduate. Income category: M40. Household income <= RM6300.00 per month. Institution: Other. Field: Business or Computer Science. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.00, year >= 2, year <= 3 OR Diploma (completed), CGPA >= 3.25.",
+      "award_type": "Loan",
+      "deadline": "2099-11-19",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/69",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: review a sample repayment agreement in a mock briefing.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_income_category": "M40",
+        "max_household_income": 6300,
+        "required_fields_of_study": [
+          "Business",
+          "Computer Science"
+        ],
+        "required_institution_type": "Other",
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3,
+            "min_year_of_study": 2,
+            "max_year_of_study": 3
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.25
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "demo-70",
+      "name": "Demo 70: Degree Combined Requirements Challenge",
+      "provider": "ScholarMatch Demo Progression Trust",
+      "description": "Fictional demonstration award for ScholarMatch. No real funding is offered. Nationality: Malaysian. Funds: Undergraduate. Income category: B40. Household income <= RM3000.00 per month. Institution: Public University. Field: Computer Science or Engineering. Pass any one qualification route: Diploma (completed), CGPA >= 3.50 OR Foundation (completed), CGPA >= 3.75 OR Undergraduate (studying), CGPA >= 3.70, year >= 2, year <= 3.",
+      "award_type": "Full Scholarship",
+      "deadline": "2099-11-20",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarmatch.example/demo/70",
+      "source_url": null,
+      "source_checked_at": null,
+      "application_notes": "Fictional sample for exploring scholarship eligibility. No real funding or applications.",
+      "special_requirements": "Demo condition: attend a mock interview and present sample household-income evidence.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_income_category": "B40",
+        "max_household_income": 3000,
+        "required_fields_of_study": [
+          "Computer Science",
+          "Engineering"
+        ],
+        "required_institution_type": "Public University",
+        "qualification_routes": [
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.5
+          },
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.75
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3.7,
+            "min_year_of_study": 2,
+            "max_year_of_study": 3
+          }
+        ]
+      }
+    }
+  ],
+  "updated_on": "2026-10-20"
+}

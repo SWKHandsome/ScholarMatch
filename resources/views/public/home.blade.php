@@ -62,7 +62,7 @@
                     </div>
                     <h3 class="text-xl font-semibold text-on-surface mb-2">Create Your Profile</h3>
                     <p class="text-on-surface-variant">
-                        Enter your nationality, state, household income, dependents, institution type, and field of study.
+                        Enter your nationality, state, household income and dependents.
                         We auto-classify your income category (B40/M40/T20).
                     </p>
                 </div>
@@ -75,7 +75,7 @@
                     <h3 class="text-xl font-semibold text-on-surface mb-2">Add Academic Results</h3>
                     <p class="text-on-surface-variant">
                         Enter official SPM As/credits or CGPA, your study status and current year when studying.
-                        Select the study level you want funded.
+                        Select the study level, institution type and field of the programme you want funded.
                     </p>
                 </div>
 

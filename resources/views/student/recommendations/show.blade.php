@@ -9,12 +9,13 @@
         @include('components.decision-badge', ['status' => $recommendation['status'], 'requiresVerification' => $recommendation['requires_verification'], 'specialRequirements' => $recommendation['special_requirements']])
         <p class="mt-5 whitespace-pre-line">{{ $scholarship->description }}</p>
         <dl class="grid sm:grid-cols-2 gap-4 mt-5">
-            <div><dt class="text-sm text-on-surface-variant">Award Type</dt><dd>{{ $scholarship->award_type }}</dd></div>
-            <div><dt class="text-sm text-on-surface-variant">Deadline</dt><dd>{{ $scholarship->deadline->format('M d, Y') }}</dd></div>
+            <div class="rounded-lg bg-primary/5 p-3"><dt class="text-sm text-on-surface-variant">Award Type</dt><dd class="mt-1 font-semibold text-primary">{{ $scholarship->award_type }}</dd></div>
+            <div class="rounded-lg bg-surface-container-low p-3"><dt class="text-sm text-on-surface-variant">Deadline</dt><dd class="mt-1 font-semibold">{{ $scholarship->deadlineLabel() }}</dd></div>
         </dl>
+        @include('components.scholarship-source', ['scholarship' => $scholarship])
         <div class="mt-5 flex flex-wrap gap-3">
             @if($recommendation['status'] === 'Eligible')
-                <a class="btn btn-primary" href="{{ $scholarship->application_link }}" target="_blank" rel="noopener noreferrer">Apply Now</a>
+                <a class="btn btn-primary" href="{{ $scholarship->application_link }}" target="_blank" rel="noopener noreferrer">{{ $scholarship->isDemo() || $scholarship->deadline ? 'Apply Now' : 'Check Provider' }}</a>
             @endif
             <form method="POST" action="{{ route('student.saved-scholarships.store') }}">
                 @csrf
@@ -24,11 +25,11 @@
         </div>
     </div>
     @if($recommendation['failed_requirements'])
-        <div class="card p-5 border-l-4 border-error">
+        <div class="card p-5 border-l-4 border-error bg-rose-50">
             <h2 class="font-semibold text-error">Not Eligible - Failed Requirements</h2>
             <ul class="list-disc pl-5 mt-2">
                 @foreach($recommendation['requirement_results'] as $check)
-                    @if($check['outcome'] === 'not_met')<li>{{ $check['message'] }}</li>@endif
+                    @if($check['outcome'] === 'not_met')<li class="font-medium text-rose-800">{{ $check['message'] }}</li>@endif
                 @endforeach
             </ul>
         </div>
@@ -38,8 +39,8 @@
         @include('components.requirement-results', ['checks' => $recommendation['requirement_results']])
     </section>
     @if($recommendation['special_requirements'] !== '')
-        <section class="card p-6">
-            <h2 class="font-semibold">Special Requirements</h2>
+        <section class="card p-6 border-l-4 border-amber-400 bg-amber-50">
+            <h2 class="font-semibold text-amber-900">Special Requirements</h2>
             <p class="mt-2 whitespace-pre-line">{{ $recommendation['special_requirements'] }}</p>
             <p class="mt-3 text-sm text-on-surface-variant">Confirm these conditions with the scholarship provider.</p>
         </section>

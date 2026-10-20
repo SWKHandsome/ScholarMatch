@@ -12,9 +12,11 @@ class AcademicResult extends Model
 
     public const EDUCATION_LEVELS = ['SPM', 'STPM', 'Foundation', 'Matriculation', 'Diploma', 'Undergraduate'];
 
+
+
     protected $fillable = [
         'user_id', 'education_level', 'study_status', 'year_of_study', 'funding_study_level',
-        'spm_as', 'spm_credits', 'cgpa', 'result_status',
+        'spm_as', 'spm_credits', 'cgpa', 'result_status', 'institution_type', 'field_of_study',
     ];
 
     protected $casts = [
@@ -26,7 +28,9 @@ class AcademicResult extends Model
         if ($this->result_status !== 'official'
             || ! in_array($this->education_level, self::EDUCATION_LEVELS, true)
             || ! in_array($this->funding_study_level, self::EDUCATION_LEVELS, true)
-            || ! in_array($this->study_status, ['studying', 'completed'], true)) {
+            || ! in_array($this->study_status, ['studying', 'completed'], true)
+            || ! in_array($this->institution_type, config('scholarship.institution_types'), true)
+            || ! in_array($this->field_of_study, config('scholarship.fields_of_study'), true)) {
             return false;
         }
         if ($this->education_level === 'SPM') {
