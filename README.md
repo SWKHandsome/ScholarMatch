@@ -6,9 +6,9 @@ Built as a Final Year Project (FYP), ScholarMatch focuses on making scholarship 
 
 ## Key features
 
-- Student registration, login, and role-based access control
+- Student registration/login with a Register | Login switch, password visibility controls, recovery return links and role-based access control
 - Student profile management for nationality, state, household income, dependents and income category
-- Latest official academic results, study status/year and separately selected funding level for SPM, STPM, Foundation, Matriculation, Diploma and Undergraduate students
+- Grouped qualification selection, official grade-count counters for SPM, IGCSE, O-Level, A-Level and Senior UEC, STAM pangkat and existing CGPA-based results
 - Programme Seeking Funding section in Academic Result groups funding level, institution type and field of study
 - Automatic B40, M40, and T20 income-category classification
 - Scholarship, scholarship-rule, and income-threshold management for administrators
@@ -29,7 +29,7 @@ ScholarMatch checks every applicable scholarship requirement against the student
 | Eligible ! | Automatic requirements are met, with special conditions entered by the administrator that must be verified with the provider. Expand ! to read them. |
 | Not Eligible | At least one applicable requirement is not met. |
 
-Students record one latest study level, Currently Studying/Completed status, current year when studying, and a separately selected study level seeking funding. SPM requires completed exams and official As/credits. CGPA-based levels require the latest official cumulative CGPA, or final CGPA when completed. Results that are not yet available cannot be used to generate recommendations.
+Students select an education category and latest qualification, then enter official grade counts, STAM overall pangkat or CGPA. IGCSE supports letters and 9–1 separately. SPM As/credits are calculated automatically. SPM, IGCSE, O-Level, A-Level, UEC and STAM require completed exams and final results. Completed STPM identifies Pengajian Am within four/five final subject results and automatically calculates overall CGPA, with confirmation against the official slip. Studying STPM keeps manual official CGPA and current year; other CGPA qualifications retain cumulative/final CGPA. The programme seeking funding remains separate. Named-subject scholarship conditions go in Special Requirements; Pengajian Am identification is used only for the completed-STPM overall calculation. See [academic qualifications](docs/ACADEMIC_QUALIFICATIONS.md) for formats, examples and matching rules.
 
 Institution type and field of study are required on Academic Result beside the funding level. They describe the programme seeking funding. Profile contains personal/household information. Existing programme values are transferred during migration; a profile without an academic record prefills those choices when the student first enters official results.
 
@@ -37,7 +37,7 @@ Nationality choices are Malaysian and Non-Malaysian for students and scholarship
 
 Requirements include nationality, funded level, accepted latest qualifications, study status/year, income, academics, field and institution. Within the student's qualification route, every configured minimum must pass. Empty criteria are not applicable. Results include each requirement, student value and outcome.
 
-Administrators add alternative qualification boxes directly on Add/Edit Scholarship or the Rules page. Each box has its own level, status, result minimums and optional current-year boundaries. Students must pass any one complete box plus the general requirements. For example, Completed Diploma with CGPA >= 3.00 OR Currently Studying Undergraduate with CGPA >= 3.30 in Years 1–3. Empty minimums/boundaries are unrestricted; no boxes means no academic restriction. The student still needs official results. Qualification level/status have required * markers; irrelevant result/year controls are hidden, disabled and cleared.
+Administrators add alternative qualification boxes directly on Add/Edit Scholarship or the Rules page. Each box has its own level, status and optional current-year boundaries. Add Another Requirement opens a Requirement Type selector for supported CGPA, grade-count, rank, average or total-point rules, with a live explanation. Grade thresholds share one selector and multiple rows added with Add Grade Row, with a combined minimum-pattern preview. STPM overall CGPA stays separate from its best-subject average; UEC can compare a best-five total directly against 11. See [requirement types](docs/ACADEMIC_REQUIREMENT_TYPES.md) for examples. Students must pass any one complete box plus the general requirements. For example, Completed Diploma with CGPA >= 3.00 OR Currently Studying Undergraduate with CGPA >= 3.30 in Years 1–3. Empty minimums/boundaries are unrestricted; no boxes means no academic restriction. The student still needs official results. Qualification level/status have required * markers; irrelevant result/year controls are hidden, disabled and cleared.
 
 Only active scholarships with configured rules and an unexpired or unknown deadline are evaluated. Eligible (including !) and Not Eligible results are grouped separately and ordered by nearest recorded deadline, with unknown dates last. Unknown dates require provider verification. Special requirements do not override a failed automatic condition. Providers make the final award decisions.
 
@@ -52,7 +52,7 @@ npm run build
 
 Existing profiles and scholarships are preserved. Existing students must confirm their study status and selected funding level, and supply official results, before generating new decisions. Old evaluation logs remain identified as Previous Evaluation until refreshed; their historical score data is preserved but not treated as a current decision.
 
-The qualification-route migration converts existing rules into equivalent child rows and retains the original columns. Rebuild assets so the repeatable editor is available. Keep a database backup before upgrades. Earlier evaluations refresh under decisions-v5-local-award-windows when the student opens recommendations. Legacy profile nationalities outside the two supported choices need confirmation on Profile; legacy country-specific rules remain awaiting configuration until an administrator updates them.
+The qualification-route migration converts existing rules into equivalent child rows and retains the original columns. The grade-count migration adds result breakdowns and qualification-specific route settings while preserving records; the follow-up subject-point migration adds nullable STPM-average and UEC-total settings. Legacy SPM students must enter their grade breakdown; old As/credits are retained for reference. Legacy STPM students also need actual subject counts alongside their preserved official CGPA. Other valid CGPA records remain usable. Rebuild assets for the new editors. The STPM calculator migration adds a nullable PA grade and confirmation flag, preserving existing CGPA values and grades. Existing usable manual records stay valid until edited; completed STPM saves then use the new calculation. Earlier evaluations refresh under decisions-v8-stpm-cgpa. Legacy unsupported nationalities still need correction.
 
 ## Technology stack
 
@@ -151,9 +151,10 @@ Run the automated test suite with:
 
 ```bash
 php artisan test
+npm run test:academic
 ```
 
-The test suite covers requirement decisions, official-result validation, qualification/funding separation, warning priority, thresholds, deadlines, caches, legacy migration, and student/admin access control.
+The PHP suite covers requirement decisions, official-result validation, qualification/funding separation, warning priority, thresholds, deadlines, caches, legacy migration, and student/admin access control. The Node suite covers grade counters, format changes and administrator editor state without adding a test dependency.
 
 ## Project structure
 
@@ -179,6 +180,9 @@ tests/                      # Pest unit and feature tests
 - [Architecture Document](ARCHITECTURE.md)
 - [Design System](DESIGN.md)
 - [Manual Test Cases](MANUAL_TEST_CASES.md)
+- [Academic Qualifications, Grade Formats and Matching Examples](docs/ACADEMIC_QUALIFICATIONS.md)
+- [Academic Requirement Types and STPM/UEC Calculations](docs/ACADEMIC_REQUIREMENT_TYPES.md)
+- [Completed STPM CGPA Calculation](docs/STPM_CGPA_CALCULATION.md)
 - [Improvement Log and FYP Documentation Changes](improve.md)
 
 ## License
@@ -189,6 +193,6 @@ This project was developed for academic purposes as a Final Year Project.
 
 The default initial catalogue now contains exactly 70 fictional awards. Academic cutoffs are stored in qualification rules, with varied nationality, income, funded level, status/year, field and institution restrictions. Most have no special conditions so plain Eligible appears; selected mock interviews/documents demonstrate Eligible !. All records are open, so unfiltered Eligible plus Not Eligible totals 70.
 
-Demo 51–60 add ten complex Diploma-funded scenarios and Demo 61–70 add ten Degree-funded scenarios (labelled Undergraduate in the app). They demonstrate progression from completed qualifications, support for current students in specific years, alternative entry routes and combined academic/household/programme restrictions. The original 50 awards are unchanged.
+Demo 51–60 add ten complex Diploma-funded scenarios and Demo 61–70 add ten Degree-funded scenarios (displayed as Bachelor’s Degree, stored as Undergraduate). They demonstrate progression from completed qualifications, support for current students in specific years, alternative entry routes and combined academic/household/programme restrictions. The original 50 awards are unchanged.
 
 See [the scenario guide](docs/DEMO_SCHOLARSHIPS.md). New devices use `php artisan migrate --seed`. On an existing SQLite installation, `php artisan scholarships:replace-catalog` backs up the database and replaces the old scholarships with these 70 demos while preserving student accounts/profiles/results. Normal seeding upserts without duplication but retains unrelated old rows. Build assets with `npm run build`. Demo application buttons use placeholder links and source-verification claims are omitted.

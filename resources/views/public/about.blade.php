@@ -35,7 +35,7 @@
             <section>
                 <h2 class="text-2xl font-semibold mb-4">Recommendation Methodology</h2>
                 <ol class="list-decimal list-inside space-y-3 text-on-surface-variant">
-                    <li>Complete a student profile and enter official results. SPM requires completed exams and official results; CGPA-based levels require a latest official CGPA, or final CGPA if completed.</li>
+                    <li>Complete a student profile and enter official results. SPM, IGCSE, O-Level, A-Level and UEC require final grade counts; STAM uses the overall pangkat. Completed STPM calculates overall CGPA from final grade counts and the Pengajian Am grade, then asks you to confirm it matches your official result. Currently studying STPM and other CGPA-based levels use official CGPA entry.</li>
                     <li>Select the study level seeking funding separately from the qualification supplying the results.</li>
                     <li>The system checks each applicable requirement: nationality, funding level, accepted latest qualification, study status and year, income, academics, field and institution.</li>
                     <li>Every applicable requirement must pass for eligibility. Each result shows the requirement, student information and outcome.</li>

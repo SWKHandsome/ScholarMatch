@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\AcademicResult;
 use App\Models\Scholarship;
 use App\Services\ScholarshipRecommendationService;
+use App\Support\AcademicQualifications;
 use Database\Seeders\ScholarshipCatalog;
 use Database\Seeders\ScholarshipCatalogSeeder;
 
@@ -21,10 +21,10 @@ function demoDecision(string $key, array $profile = [], array $academic = []): a
     return collect($result['recommendations'])->firstWhere('scholarship_id', Scholarship::where('catalog_key', $key)->value('id'));
 }
 
-test('demo set covers the supported qualifications categories fields institutions and award types', function () {
+test('original demo set covers its six qualifications categories fields institutions and award types', function () {
     $entries = collect(ScholarshipCatalog::entries());
     expect($entries->pluck('rules.qualification_routes')->flatten(1)->pluck('education_level')->unique()->sort()->values()->all())
-        ->toBe(collect(AcademicResult::EDUCATION_LEVELS)->sort()->values()->all());
+        ->toBe(collect(AcademicQualifications::LEGACY_LEVELS)->sort()->values()->all());
     expect($entries->pluck('rules.required_income_category')->filter()->unique()->sort()->values()->all())->toBe(['B40', 'M40', 'T20']);
     expect($entries->pluck('rules.required_institution_type')->filter()->unique()->sort()->values()->all())
         ->toBe(collect(config('scholarship.institution_types'))->sort()->values()->all());

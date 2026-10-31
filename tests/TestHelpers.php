@@ -26,6 +26,22 @@ function makeStudent(array $profileAttributes = [], array $academicAttributes = 
         'income_category' => 'B40',
     ], $profileAttributes));
 
+    // Explicit synthetic breakdowns for old threshold fixtures; never used to migrate real records.
+    if (($academicAttributes['education_level'] ?? null) === 'SPM'
+        && ! array_key_exists('grade_counts', $academicAttributes)
+        && isset($academicAttributes['spm_as'], $academicAttributes['spm_credits'])) {
+        $academicAttributes['grading_scale'] = 'spm';
+        $academicAttributes['grade_counts'] = [
+            'A' => $academicAttributes['spm_as'],
+            'C' => max(0, $academicAttributes['spm_credits'] - $academicAttributes['spm_as']),
+            'G' => max(0, 9 - $academicAttributes['spm_credits']),
+        ];
+    }
+    if (($academicAttributes['education_level'] ?? null) === 'STPM' && ! array_key_exists('grade_counts', $academicAttributes)) {
+        // Synthetic subject results for CGPA-only legacy test fixtures; production data is never inferred.
+        $academicAttributes['grading_scale'] = 'stpm';
+        $academicAttributes['grade_counts'] = ['B' => 4];
+    }
     AcademicResult::create(array_merge([
         'user_id' => $user->id,
         'education_level' => 'Undergraduate',

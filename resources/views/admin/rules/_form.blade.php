@@ -26,7 +26,7 @@
         <select class="input" name="required_study_level" id="required_study_level">
             <option value="">Any funding level</option>
             @foreach(\App\Models\AcademicResult::EDUCATION_LEVELS as $value)
-                <option value="{{ $value }}" @selected(old('required_study_level', $rule->required_study_level) === $value)>{{ $value }}</option>
+                <option value="{{ $value }}" @selected(old('required_study_level', $rule->required_study_level) === $value)>{{ \App\Support\AcademicQualifications::label($value) }}</option>
             @endforeach
         </select>
         <p class="mt-1 text-sm text-on-surface-variant">Compared with the student's selected level seeking funding.</p>

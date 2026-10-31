@@ -324,3 +324,233 @@ Moved the Programme Seeking Funding divider from the fieldset onto an outer wrap
 **FYP report updates:** Update the Nationality input definition and screenshots to show Malaysian/Non-Malaysian only. Explain exact-category matching and the optional unrestricted scholarship setting; place country-specific conditions under special verification. Update the current algorithm version in implementation/cache/log descriptions. PRD.md 6.2, ARCHITECTURE.md, README.md, DESIGN.md and MANUAL_TEST_CASES.md S12–S13 reflect the changes.
 
 **Verification:** Full suite passed: 226 tests, 756 assertions, including exact-category/unrestricted matching, unsupported legacy values, profile/rule validation, and the new filters/pagination. PHP formatting and git diff --check passed; the frontend production build from IMP-012 remains current. A synthetic browser preview confirmed the Profile dropdown contains only its placeholder, Malaysian and Non-Malaysian, and that Non-Malaysian can be selected. Screenshot: storage/app/private/nationality-options-preview.jpg.
+
+## IMP-014 — Agree on grade-count entry and manual subject-specific conditions
+
+**Date:** 2026-10-31
+**Type:** Academic-input design decision
+**Status:** Implemented in IMP-015 below; this entry retains the original design decision.
+
+- For the proposed grade-based qualification forms, students enter the number of subjects at each grade using minus/plus counters or direct numeric entry. The summary and relevant totals are calculated from those counts. Individual subject names and grades are outside this design.
+- Administrators record named-subject conditions, such as Mathematics at least C or English at least B, in the scholarship's existing Special Requirements textbox. Grade counts cannot establish which grade belongs to a particular subject, so these conditions must not be displayed as automatically met.
+- Existing decision meanings remain: passing automatic checks with non-empty Special Requirements produces Eligible ! for provider verification; an automatic failure produces Not Eligible. The ! does not confirm that the subject-specific condition has been satisfied.
+- The earlier official-results-only policy remains the proposed default. This decision concerns grade-based results; existing CGPA inputs and the proposed STAM pangkat input retain their own result formats. The complete new qualification list and its automatic threshold rules still need to be finalised before implementation.
+
+**FYP report updates:** Record the input-design decision and scope in the proposed interface/system design: aggregate grade counts support general academic thresholds, while named-subject restrictions are explained as provider-verification conditions. Update implementation descriptions, form screenshots, data dictionaries and tests when this design is implemented; no new result-entry behaviour is claimed by this documentation-only entry.
+
+## IMP-015 — Implement grouped qualifications, official grade counts and matching rules
+
+**Date:** 2026-10-31
+**Type:** Student academic entry, administrator rules, matching, migration and documentation
+**Status:** Implemented and verified locally
+
+**Student changes**
+
+- Replaced the single qualification dropdown with category buttons followed by qualification buttons: Secondary (SPM, Cambridge IGCSE, Cambridge O-Level), Pre-U, Diploma & Pathway (STPM, STAM, A-Level, Senior UEC, Matriculation, Foundation, Diploma), and Undergraduate (Bachelor’s Degree). Categories organise the interface; they do not imply qualification equivalence.
+- Added minus/number/plus grade counters, direct whole-number entry, a live grade summary and total subjects for SPM, IGCSE, O-Level, A-Level and Senior UEC. SPM As count A+/A/A- and credits count C or above automatically. Students no longer enter As/credits separately. No subject names or individual subject results are collected.
+- Supported IGCSE letter grades and 9–1 as separate, explicitly selected scales, with no conversion. Full A-Level uses A*–U; Senior UEC uses A1–F9. STAM uses the official overall pangkat from Mumtaz through Rasib. Existing STPM/Foundation/Matriculation/Diploma/Bachelor’s Degree results remain CGPA-based.
+- All exam-based qualifications require Completed and official final results. Currently studying CGPA students provide current year and official cumulative CGPA; completed students provide final CGPA. Forecast/expected/pending results and AS-Level are not accepted. Changing category, qualification, scale or status clears incompatible form values and official confirmation.
+- Kept Programme Seeking Funding separate, with funding level, institution type and field. Friendly labels preserve existing stored identifiers: Bachelor’s Degree = Undergraduate, Senior UEC = UEC, Cambridge O-Level = O-Level.
+- Added server validation for whole non-negative counts, recognised grades, matching scales, at least one subject and supported totals. Entry caps are 12 SPM subjects and 20 for the other supported grade-count formats; these are application limits, not examination-board maxima.
+
+**Administrator and recommendation changes**
+
+- Extended shared Add/Edit Scholarship and Rules qualification boxes with conditional grade requirements, exact IGCSE scale, minimum STAM overall rank and optional UEC best-subject average settings. Existing SPM As/credits, CGPA and current-year limits remain available where applicable. Incompatible values are cleared by both the editor and server.
+- Each grade condition means a minimum number of subjects at a grade or better. AAB is represented by 2 subjects at A or better AND 3 at B or better. Every condition inside a box uses AND; complete alternative boxes use OR. General nationality, funding, income, field and institution conditions still apply.
+- UEC grade ordering treats A1 as strongest. An explicitly configured average selects the best N subjects meeting the minimum grade, maps A1=1 through F9=9 and requires an average no higher than the maximum. Too few qualifying subjects fails; lower is better. Maximum thresholds allow two decimal places; actual averages are compared without rounding into a pass. Other provider conversion formulas remain special conditions.
+- Named-subject conditions such as Mathematics at least C belong in Special Requirements. Passing automatic checks with special text gives Eligible ! for provider verification; the system does not claim that the named subject was verified. An automatic failure remains Not Eligible. Existing application-date/provider warning and Apply/Check Provider behaviour is retained.
+- Fixed a browser-discovered edit issue: saved grade dropdowns now restore their selected values after dynamic options render. Adding/removing conditions retains the other boxes’ values and stable identities.
+
+**Data and implementation**
+
+- Added the shared AcademicQualifications catalogue, the academic-qualifications.js student/admin editors and migration 2026_10_31_000000_add_qualification_grade_counts. Student fields: grading_scale, grade_counts JSON and stam_rank. Route fields: grading_scale, grade_requirements JSON, min_stam_rank and uec_average JSON. The academic qualification enum now accepts eleven qualifications.
+- Preserved existing SPM aggregate columns for reference/compatibility; new submissions derive them from real counts. Old aggregates cannot reveal a student's grade distribution, so migration invents no breakdown. Legacy SPM students see their saved totals and must enter actual counts before recommendations; valid existing CGPA records continue working.
+- Migration preserves existing records and values; rollback refuses to discard new-format result/rule data. Advanced the matcher version to decisions-v6-grade-counts to refresh prior caches/logs. Legacy CGPA inference remains limited to the original five CGPA qualifications.
+- The stock 70-entry fictional demo catalogue was not replaced or expanded; it still covers the original six qualifications. New qualification cases have dedicated tests, and administrators can add their rules through the editor.
+
+**Where to update the FYP report**
+
+| Report area | Required revision | Project reference |
+| --- | --- | --- |
+| Functional requirements and scope | Eleven supported qualifications, grouped selection, official-result gate, aggregate counts only, subject-specific provider checks | PRD.md sections 6.3 and 6.5; docs/ACADEMIC_QUALIFICATIONS.md |
+| Use cases and activity diagrams | Category → qualification → applicable result input → official confirmation → save; admin adds alternative qualification boxes | DESIGN.md Academic Form and Administrator Qualification Boxes |
+| Interface design and user guide | Replace student/admin screenshots; explain counters, IGCSE scale selection, STAM rank, CGPA/year and separate funded programme | Screenshots listed below; DESIGN.md |
+| Data dictionary and ERD | Add the student and route fields above, extend education_level values, describe category as derived and aggregates as calculated | PRD.md section 8; ARCHITECTURE.md sections 3.3, 3.5 and 6 |
+| Algorithm/pseudocode | Grade ordering/count-at-or-above, AAB example, exact IGCSE scale, STAM direction, best-N UEC average, AND within/OR between routes | docs/ACADEMIC_QUALIFICATIONS.md; AcademicRouteEvaluator |
+| Testing and evaluation | Add valid/invalid counts, persistence, threshold boundaries, scale changes, admin edit restoration, migration preservation and mobile checks | MANUAL_TEST_CASES.md AR-16–AR-25 and RULE-17–RULE-25; new PHP/Node tests |
+
+Updated README.md, PRD.md, ARCHITECTURE.md, DESIGN.md, MANUAL_TEST_CASES.md and .ai-handoff.md. Added [the academic format and matching reference](docs/ACADEMIC_QUALIFICATIONS.md). This log is the change summary for the FYP report and GitHub description.
+
+**Verification:** Full PHP suite passed: **385 tests, 1,793 assertions**. All **6 JavaScript tests** passed via npm run test:academic. Vite production build, targeted Pint formatting checks and git diff whitespace checks passed. Synthetic browser checks confirmed saved Bachelor’s Degree values, SPM counter totals/save/reload, UEC save/reload, IGCSE scale switching/reset, STAM save/reload, responsive 390px layout, and administrator saved grade options/add/remove/full-form submission. No synthetic records were inserted into the real local database.
+
+Screenshots retained for the report: storage/app/private/uec-grade-counts-preview.jpg (current student result interaction), storage/app/private/uec-grade-counts-full-preview.jpg (full form), storage/app/private/admin-grade-requirements-preview.jpg (AAB/UEC rules) and storage/app/private/grade-counts-mobile-preview.jpg (390px layout).
+
+**Local database:** Backed up before migrating to storage/app/private/scholarmatch-before-grade-counts-20261031-b7e505dc.sqlite. Original values and record counts were compared and preserved: users 5; profiles 2; academic results 2; scholarships 71; rules 71; qualification routes 114; saved scholarships 0; recommendation logs 71. SQLite integrity_check returned ok. One existing SPM record needs its actual grade breakdown; no grades or student results were fabricated. No catalogue reseed/replacement was performed.
+
+**Current limits:** One latest academic record and one IGCSE scale per record; no subject-level automatic checks, cross-qualification equivalence or automatic grade-scale conversion. AUSMAT, IB Diploma, CIMP, AS-Level and unspecified qualifications are outside this implementation. SQLite migration/testing passed; MySQL integration was not run. Changes remain in the working tree; no commit or push was made.
+
+## IMP-016 — Add explicit requirement types and STPM grade/subject-point checks
+
+**Date:** 2026-10-31
+**Type:** Academic data, administrator input, eligibility calculations and user guidance
+**Status:** Implemented and verified locally
+
+**What changed**
+
+- Replaced separate result panels in the shared Add/Edit Scholarship and Rules editor with **Add Condition → Requirement Type**. Offer supported choices only: minimum overall CGPA, minimum grade count, SPM As/credits, STAM pangkat, STPM minimum best-subject average, and UEC maximum best-subject average or total. Each added condition must be complete. Non-grade types have one setting per box; grade thresholds can repeat at different grades.
+- Added a live plain-language explanation for each condition and a cumulative minimum grade-pattern preview. A-Level 1 subject at A or better AND 3 at B or better displays A, B, B, because the A already counts towards the three. UEC 2 As including A1/A2 uses 2 subjects at A2 or better. STPM 1A uses A, or A- only when the provider explicitly accepts it. The interface includes qualification-specific examples.
+- STPM students now enter both official overall CGPA and grade counts using A, A-, B+, B, B-, C+, C, C-, D+, D and F. The application cap is five subjects. Official CGPA is entered from the result record; it is never reconstructed from unnamed counts. Currently studying students retain status/year and official latest results; completed students use final results. Changing status clears the form's old STPM grades/CGPA/confirmation.
+- Added a minimum average across the best N eligible STPM subjects using official subject points (A=4.00 through F=0.00). This is separate from overall CGPA and from requiring N subjects each at a grade threshold. Example: A/B/C/C has a best-three average of 3.00, but only two B-or-better subjects. Too few qualifying subjects fails; compare actual averages without rounding into a pass. Average thresholds support two decimal places and a real zero minimum.
+- Added a direct UEC maximum-total option. A confirmed best-five total of 11 or below can be entered as N=5 and maximum=11, without the previous average conversion. A1/A1/A2/B3/B4 totals 11. Lower UEC points are better. Administrators specify a grade cutoff, or the lowest grade when no extra cutoff is stated. Integer totals must lie between N and 9N; too few qualifying subjects fails.
+- Kept AND within a qualification box and OR between complete boxes. General requirements still apply. Existing saved thresholds reopen as typed rows without changing their meaning. Adding/removing conditions retains other rows' stable values; changing type or qualification clears incompatible values and disables irrelevant controls.
+- Retained provider verification for unclear wording, named-subject calculations and unsupported conversions. “3.0 in 3 subjects” must be clarified as an average versus a minimum in each subject. Southern UC's A-Level CGPA 3.20 wording provides no conversion formula, so it stays in Special Requirements. Generic A-Level CGPA conversion is not offered. UEC “minimum 11 points” also needs its comparison direction confirmed before using an automatic maximum.
+
+**Data and compatibility**
+
+- Reused grading_scale/grade_counts for STPM and kept existing min_cgpa, SPM minima, grade_requirements, min_stam_rank and uec_average storage. Requirement Type is editor state that generates names for these validated fields, not a free-text rule parser or a new independent score.
+- Added nullable route JSON fields stpm_average={subjects, minimum_grade, min_average} and uec_total={subjects, minimum_grade, max_total} through migration 2026_10_31_010000_add_subject_point_requirements. Existing rows/values are preserved; rollback refuses to discard new point rules. Advanced the matcher/cache/log version to decisions-v7-academic-requirement-types.
+- Legacy STPM CGPA is preserved, but actual subject counts are now needed before recommendations. Missing counts prompt profile completion rather than Not Eligible or Eligible !. No real grades are invented. Other qualifications and the existing 70-entry fictional catalogue retain their records and rules.
+
+**FYP report updates**
+
+| Report area | What to change |
+| --- | --- |
+| Requirements/scope | STPM now has CGPA plus grade counts; admins select supported condition types and can express UEC totals directly. Explain unsupported formulas and named-subject verification. |
+| UI design/user guide | Replace Add/Edit Scholarship, Rules and STPM screenshots. Describe Add Condition, conditional inputs, live explanations and the cumulative ABB pattern. |
+| Use cases/activity diagrams | Add condition → choose type → enter applicable values → review preview → validate/save; student supplies official STPM CGPA and counts. |
+| Data dictionary/ERD | Add stpm_average and uec_total JSON to qualification routes; describe STPM use of existing count/scale fields and keep overall CGPA separate. |
+| Algorithm/pseudocode | Add exact best-N selection, STPM grade-point averaging versus per-subject minima, UEC maximum totals, insufficient-subject failure and unrounded comparisons; retain AND/OR structure. |
+| Evaluation/testing | Add STPM 1A/A- boundaries, average-versus-overall-CGPA examples, UEC total 11 boundaries, validation, saved-type restoration, migration preservation, Add/Edit submission and mobile cases. |
+
+Current references: [requirement-type guide](docs/ACADEMIC_REQUIREMENT_TYPES.md), docs/ACADEMIC_QUALIFICATIONS.md, PRD.md and ARCHITECTURE.md version 3.8, DESIGN.md and MANUAL_TEST_CASES.md (AR-26–AR-28, RULE-26–RULE-33). README.md and .ai-handoff.md were updated.
+
+**Verification:** Full PHP suite passed **416 tests / 1,906 assertions**; all **10 JavaScript tests** passed. Production Vite build, targeted Pint and git diff whitespace checks passed. Synthetic browser checks confirmed: STPM grade counts plus official CGPA save/reload; creation and full edit submission of typed rules; restored old UEC average and new maximum-total values; condition removal/type switching; and student/admin layouts at 390px without horizontal page overflow. A prior HTML-label assertion was updated to the new Requirement Type/Add Condition controls. Tests and previews use separate databases and compiled-view folders; no synthetic records were added to the user's database.
+
+Report screenshots: storage/app/private/admin-stpm-requirement-types-preview.png; storage/app/private/admin-uec-total-points-preview.png; storage/app/private/student-stpm-cgpa-grades-preview.png; storage/app/private/student-stpm-mobile-preview.png; storage/app/private/admin-requirement-types-mobile-preview.png.
+
+**Local database:** Created a full backup at storage/app/private/scholarmatch-before-requirement-types-20261031-289d47ff.sqlite, applied the additive migration, and compared all original values/counts. Preserved users 5; profiles 2; academic records 2; scholarships 71; rules 71; qualification routes 114; saved items 0; recommendation logs 71. SQLite integrity_check returned ok. There are no existing STPM records needing a breakdown locally. No reseed or catalogue replacement was performed.
+
+**Limits:** One latest academic record, aggregate grades only, no named-subject automatic checks or undocumented conversions. Best-N formulas apply only where the provider confirms that any qualifying subjects may be used; specific subject inclusions/exclusions require verification. MySQL integration was not run. No commit or push was made.
+
+## IMP-017 — Group grade thresholds under one requirement-type selector
+
+**Date:** 2026-10-31
+**Type:** Administrator form layout and interaction
+**Status:** Implemented and verified locally
+
+- Combined all “Number of subjects at a grade or better” thresholds in each qualification box into one requirement group. Its Requirement Type dropdown appears once, with compact Minimum Subjects / At Grade or Better rows below. For ABB, the rows show 1 at A and 3 at B.
+- Added **Add Grade Row** inside the group and renamed the outer button to **Add Another Requirement** for CGPA, rank, average or total-point types. Only one grade-count group is offered per qualification; up to 20 grade rows fit inside it. Other requirement types remain separate.
+- Each row has a Remove action. Removing the first/middle row preserves the other values and stable identities. Removing the final row removes only the grade group; CGPA/average settings stay intact. Remove this requirement deletes the entire chosen group. Changing the group to another type clears its old grade rows.
+- Replaced repeated per-grade explanations with one combined minimum-pattern preview. An incomplete row prompts completion; numeric zero minima are preserved. Every row still uses AND, and stronger grades still count towards lower thresholds. Separate qualification boxes remain OR alternatives.
+- Existing flat grade_requirements lists automatically reopen as grouped rows and are submitted using the same validated flat field names. No schema migration, matcher/version change, real database modification or catalogue reseed was needed.
+
+**FYP report updates:** Refresh Add/Edit Scholarship and Rules screenshots and the admin user guide. Explain the distinction between adding a grade row and adding another requirement type, the per-row/group removal actions, the single combined preview and responsive layout. Update the requirement-entry activity diagram to include repeated rows inside one grade group. The data dictionary, ERD and eligibility algorithm retain their existing structure and semantics. Current references: DESIGN.md Administrator Qualification Boxes; PRD.md section 6.5; ARCHITECTURE.md section 3.5; docs/ACADEMIC_REQUIREMENT_TYPES.md; MANUAL_TEST_CASES.md RULE-34–RULE-37. README.md, the academic-format guide and .ai-handoff.md were updated.
+
+**Verification:** Full PHP suite passed **416 tests / 1,908 assertions**; all **14 JavaScript tests** passed. Production Vite build, affected PHP formatting and git diff whitespace checks passed. Synthetic browser checks confirmed old ABB thresholds load as one group, first-row removal preserves the other value, final-row removal preserves separate CGPA/average requirements, a new scholarship can be created with two grouped rows, and full Edit Scholarship submission saves/reopens the same minima. At 390px, the two columns and removal controls remained usable without horizontal page overflow. Preview accounts/data were isolated from the real database, and temporary preview files were removed.
+
+**Screenshots:** storage/app/private/admin-grouped-grade-rows-preview.png and storage/app/private/admin-grouped-grade-rows-mobile-preview.png. Previous IMP-016 screenshots describe the earlier ungrouped layout; use these new screenshots for the grade-count section. No commit or push was made.
+
+## IMP-018 — Calculate completed STPM overall CGPA using Pengajian Am
+
+**Date:** 2026-10-31
+**Type:** Student result entry, validated calculation and data preservation
+**Status:** Implemented and verified locally
+
+**Changes**
+
+- Completed STPM students enter four/five official final subject results using the existing grade counters, then select the **Pengajian Am Grade** already included in those counts. This is the explicitly approved exception to aggregate-only entry; other subject names are not collected and subject-specific scholarship conditions remain Special Requirements.
+- Added a read-only **Calculated Overall CGPA** using Pengajian Am plus the strongest three other subjects, divided by four. PA is removed once from a working copy before choosing the other subjects, so it is never counted twice or dropped for a stronger extra subject. Example: four As and PA=C gives (2+4+4+4)/4 = 3.50. With the same counts and PA=A, the strongest four included grades give 4.00.
+- PHP and JavaScript share the STPM point map. They calculate in integer hundredths and round half up to two decimals consistently (e.g. 2A/2A- gives 3.84). A real calculated 0.00 remains valid.
+- Added a required confirmation that the calculated value matches the official STPM slip. Count edits through typing/counters or changing PA clear the confirmation. Missing/uncounted/unsupported PA grades, incomplete result codes, insufficient/excessive final subjects, unconfirmed values and pending results cannot save. The controller excludes a submitted completed-STPM cgpa value and recalculates on the server, preventing a forged client value from inflating eligibility.
+- Currently studying STPM retains manual official cumulative CGPA, official subject counts and current year. Switching status/qualification clears incompatible PA/calculation-confirmation data. The overall calculation remains separate from provider-defined best-N scholarship averages; the grouped administrator grade editor and AND/OR logic are unchanged.
+
+**Data and upgrade**
+
+- Added migration 2026_10_31_020000_add_stpm_cgpa_calculation with academic_results.stpm_pa_grade (nullable string) and stpm_cgpa_confirmed (boolean, default false). Existing cgpa, counts and other values are preserved. No PA identity or grade is guessed, and migration does not recalculate prior records. Rollback refuses to discard stored PA/confirmation data.
+- Existing usable official manual STPM records with valid counts remain usable until edited, when the completed-result form requires PA and calculation confirmation. Older STPM records missing counts still follow the earlier completion prompt. New calculation records require confirmation and consistency of stored counts/PA/CGPA before recommendations.
+- Advanced the evaluation version to decisions-v8-stpm-cgpa so caches/logs refresh under the new input workflow. No scholarship catalogue reseed/replacement was performed.
+
+**Where to update the FYP report**
+
+| Area | Required update |
+| --- | --- |
+| Functional requirements/scope | Completed STPM calculates overall CGPA; studying STPM stays manual. Explain the single PA identification exception and official-slip confirmation. |
+| Use case/activity diagram | Branch on studying/completed; completed: final counts → PA selection → calculation → match confirmation → server validation/save. |
+| UI design and user guide | Replace completed-STPM screenshots with the PA dropdown, read-only CGPA and confirmation; explain that PA is already included in the counters. |
+| Data dictionary/ERD | Add the two academic_results fields; describe cgpa as derived for new completed STPM submissions and manual in the supported other cases. |
+| Algorithm/pseudocode | Validate 4–5 final subjects, reserve PA once, select best three other grades, use published points, divide by four and round half up. Separate this from scholarship-specific averages. |
+| Testing/evaluation | Include weak-PA inclusion, 4/5 subjects, zero and rounding boundaries, invalid data, confirmation reset, forged CGPA, manual studying, legacy preservation and rollback protection. |
+
+Added [STPM_CGPA_CALCULATION.md](docs/STPM_CGPA_CALCULATION.md); updated PRD.md/ARCHITECTURE.md to version 3.9, DESIGN.md, README.md, the qualification/requirement-type guides, MANUAL_TEST_CASES.md AR-29–AR-36, public About text and .ai-handoff.md.
+
+**Verification:** Full PHP suite passed **441 tests / 2,087 assertions**; all **18 JavaScript tests** passed. Production Vite build, changed-PHP Pint checks and git diff whitespace checks passed. Synthetic browser checks confirmed PA=C produces 3.50 for four As/one C, the value is read-only, count edits clear confirmation, insufficient results and an uncounted PA grade leave no calculable value, confirmed results save/reload with PA and confirmation restored, and currently studying STPM still saves/reloads manual 3.20. Both desktop and 390px layouts were checked without horizontal page overflow. Preview data used a separate SQLite database and compiled-view folder.
+
+**Local database:** Created a full backup at storage/app/private/scholarmatch-before-stpm-cgpa-20261031-f329f032.sqlite before the additive migration. All original column values and counts were compared and preserved: users 5; profiles 2; academic results 2; scholarships 73; rules 73; qualification routes 126; saved items 0; logs 73. These are the database totals at this upgrade. SQLite integrity_check returned ok. The existing STPM record was preserved with no invented PA grade or recalculated CGPA. No catalogue replacement/reseed occurred.
+
+**Screenshots:** storage/app/private/student-stpm-auto-cgpa-preview.png and storage/app/private/student-stpm-auto-cgpa-mobile-preview.png.
+
+**Limits:** This is for complete final STPM subject grades, with four/five subjects including PA; it does not infer final results from semester marks or generate PNGK for fewer than four subjects/incomplete codes. The student must check the calculation against the official slip. Other subject-specific scholarship checks remain manual. SQLite tests/migration passed; MySQL integration was not run. No commit or push was made.
+
+## IMP-019 — Improve login, registration and password recovery navigation
+
+**Date:** 2026-10-31
+**Type:** Authentication interface and usability
+**Status:** Implemented and verified locally
+
+**Changes**
+
+- Added a full-width **Register | Login** switch at the top of both account forms. Register is on the left, Login on the right, and the current destination is highlighted in Primary Blue with aria-current="page". The links navigate to the existing Breeze routes. Removed the redundant Already registered? link.
+- Added page headings, consistent input styling and full-width blue submit buttons. Login places Remember me and Forgot password? in a row that wraps on narrow screens.
+- Added **Back to Login** above Forgot Password and Reset Password. On Forgot Password the link stays visible before/after a reset request and alongside validation/status messages. Shortened the explanatory text and labelled the action Send Reset Link.
+- Added an eye button to Login Password, Register Password/Confirm Password and Reset Password Password/Confirm Password. Fields start hidden and toggle independently. Buttons have type="button", keyboard focus, Show password/Hide password labels, aria-controls and aria-pressed. Space activates a focused control without submitting the form. Input padding reserves room for the icon.
+- Navigation uses normal links. Eye controls use the existing Alpine runtime and are hidden until it initialises; masked password inputs remain usable without JavaScript. Existing field names, required/autocomplete attributes, CSRF inputs, validation errors and reset tokens are preserved.
+
+**Implementation files**
+
+- resources/views/auth/login.blade.php, register.blade.php, forgot-password.blade.php and reset-password.blade.php.
+- New shared components: resources/views/components/auth-switch.blade.php, password-input.blade.php and back-to-login.blade.php.
+- No controller, authentication policy, password hashing, database schema or recommendation logic changes were needed.
+
+**Where to update the FYP report**
+
+| Area | Required update |
+| --- | --- |
+| Functional requirements | Users can switch Login/Register, return to Login during recovery and reveal/hide each password field. |
+| Interface design and screenshots | Replace the Login, Register, Forgot Password and Reset Password screens; explain the blue active switch and eye controls. |
+| User guide/use cases | Describe switching account forms, toggling password visibility and returning from password recovery. |
+| Testing/usability evaluation | Add switch navigation, independent/default-hidden controls, keyboard operation, recovery return before/after status messages and mobile layout cases. |
+| Data dictionary/ERD | No change for this interface update. |
+
+Updated PRD.md section 6.1, DESIGN.md Authentication Cards, README.md, MANUAL_TEST_CASES.md A8–A13 and .ai-handoff.md.
+
+**Verification:** All **18 existing authentication tests passed (38 assertions)** after the final template adjustment. Production Vite build passed. Browser checks confirmed the left/right switch and active states, Login show/hide, independent Register and Reset Password controls, Space-key activation, return links, and the Forgot Password success message with the return link still available. Desktop and 390px layouts were checked; inspected mobile pages had no horizontal overflow, and no browser warning/error logs were reported. The full 441-test suite result belongs to IMP-018; this interface update used the focused authentication suite.
+
+**Preview and screenshots:** Browser verification used an isolated SQLite database, a synthetic student and an array mail transport, so the reset request sent no external email. Existing application records and credentials were not changed. Screenshots are storage/app/private/login-auth-preview.png, register-auth-mobile-preview.png and forgot-password-auth-mobile-preview.png. No commit or push was made.
+
+## IMP-020 — Stabilise and animate account switching; clarify password icons
+
+**Date:** 2026-10-31
+**Status:** Implemented and verified locally
+
+- Login and Register now render the shared auth-card component. Both form panels occupy the same grid cell and contribute to its natural height. The inactive panel is invisible/inert, reserving the taller form's space and preventing card/logo movement. Submit buttons share the same bottom alignment. The layout can grow for longer content and validation messages.
+- The blue selection background slides between Register and Login over 250ms, and the selected form fades in over 150ms. Reduced-motion preferences disable these transitions. Switching is handled inside the same card; normal form POSTs still use the existing authentication endpoints.
+- Added resources/js/auth-card.js and registered its Alpine factory in app.js. Switching updates the URL/history; Back/Forward and direct refresh select the appropriate form. Links retain normal navigation without JavaScript and for modified clicks. Each form has unique input/label IDs, and errors/old input belong to the server-selected mode. Inactive fields cannot receive focus.
+- Password icons now describe the current state: crossed eye when hidden, open eye when visible. Accessible labels continue describing the action. Mouse clicks add no blue outline; keyboard focus retains a subtle inset ring. Form switches mask any revealed password fields again. The shared control also applies these icon/focus changes to Reset Password.
+
+**Implementation:** resources/views/components/auth-card.blade.php, auth-switch.blade.php and password-input.blade.php; auth/login.blade.php and auth/register.blade.php; resources/js/auth-card.js and app.js; resources/css/app.css. No database schema, authentication policy or recommendation changes.
+
+**FYP documentation updates**
+
+| Section | Update |
+| --- | --- |
+| Interface design/screenshots | Show the equal-height card, aligned actions, sliding highlight, current-state eye icons and keyboard-only eye focus. |
+| Functional requirements/user guide | Explain switching forms in place, URL/history navigation, password visibility and automatic masking on mode changes. |
+| Implementation | Describe the shared Blade component, overlapping grid panels, inert hidden form, Alpine state/history and reduced-motion CSS. |
+| Testing/usability | Compare card geometry across modes on desktop/mobile; check icons, mouse/keyboard focus, Back/refresh, inactive fields and validation errors. |
+| ERD/data dictionary | No change. |
+
+Updated PRD.md, DESIGN.md, MANUAL_TEST_CASES.md A14–A17 and .ai-handoff.md. This entry supersedes IMP-019's page-navigation/eye-icon presentation.
+
+**Verification:** All 18 existing authentication tests passed (38 assertions). Production Vite build and whitespace checks passed. Browser measurements showed both modes at height 534px/top 145px on the desktop viewport, and height 534px/top 128px at 390px width, with no mobile horizontal overflow. Verified active/inert panel state, slider endpoints and 250ms styling, Back navigation, direct Register refresh, current-state icons, mouse focus without shadow, visible keyboard inset ring, masking after switches and invalid-login error display in the correct panel. Preview used a separate empty SQLite database and synthetic invalid credentials; no existing application records were changed.
+
+**Screenshots:** storage/app/private/auth-stable-register-preview.png, auth-stable-login-preview.png and auth-stable-mobile-preview.png. No commit or push was made.

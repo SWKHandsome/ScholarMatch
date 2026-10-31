@@ -1,7 +1,7 @@
 # ScholarMatch — Product Requirements Document (PRD)
 
-**Version:** 3.6 — Local scholarship replacement and deadline rules
-**Updated:** 2026-10-20 (Asia/Singapore)
+**Version:** 3.9 — Automatic completed STPM CGPA
+**Updated:** 2026-10-31 (Asia/Singapore)
 **Project:** Final Year Project for Malaysian scholarship discovery
 **Stack:** Laravel 13, PHP 8.3+, MySQL/SQLite, Blade, Tailwind CSS, Alpine.js and Vite
 
@@ -24,7 +24,7 @@ Scholarship requirements are scattered across providers and difficult to compare
 ## 3. Product Goals
 
 - Provide transparent requirement checks using official results.
-- Support SPM graduates and students at STPM, Foundation, Matriculation, Diploma and Undergraduate levels.
+- Support SPM, Cambridge IGCSE/O-Level, A-Level, Senior UEC, STAM and the existing CGPA-based qualifications.
 - Separate the qualification providing results from the programme level seeking funding.
 - Support current students through study status and year restrictions.
 - Keep academic and socioeconomic conditions explicit and editable by administrators.
@@ -42,6 +42,10 @@ Students can maintain a profile, enter their latest official results, select a f
 ### 6.1 Authentication and Role Management
 
 Registration and login use Laravel Breeze. Student and administrator routes are protected by role middleware. Account-profile and password workflows remain available.
+
+Login and Register cards provide a full-width Register | Login navigation switch, with the current page highlighted in blue. Forgot Password and Reset Password include Back to Login. Login, Register and Reset Password fields start masked and each password/confirmation field has an independent, keyboard-accessible show/hide control. Required inputs, validation errors and reset status messages remain available in the forms.
+
+Login/Register share a stable-height card that reserves space for both forms. Switching fades in the selected form and slides the blue indicator over 250ms without a full reload; the URL and browser history follow the selected mode. Direct URLs and normal link navigation remain available. Hidden fields are inert. Password icons show current visibility (crossed eye when masked, open eye when visible), with an eye-button focus indicator for keyboard use only.
 
 ### 6.2 Student Profile Management
 
@@ -65,12 +69,17 @@ Store one latest academic record per student:
 | field_of_study | Required field of the programme seeking funding |
 | spm_as | Official number of A+, A and A− subjects |
 | spm_credits | Official number of subjects graded C or above, including A subjects |
-| cgpa | Latest official cumulative CGPA when studying; final CGPA when completed |
+| grading_scale | Qualification-specific scale; IGCSE explicitly selects letters or 9–1 |
+| grade_counts | Official number of subjects at each grade; completed STPM separately identifies the included Pengajian Am grade |
+| stam_rank | Official overall STAM pangkat |
+| cgpa | Official cumulative CGPA when studying; final CGPA when completed; completed STPM is calculated on save from final counts and PA |
+| stpm_pa_grade | Pengajian Am grade already included in completed STPM subject counts |
+| stpm_cgpa_confirmed | Student confirmed that calculated completed-STPM CGPA matches the official slip |
 | result_status | official for new submissions |
 
-SPM requires completed exams and received official results. SPM does not offer a Currently Studying or pending-results submission. CGPA-based students require at least one official CGPA result. Students without the required official results must wait before receiving recommendations; a real zero result remains a valid numeric value.
+The form first selects Secondary, Pre-U/Diploma/Pathway or Undergraduate, then a qualification within that category. SPM, Cambridge IGCSE/O-Level, A-Level and Senior UEC use minus/plus grade counters and direct numeric entry, with a live summary. STAM selects the official overall pangkat. SPM, IGCSE, O-Level, A-Level, UEC and STAM require Completed and official final results. STPM requires official subject grade counts. Completed students identify the included Pengajian Am grade; the system calculates its points plus the best three other subjects divided by four and rounded half up to two decimals, then requires confirmation against the official slip. Four or five final subjects are required. Currently studying STPM retains manual official overall CGPA and current year. Foundation, Matriculation, Diploma and Bachelor’s Degree retain official CGPA and current year when studying. Bachelor’s Degree remains stored as Undergraduate for compatibility. Students without required results must wait before receiving recommendations; a real zero CGPA is valid.
 
-SPM credits must be at least the number of As. Changing qualification or completion status clears irrelevant grade/year fields.
+SPM As/credits are derived from grade counts, so students no longer enter those aggregates separately. Counts must be whole non-negative numbers, have at least one subject and use the selected scale. IGCSE scales are not converted. Changing category, qualification, scale or status clears incompatible inputs. Forecast/expected results, AS-Level and unspecified qualifications are outside this version. Existing aggregate-only SPM records retain their totals but require an actual breakdown before recommendations. See docs/ACADEMIC_QUALIFICATIONS.md for scales, limits and examples, docs/ACADEMIC_REQUIREMENT_TYPES.md for the typed editor and docs/STPM_CGPA_CALCULATION.md for the completed-result workflow. Existing CGPA-only STPM records retain their CGPA but need actual subject counts before recommendations.
 
 Programme Seeking Funding groups funding_study_level, institution_type and field_of_study. These describe the target programme and may differ from the latest qualification supplying results. The shared institution/field options are validated server-side and are required before recommendations. The recommendation engine reads these values from academic_results.
 
@@ -91,7 +100,9 @@ General requirements apply to every qualification route:
 - Required income category and maximum household income.
 - Supported fields of study and institution type.
 
-Add/Edit Scholarship and Add/Edit Rules share a repeatable qualification-box editor. Each box requires a supported latest qualification and an explicit study status (Completed, Currently Studying, or Either status for non-SPM). SPM fixes Completed and shows optional minimum As/credits; other levels show optional minimum CGPA. Currently Studying reveals optional minimum/maximum years. Removing or changing a box clears irrelevant inputs both in the browser and on the server.
+Add/Edit Scholarship and Add/Edit Rules share a repeatable qualification-box editor. Each box requires a qualification and study status. Exam-based qualifications require Completed; CGPA qualifications additionally allow Currently Studying and Either status, with optional year limits for studying. Configure SPM As/credits, grade-count thresholds, CGPA or minimum STAM pangkat as applicable. IGCSE thresholds use an explicit scale; alternatives use separate boxes. Optional UEC average settings specify the best subject count, included grade threshold and maximum average using A1=1 through F9=9. Insufficient qualifying subjects fails; lower averages are better. Removing/changing a box clears irrelevant fields in the browser and server.
+
+Each box uses Add Another Requirement and a Requirement Type selector. Types are qualification-specific: overall CGPA, grade counts, SPM As/credits, STAM rank, STPM minimum best-subject average, and UEC maximum average/total. Live previews explain each condition; cumulative grade conditions also show their minimum grade pattern. One grade-count requirement contains all grade thresholds as compact rows, with Add Grade Row and individual removal. Removing its final row removes only that grade group. CGPA and point requirements stay in separate groups. An added condition must be complete, and changing type clears its incompatible inputs. Grade conditions count subjects at a chosen grade or better. For AAB, require 2 at A or above AND 3 at B or above. Grade counts do not identify individual subjects: named-subject conditions belong in Special Requirements and require provider verification.
 
 All applicable conditions inside one box combine with AND. Boxes combine with OR: passing any complete box satisfies the academic route requirement. General nationality/funding/income/field/institution conditions still combine with AND. Multiple boxes may use the same qualification with different statuses, results or year ranges.
 
@@ -145,17 +156,17 @@ Recommendations have Eligible and Not Eligible groups. Eligible ! is included in
 | --- | --- |
 | users | Authentication and student/admin role |
 | student_profiles | user_id, nationality, state, household_income, number_of_dependents, income_category; inactive legacy institution/field values retained |
-| academic_results | Unique user_id; education_level, study_status, year_of_study, funding_study_level, institution_type, field_of_study, spm_as, spm_credits, cgpa, result_status |
+| academic_results | Unique user_id; education_level, study_status, year_of_study, funding_study_level, institution_type, field_of_study, spm_as, spm_credits, cgpa, result_status, grading_scale, grade_counts JSON, stam_rank, stpm_pa_grade, stpm_cgpa_confirmed |
 | income_categories | name, min_income, max_income |
 | scholarships | name, provider, description, award_type, nullable deadline, deadline_type, application_link, is_active, special_requirements, catalog_key, source_url, source_checked_at, application_notes |
 | scholarship_rules | Unique scholarship_id; general nationality/funding/income/field/institution conditions; legacy academic columns retained |
-| scholarship_qualification_routes | scholarship_rule_id; education_level, study_status, min_spm_as, min_spm_credits, min_cgpa, min_year_of_study, max_year_of_study |
+| scholarship_qualification_routes | scholarship_rule_id; education_level, study_status, min_spm_as, min_spm_credits, min_cgpa, min_year_of_study, max_year_of_study, grading_scale, grade_requirements JSON, min_stam_rank, uec_average JSON, stpm_average JSON, uec_total JSON |
 | saved_scholarships | user_id and scholarship_id |
 | recommendation_logs | user_id, scholarship_id, status, evaluation_version, requirement_results, failed_requirements, explanation, requires_verification, special_requirements, legacy_evaluation |
 
 Migration 2026_10_19_000000_add_decision_based_recommendations adds the new fields while preserving existing records. Legacy rule-type and score columns remain inactive for compatibility. Existing students must confirm their study status and funding level rather than having those answers invented during migration.
 
-Migration 2026_10_19_010000_create_scholarship_qualification_routes_table adds the one-to-many route table and converts existing qualification/status/year/result settings without changing student or scholarship records. Route rows are deleted automatically when their parent rule/scholarship is deleted. The current evaluator uses algorithm version decisions-v5-local-award-windows, so earlier cached decisions/logs refresh rather than being treated as current evaluations.
+Migration 2026_10_19_010000_create_scholarship_qualification_routes_table adds the one-to-many route table and converts existing qualification/status/year/result settings without changing student or scholarship records. Route rows are deleted automatically when their parent rule/scholarship is deleted. Migration 2026_10_31_000000_add_qualification_grade_counts adds the nullable scale/count/rank and route-threshold fields, extends the academic qualification enum and preserves existing data. Old SPM aggregates require a real breakdown before matching; rollback guards against discarding new-format data. The current evaluator uses algorithm version decisions-v8-stpm-cgpa, so earlier cached decisions/logs refresh rather than being treated as current evaluations. Migration 2026_10_31_010000_add_subject_point_requirements adds nullable stpm_average and uec_total JSON fields without modifying existing rows, and guards against a lossy rollback. Migration 2026_10_31_020000_add_stpm_cgpa_calculation adds nullable stpm_pa_grade and default-false stpm_cgpa_confirmed while preserving prior CGPA and grades; no PA identity is invented. Existing usable manual records remain valid until edited; new completed STPM saves require the calculated/confirmed flow. Format definitions and examples are in docs/ACADEMIC_QUALIFICATIONS.md, docs/ACADEMIC_REQUIREMENT_TYPES.md and docs/STPM_CGPA_CALCULATION.md.
 
 ## 9. Missing Data Handling
 
@@ -173,14 +184,16 @@ Seeders provide local demonstration users, income ranges, scholarships and requi
 
 - Latest level and funding level must be supported education levels.
 - Institution type and field are required academic programme inputs using shared supported choices.
-- Study status is studying/completed; SPM requires completed.
+- Study status is studying/completed; SPM, IGCSE, O-Level, A-Level, UEC and STAM require completed. STPM retains either student status and requires both official CGPA and subject counts.
 - Current year is 1–10 for studying CGPA-based records.
-- SPM counts are integers from 0–12; credits must include As.
-- CGPA is numeric from 0.00–4.00 and always required for non-SPM records.
+- Grade counts are whole non-negative numbers in the chosen scale, with at least one subject; supported totals are at most 12 for SPM, 5 for STPM and 20 for the other grade-count formats. SPM As/credits are derived.
+- Manually entered CGPA is numeric from 0.00–4.00 for studying STPM and Foundation/Matriculation/Diploma/Undergraduate. Completed STPM excludes any submitted cgpa value and derives it server-side from four/five final subjects and the included PA grade; accepted confirmation is required. PA/confirmation fields clear for other statuses/qualifications.
+- STAM requires a recognised overall pangkat. IGCSE requires an explicit scale and does not convert between scales.
 - New academic submissions require result_status=official.
 - Monetary limits are nonnegative; zero is a real limit.
-- Qualification boxes require a supported level and study status. SPM requires Completed. Year boundaries are optional individually, within 1–10, and ordered when both are specified; non-studying routes clear them.
-- Inapplicable SPM/CGPA fields are cleared server-side. Route forms require a JavaScript-initialization marker to prevent an uninitialized editor from accidentally removing existing routes.
+- Qualification boxes require a supported level and study status. Exam-based qualifications require Completed. Year boundaries are optional individually, within 1–10, and ordered when both are specified; routes other than studying CGPA clear them.
+- Grade conditions require a recognised scale/grade and whole-number minimum; duplicate grade thresholds in one box are rejected. Optional UEC formulas require all settings and a maximum average from 1–9 with up to two decimal places, or an integer maximum total between N and 9N. STPM averages use 1–5 subjects and a minimum from 0–4 with up to two decimal places. All formulas require enough qualifying subjects and compare unrounded actual values.
+- Inapplicable result, scale, rank, average and year fields are cleared server-side. Route forms require a JavaScript-initialization marker to prevent an uninitialized editor from accidentally removing existing routes.
 - A confirmed scholarship deadline is a date; an unconfirmed date stays empty. Its application link is a URL.
 
 ## 12. Non-Functional Requirements
@@ -196,7 +209,7 @@ Decision-based eligibility, latest official results, manual funding-level select
 
 ## 14. Out of Scope for MVP
 
-Provider award decisions, internal manual approval workflows, application submission/tracking, renewal management, document authenticity verification, predicted results, multiple academic-history records, and free-text rule parsing.
+Subject-specific calculations from unnamed grade counts, undocumented provider grade conversions, provider award decisions, internal manual approval workflows, application submission/tracking, renewal management, document authenticity verification, predicted results, multiple academic-history records, and free-text rule parsing.
 
 ## 15. Future Business Potential
 

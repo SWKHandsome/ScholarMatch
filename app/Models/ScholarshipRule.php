@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\AcademicQualifications;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -56,6 +57,7 @@ class ScholarshipRule extends Model
             return $this->qualificationRoutes->map(fn ($route) => $route->only([
                 'education_level', 'study_status', 'min_spm_as', 'min_spm_credits', 'min_cgpa',
                 'min_year_of_study', 'max_year_of_study',
+                'grading_scale', 'grade_requirements', 'min_stam_rank', 'uec_average', 'stpm_average', 'uec_total',
             ]))->all();
         }
 
@@ -75,10 +77,10 @@ class ScholarshipRule extends Model
             'study_status' => $this->required_study_status ?: ($level === 'SPM' ? 'completed' : 'any'),
             'min_spm_as' => $level === 'SPM' ? $this->min_spm_as : null,
             'min_spm_credits' => $level === 'SPM' ? $this->min_spm_credits : null,
-            'min_cgpa' => $level !== 'SPM' ? $this->min_cgpa : null,
+            'min_cgpa' => AcademicQualifications::isCgpa($level) ? $this->min_cgpa : null,
             'min_year_of_study' => $this->min_year_of_study,
             'max_year_of_study' => $this->max_year_of_study,
-        ], $levels ?: AcademicResult::EDUCATION_LEVELS);
+        ], $levels ?: AcademicQualifications::LEGACY_LEVELS);
     }
 
     /**
@@ -106,7 +108,7 @@ class ScholarshipRule extends Model
             $levels[] = 'SPM';
         }
         if ($this->min_cgpa !== null) {
-            $levels = array_merge($levels, array_values(array_diff(AcademicResult::EDUCATION_LEVELS, ['SPM'])));
+            $levels = array_merge($levels, AcademicQualifications::CGPA_LEVELS);
         }
 
         return $levels;

@@ -2,8 +2,8 @@
 
 **Project:** FYP ScholarMatch — Scholarship Recommendation Platform for Malaysian Students
 **Stack:** Laravel 13 + PHP 8.3 + Pest + Tailwind CSS + Vite + SQLite (dev)
-**Last Updated:** 2026-10-20 (Asia/Singapore)
-**Test Suite Status:** 226/226 automated tests passed (756 assertions); see improve.md for verification details.
+**Last Updated:** 2026-10-31 (Asia/Singapore)
+**Test Suite Status:** Full suite from IMP-018: 441/441 PHP tests passed (2,087 assertions) and 18/18 JavaScript tests passed. After the authentication UI update, all 18 authentication tests passed (38 assertions); see IMP-019 in improve.md for desktop/mobile browser and build verification.
 
 ---
 
@@ -48,6 +48,16 @@ npm run dev        # in separate terminal
 | A5 | Logout | Click "Log Out" dropdown | Redirect to `/`, session destroyed |
 | A6 | Email verification | Register new → check email (log) → click link | Verified badge, no resend prompt |
 | A7 | Password reset | `/forgot-password` → email → reset link → new password | Login with new password works |
+| A8 | Switch between account forms | Open Login, click Register on the left, then Login on the right | Full-width switch appears above each form; current page is blue and marked aria-current=page. Links open the correct form. |
+| A9 | Login password visibility | Enter a test password; click the eye twice | Password starts masked, becomes visible and is masked again. Labels/pressed state follow visibility; toggling does not submit or clear the form. |
+| A10 | Independent registration controls | Toggle Password and Confirm Password separately; use Space on an eye button | Only the associated field changes; keyboard operation works without registering or submitting. |
+| A11 | Return from Forgot Password | Follow Forgot password?; inspect before/after a reset-link request and after a validation error; click Back to Login | Return link stays available with form errors/status messages and opens Login. |
+| A12 | Reset Password visibility and return | Open a reset link; inspect default masking; toggle each eye separately; click Back to Login | Both fields have independent controls and retain required/autocomplete behaviour. Return navigation works. |
+| A13 | Mobile authentication layout | Inspect Login, Register, Forgot Password and Reset Password at 390px width | Switch stays side by side, fields/buttons fit, eye icons have reserved input space, and page content has no horizontal overflow. |
+| A14 | Stable shared card | Switch Login/Register on desktop and at 390px; compare card edges and submit buttons | Card height/top and button baseline stay fixed for unchanged content. Longer validation messages can expand the natural layout without clipping. |
+| A15 | Animated switch and history | Switch forms, use Back/Forward, refresh each URL and open a link normally in a new tab | Blue background slides for 250ms, selected form fades in for 150ms, URL/active state follow selection. Direct routes and native link navigation work. Reduced-motion settings disable panel/slider transitions. |
+| A16 | Current-state eye icons and focus | Toggle each eye by mouse, then reach it using Tab | Masked = crossed eye; visible = open eye. Mouse clicks show no blue outline; keyboard focus has a visible inset ring. Labels describe the next action. |
+| A17 | Inactive form and validation | Inspect keyboard/assistive navigation; submit invalid Login details; switch modes | Only the visible form is interactive/exposed. Login errors appear in Login, unique field IDs label the correct inputs, and switching masks revealed passwords. |
 
 ---
 
@@ -77,8 +87,8 @@ npm run dev        # in separate terminal
 | --- | --- | --- |
 | AR-01 | Select SPM | Status becomes Completed; current-year and CGPA controls are hidden/disabled. |
 | AR-02 | Submit SPM without official-result confirmation | Validation prevents saving. |
-| AR-03 | Submit completed SPM with 8 As and 9 credits, funding Undergraduate | Save succeeds; stored CGPA/year are empty; funding level stays Undergraduate. |
-| AR-04 | Enter fewer credits than As | Validation explains that As are included in credits. |
+| AR-03 | Enter 8 A and 1 C subjects for completed SPM, with Bachelor’s Degree funding | Summary shows 9 subjects, 8 As and 9 credits; save succeeds; stored CGPA/year are empty; funding identifier stays Undergraduate. |
+| AR-04 | Enter 2 A+, 1 A, 1 A-, 2 B, 1 C and 1 G | Derived totals are 8 subjects, 4 As and 7 credits; forged aggregate values cannot replace these totals. |
 | AR-05 | Select a CGPA-based level and Currently Studying | Current year and official cumulative CGPA are required. |
 | AR-06 | Select Completed for a CGPA-based level | Final CGPA is required; previous current year is cleared. |
 | AR-07 | Submit pending results or omit CGPA | Validation prevents saving; no preliminary recommendation is generated. |
@@ -90,6 +100,27 @@ npm run dev        # in separate terminal
 | AR-13 | Update Profile with extra institution/field values | Academic choices remain unchanged; Profile does not edit programme data. |
 | AR-14 | Upgrade existing profile/academic data | Programme choices are copied; results and existing record counts are preserved. A profile-only student keeps choices as first-form prefill without invented results. |
 | AR-15 | View Programme Seeking Funding on desktop and a narrow screen | A continuous divider appears above the heading, with consistent spacing and no line cutting through the legend; helper text and controls wrap within the form |
+| AR-16 | Choose each education category | Only its supported qualifications appear; Bachelor’s Degree, Cambridge IGCSE/O-Level and Senior UEC labels retain compatible stored identifiers. |
+| AR-17 | Use plus/minus buttons and direct entry | Summary and total update immediately; minus cannot go below zero; at least one subject is required. |
+| AR-18 | Submit negative, fractional, boolean, nested, unknown-grade or excessive counts | Server rejects invalid counts even if browser controls are bypassed; total caps are 12 for SPM and 20 for the other supported grade formats. |
+| AR-19 | Save and reopen SPM, IGCSE letters, IGCSE 9–1, O-Level, A-Level and UEC | Exact scale/counts persist; status is Completed, CGPA/year are empty and official confirmation is required. |
+| AR-20 | Switch IGCSE from 9–1 to letters after entering results | Counts and official confirmation clear; numeric grades do not carry into letters and no conversion occurs. |
+| AR-21 | Change category or qualification after entering results | Incompatible result fields and official confirmation clear; Programme Seeking Funding remains separate. |
+| AR-22 | Save each STAM overall pangkat | Selected rank persists, count/CGPA fields are empty and official final results are required. |
+| AR-23 | Open a migrated aggregate-only SPM record | Preserved As/credits are shown; no distribution is fabricated; recommendations require the actual grade breakdown. Valid existing CGPA records remain usable. |
+| AR-24 | Inspect the form at 390px and with keyboard navigation | Pills wrap, counters form a readable grid, buttons/inputs have accessible labels and focus states, and no horizontal page overflow occurs. |
+| AR-25 | Attempt forecast/expected results or studying status for an exam-based qualification | Submission fails; there is no forecast/expected or AS-Level input path. |
+| AR-26 | Enter STPM grade counts and save/reopen | Completed STPM calculates overall CGPA from PA plus the best three others with confirmation; studying STPM keeps manual official CGPA. Provider best-subject averages remain separate. Counts use the STPM scale and cap of 5. |
+| AR-27 | Open a CGPA-only legacy STPM record | CGPA is preserved; a prompt requests actual subject counts before recommendations. Missing counts produce a completion message rather than Not Eligible or !. |
+| AR-28 | Use STPM Currently Studying and change status | Current year/latest official results and manual CGPA are supported; changing status clears year, CGPA, counts, PA grade and confirmations in the form. Completed students use final results and calculation. |
+| AR-29 | Enter A/A/A/A/C with PA=C | Read-only overall CGPA shows 3.50, total subjects stays 5 and PA is included exactly once. Choosing PA=A instead yields 4.00. |
+| AR-30 | Enter 2 A and 2 A-, PA=A; test 4 Fs separately | First CGPA rounds half up to 3.84; four Fs produce valid 0.00. |
+| AR-31 | Omit PA, select an uncounted/unsupported PA grade, or enter fewer than 4/more than 5 final subjects | Calculation cannot complete and saving fails; the server validates even when browser checks are bypassed. |
+| AR-32 | Confirm calculated CGPA, then edit counts using typing/counters or change PA | Confirmation clears and must be checked again for the current results. |
+| AR-33 | Save completed STPM with no match confirmation or a forged posted CGPA | Missing/rejected confirmation fails. A posted CGPA cannot override the server-calculated value or inflate eligibility. |
+| AR-34 | Reopen a saved calculated record; then switch to studying or another qualification | PA, calculated CGPA and confirmation restore when unchanged. Other modes use manual CGPA as applicable and clear STPM-only calculation metadata on save. |
+| AR-35 | Upgrade an existing usable manual STPM record | Its grades/CGPA and readiness remain intact, PA stays unanswered and confirmation false. Editing completed results requests PA and confirmation; no grade identity is invented. Rollback guards populated metadata. |
+| AR-36 | Open the calculator at 390px | PA selection, read-only value and match confirmation wrap within the form without horizontal overflow. |
 
 
 ## 5. Student Recommendations (Core Feature)
@@ -196,7 +227,28 @@ npm run dev        # in separate terminal
 | RULE-13 | Leave result minimums empty; use minimum 0.00 separately | Blank is unrestricted; zero is stored as an actual minimum. |
 | RULE-14 | Remove all boxes and save | Academic restrictions disappear; obsolete legacy academic columns do not reappear. General requirements remain. |
 | RULE-15 | Open the editor with JavaScript disabled and submit | Server rejects the missing editor-initialization marker; saved routes are preserved. |
-| RULE-16 | Set non-SPM Either status | Studying and completed applicants may use this route; year controls are hidden. |
+| RULE-16 | Set Either status on a CGPA-based qualification | Studying and completed applicants may use this route; year controls are hidden. Exam-based qualifications only permit Completed. |
+| RULE-17 | Configure full A-Level AAB using 2 at A or better and 3 at B or better | A*AB passes; ABB and AAC fail. All grade conditions in that box must pass. |
+| RULE-18 | Configure separate IGCSE letter and 9–1 boxes | Each compares only its explicit scale; either complete passing box satisfies the academic requirement. An unrestricted IGCSE box can accept either scale. |
+| RULE-19 | Save, reopen and resubmit grade-based routes | Saved grade dropdowns restore correctly, including after dynamic options render; adding/removing another condition retains existing selections and minima. |
+| RULE-20 | Configure Senior UEC A2-or-better minimum | A1 and A2 both count; lower achievement grades do not. A1-only uses the separate A1 threshold. |
+| RULE-21 | Configure UEC best 5, minimum B6, maximum average 3.20 | A1/A2/B3/B4/B6 averages 3.20 and passes. Too few B6-or-better subjects fails. A weaker average fails without rounding into a pass. |
+| RULE-22 | Enter an incomplete UEC formula, invalid grade, duplicate threshold or maximum average 3.333 | Validation rejects it; maxima allow up to two decimal places. |
+| RULE-23 | Configure minimum STAM Jayyid | Mumtaz/Jayyid Jiddan/Jayyid pass; Maqbul/Rasib fail. |
+| RULE-24 | Put Mathematics at least C in Special Requirements | Automatic matching does not claim to verify Mathematics; otherwise Eligible receives ! with the text; automatic failure remains Not Eligible. |
+| RULE-25 | Change between grade-based, STAM and CGPA routes | Unused scale/count/rank/average/year values are cleared on save. |
+| RULE-26 | Use Add Another Requirement and inspect Requirement Type for each qualification | Only supported types appear. STPM offers overall CGPA, grade counts and minimum best-subject average; UEC also offers maximum average/total. A-Level has no generic CGPA conversion. |
+| RULE-27 | Open an existing rule and save without changing conditions | Existing SPM/CGPA/grade/STAM/UEC-average thresholds restore as typed rows with the same values and meaning; empty/zero remain distinct. |
+| RULE-28 | Configure UEC maximum total 11 across best 5 | A1/A1/A2/B3/B4 passes at 11, a weaker total fails, and too few qualifying subjects fails. No manual conversion into average 2.20 is needed. |
+| RULE-29 | Compare STPM average 3.00 across best 3 with 3 subjects each at B or better | A/B/C/C passes the best-three average (3.00), fails three B-or-better subjects, and has a separate official overall CGPA. Combining with a minimum overall CGPA requires both conditions. |
+| RULE-30 | Change a condition type, remove a middle condition and save | Incompatible values clear, other conditions retain their values and stable identities, and removed restrictions disappear. Added conditions must be complete. |
+| RULE-31 | Add A-Level thresholds 1 at A and 3 at B | Plain-language descriptions and cumulative minimum pattern show A, B, B; stronger grades count towards lower thresholds. |
+| RULE-32 | Configure a best-subject rule requiring named-subject exclusions or an undocumented conversion | Record the unsupported part in Special Requirements; aggregate counts must not be presented as verification of named subjects or an invented formula. |
+| RULE-33 | Upgrade route schema with an existing database and attempt rollback with new point rules | Old values/counts remain intact; stpm_average/uec_total are nullable JSON; rollback refuses to discard new rule data. |
+| RULE-34 | Open saved A-Level grade minima 1 at A and 3 at B | They appear as two rows inside one grade-count requirement with one selector and one A, B, B preview. Saving preserves the same flat thresholds and eligibility meaning. |
+| RULE-35 | Add/remove grade rows, including the first and final row | Other row values stay attached to their stable identities. Removing the final row removes only its group; other CGPA/average requirements remain. The grade type becomes available again. |
+| RULE-36 | Use Add Grade Row and Add Another Requirement | The first appends a threshold inside the grade group; the second adds a different supported requirement type. No duplicate grade group is offered. Each row is required when present; up to 20 grade rows are supported. |
+| RULE-37 | Create, edit and reopen grouped requirements at desktop and 390px widths | Both rows remain readable, all controls have labels, there is no horizontal page overflow, and native form submission succeeds without irrelevant hidden required inputs. |
 | REC-18 | A student passes one complete box and fails another | Eligible if general conditions pass; expanded explanations show each alternative. |
 | REC-19 | Student passes CGPA in one box and year in another, but no complete box | Not Eligible; conditions are not mixed across boxes. |
 | REC-20 | Student passes a route but fails nationality/income/field | Not Eligible; special text does not override the failure. |
@@ -265,7 +317,7 @@ php artisan test --filter="RecommendationServiceTest"
 - Government: Yayasan Khazanah, MARA, JPA, PTPTN
 - Corporate: Petronas, Maybank, CIMB, Khazanah, Sime Darby, YTL, Sunway, Taylor's
 
-**Rules cover:** nationality, income category, funded level, accepted latest qualification, field, institution, SPM As/credits, CGPA and maximum income. Every configured criterion is enforced; new rules can also restrict study status and current year.
+**Rules cover:** nationality, income category, funded level, accepted latest qualification, field, institution, SPM As/credits, CGPA and maximum income. Every configured criterion is enforced; routes also support study status/current year, qualification-specific grade counts/scales, STAM ranks and explicit UEC average formulas. The stock demo catalogue covers the original six qualification formats; additional qualification cases use dedicated test fixtures.
 
 ```bash
 # Inspect rules
@@ -276,4 +328,4 @@ php artisan db:seed --class=ScholarshipRuleSeeder
 
 ## Automated Test Coverage
 
-Run `php artisan test`. Tests cover the decision engine, official-result form validation, latest qualification versus funding level, special warnings, boundary cases, caches, log migration, and existing authentication/admin/student workflows. Automated results and browser checks are recorded in improve.md. Manual cases above describe expected behaviour; they are not a claim that every manual case has been executed.
+Run `php artisan test` and `npm run test:academic`. Tests cover the decision engine, official-result form validation, all supported grade formats, latest qualification versus funding level, special warnings, exact/near-miss boundaries, caches, migration preservation/protected rollback, and existing authentication/admin/student workflows. Automated results and synthetic browser checks are recorded in improve.md. Manual cases above describe expected behaviour; they are not a claim that every manual case has been executed. MySQL integration was not run.

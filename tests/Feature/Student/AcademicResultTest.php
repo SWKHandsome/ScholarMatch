@@ -43,7 +43,7 @@ test('SPM graduates can save official counts and choose a different funding leve
     $user = User::factory()->create(['role' => 'student']);
     $this->actingAs($user)->patch(route('student.academic-result.update'), academicPayload([
         'education_level' => 'SPM', 'study_status' => 'completed',
-        'spm_as' => 8, 'spm_credits' => 9, 'funding_study_level' => 'Foundation',
+        'grade_counts' => ['A' => 8, 'C' => 1], 'funding_study_level' => 'Foundation',
     ]))->assertSessionHasNoErrors();
     $result = $user->fresh()->academicResult;
     expect($result->cgpa)->toBeNull()->and($result->year_of_study)->toBeNull();
@@ -70,9 +70,9 @@ test('invalid academic submissions cannot save', function ($changes, $field) {
     'invalid field' => [['field_of_study' => 'Unlisted Field'], 'field_of_study'],
     'invalid source' => [['education_level' => 'Unknown'], 'education_level'],
     'SPM studying' => [['education_level' => 'SPM', 'spm_as' => 8, 'spm_credits' => 9], 'study_status'],
-    'SPM missing counts' => [['education_level' => 'SPM', 'study_status' => 'completed'], 'spm_as'],
-    'SPM counts overlap' => [['education_level' => 'SPM', 'study_status' => 'completed', 'spm_as' => 8, 'spm_credits' => 7], 'spm_credits'],
-    'SPM too many As' => [['education_level' => 'SPM', 'study_status' => 'completed', 'spm_as' => 13, 'spm_credits' => 13], 'spm_as'],
+    'SPM missing counts' => [['education_level' => 'SPM', 'study_status' => 'completed'], 'grade_counts'],
+    'SPM unsupported grade' => [['education_level' => 'SPM', 'study_status' => 'completed', 'grade_counts' => ['Z' => 1]], 'grade_counts'],
+    'SPM too many subjects' => [['education_level' => 'SPM', 'study_status' => 'completed', 'grade_counts' => ['A' => 13]], 'grade_counts'],
 ]);
 
 test('real zero CGPA is stored as an official result rather than missing information', function () {

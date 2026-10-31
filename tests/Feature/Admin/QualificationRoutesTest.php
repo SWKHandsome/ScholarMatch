@@ -30,7 +30,7 @@ test('scholarship add and edit pages include the shared qualification editor', f
     $this->actingAs(makeAdmin());
     foreach ([route('admin.scholarships.create'), route('admin.scholarships.edit', $scholarship)] as $url) {
         $this->get($url)->assertOk()->assertSee('Accepted Qualification Routes')->assertSee('+ Add Qualification')
-            ->assertSee('Qualification Level')->assertSee('Minimum SPM Credits')->assertSee('Minimum CGPA')
+            ->assertSee('Qualification Level')->assertSee('Requirement Type')->assertSee('+ Add Another Requirement')->assertSee('+ Add Grade Row')
             ->assertSee('Minimum Year of Study')->assertSee('Either status');
     }
 });

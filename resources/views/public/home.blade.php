@@ -74,7 +74,7 @@
                     </div>
                     <h3 class="text-xl font-semibold text-on-surface mb-2">Add Academic Results</h3>
                     <p class="text-on-surface-variant">
-                        Enter official SPM As/credits or CGPA, your study status and current year when studying.
+                        Enter official grade counts, CGPA or STAM pangkat, your study status and current year when studying.
                         Select the study level, institution type and field of the programme you want funded.
                     </p>
                 </div>

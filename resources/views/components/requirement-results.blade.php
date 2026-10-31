@@ -5,10 +5,18 @@
         </thead>
         <tbody class="divide-y divide-outline-variant">
             @foreach($checks as $check)
+                @php
+                    $requiredValue = $check['required'];
+                    $actualValue = $check['actual'];
+                    if (in_array($check['key'], ['funding_level', 'qualification'], true)) {
+                        $requiredValue = is_string($requiredValue) ? \App\Support\AcademicQualifications::label($requiredValue) : $requiredValue;
+                        $actualValue = is_string($actualValue) ? \App\Support\AcademicQualifications::label($actualValue) : $actualValue;
+                    }
+                @endphp
                 <tr class="{{ $check['outcome'] === 'not_met' ? 'bg-rose-50' : ($check['outcome'] === 'met' ? 'bg-emerald-50' : 'text-on-surface-variant') }}" data-explanation-status="{{ $check['outcome'] === 'not_met' ? 'failed' : ($check['outcome'] === 'met' ? 'passed' : 'not-applicable') }}">
                     <th scope="row" class="p-3 font-semibold">{{ $check['label'] }}</th>
-                    <td class="p-3 {{ $check['outcome'] !== 'not_applicable' ? 'font-semibold' : '' }}">{{ is_array($check['required']) ? (implode(', ', $check['required']) ?: 'Not specified') : ($check['required'] ?? 'Not specified') }}</td>
-                    <td class="p-3 {{ $check['outcome'] === 'not_met' ? 'font-semibold text-rose-800' : ($check['outcome'] === 'met' ? 'font-semibold text-emerald-800' : '') }}">{{ is_array($check['actual']) ? implode(', ', $check['actual']) : ($check['actual'] ?? '—') }}</td>
+                    <td class="p-3 {{ $check['outcome'] !== 'not_applicable' ? 'font-semibold' : '' }}">{{ is_array($requiredValue) ? (implode(', ', $requiredValue) ?: 'Not specified') : ($requiredValue ?? 'Not specified') }}</td>
+                    <td class="p-3 {{ $check['outcome'] === 'not_met' ? 'font-semibold text-rose-800' : ($check['outcome'] === 'met' ? 'font-semibold text-emerald-800' : '') }}">{{ is_array($actualValue) ? implode(', ', $actualValue) : ($actualValue ?? '—') }}</td>
                     <td class="p-3">
                         @include('components.requirement-status', ['outcome' => $check['outcome']])
                     </td>

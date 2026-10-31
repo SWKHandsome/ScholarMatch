@@ -6,11 +6,12 @@ use App\Models\IncomeCategory;
 use App\Models\RecommendationLog;
 use App\Models\Scholarship;
 use App\Models\User;
+use App\Support\AcademicQualifications;
 use Illuminate\Support\Facades\Cache;
 
 class ScholarshipRecommendationService
 {
-    public const ALGORITHM_VERSION = 'decisions-v5-local-award-windows';
+    public const ALGORITHM_VERSION = 'decisions-v8-stpm-cgpa';
 
     private const CATALOG_VERSION_CACHE_KEY = 'recommendation_catalog_version';
 
@@ -29,7 +30,7 @@ class ScholarshipRecommendationService
         }
         if (! $academic->isReadyForRecommendations()) {
             return [
-                'error' => 'Complete your academic information and programme seeking funding, including institution type and field of study, using official results. SPM requires completed exams; other levels require an official CGPA.',
+                'error' => 'Complete your academic information and programme seeking funding, including institution type and field of study, using official results. Exam-based qualifications need a final grade breakdown or STAM pangkat; CGPA-based qualifications need an official CGPA. STPM requires both official overall CGPA and subject grade counts.',
                 'recommendations' => [],
             ];
         }
@@ -77,7 +78,7 @@ class ScholarshipRecommendationService
                         : "This scholarship requires {$rule->required_nationality} nationality.", (bool) $rule->required_nationality);
                 $add('funding_level', 'Funded study level', $rule->required_study_level, $academic->funding_study_level,
                     $academic->funding_study_level === $rule->required_study_level,
-                    "The scholarship funds {$rule->required_study_level}; you selected {$academic->funding_study_level}.",
+                    'The scholarship funds '.AcademicQualifications::label($rule->required_study_level).'; you selected '.AcademicQualifications::label($academic->funding_study_level).'.',
                     (bool) $rule->required_study_level);
                 $checks = array_merge($checks, app(AcademicRouteEvaluator::class)->evaluate($rule->academicRoutes(), $academic));
                 $add('income_category', 'Income category', $rule->required_income_category, $incomeCategory,
