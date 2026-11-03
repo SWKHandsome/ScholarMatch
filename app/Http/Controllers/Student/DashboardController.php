@@ -25,16 +25,20 @@ class DashboardController extends Controller
         $savedCount = SavedScholarship::where('user_id', $user->id)->count();
 
         $recentRecommendations = [];
+        $eligibleCount = 0;
         if ($profileComplete && $academicComplete) {
             $result = $this->recommendationService->getRecommendations($user);
-            $recentRecommendations = array_slice($result['recommendations'] ?? [], 0, 5);
+            $allRecommendations = $result['recommendations'] ?? [];
+            $eligibleCount = count(array_filter($allRecommendations, fn (array $recommendation) => $recommendation['status'] === 'Eligible'));
+            $recentRecommendations = array_slice($allRecommendations, 0, 5);
         }
 
         return view('student.dashboard', compact(
             'profileComplete',
             'academicComplete',
             'savedCount',
-            'recentRecommendations'
+            'recentRecommendations',
+            'eligibleCount'
         ));
     }
 }

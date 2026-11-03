@@ -24,26 +24,9 @@
             </form>
         </div>
     </div>
-    @if($recommendation['failed_requirements'])
-        <div class="card p-5 border-l-4 border-error bg-rose-50">
-            <h2 class="font-semibold text-error">Not Eligible - Failed Requirements</h2>
-            <ul class="list-disc pl-5 mt-2">
-                @foreach($recommendation['requirement_results'] as $check)
-                    @if($check['outcome'] === 'not_met')<li class="font-medium text-rose-800">{{ $check['message'] }}</li>@endif
-                @endforeach
-            </ul>
-        </div>
-    @endif
     <section class="card p-6">
         <h2 class="text-lg font-semibold mb-4">Requirement Explanation</h2>
-        @include('components.requirement-results', ['checks' => $recommendation['requirement_results']])
+        @include('components.student-requirement-explanation')
     </section>
-    @if($recommendation['special_requirements'] !== '')
-        <section class="card p-6 border-l-4 border-amber-400 bg-amber-50">
-            <h2 class="font-semibold text-amber-900">Special Requirements</h2>
-            <p class="mt-2 whitespace-pre-line">{{ $recommendation['special_requirements'] }}</p>
-            <p class="mt-3 text-sm text-on-surface-variant">Confirm these conditions with the scholarship provider.</p>
-        </section>
-    @endif
 </div>
 @endsection

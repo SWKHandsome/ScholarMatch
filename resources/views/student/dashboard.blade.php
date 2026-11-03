@@ -70,7 +70,7 @@
                 <div>
                     <p class="text-sm text-on-surface-variant">Recommendations</p>
                     @if($profileComplete && $academicComplete)
-                        <p class="text-2xl font-bold text-on-surface mt-1">{{ count($recentRecommendations) }} found</p>
+                        <p class="text-2xl font-bold text-on-surface mt-1">{{ $eligibleCount }} eligible</p>
                     @else
                         <p class="text-2xl font-bold text-on-surface mt-1">—</p>
                     @endif

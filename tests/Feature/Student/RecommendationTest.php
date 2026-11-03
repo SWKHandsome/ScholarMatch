@@ -58,7 +58,7 @@ test('unrestricted criteria are explicitly not applicable on the detail page', f
     $user = makeStudent();
     $scholarship = makeScholarship([], ['required_income_category' => null, 'max_household_income' => null]);
     $this->actingAs($user)->get(route('student.recommendations.show', $scholarship))
-        ->assertOk()->assertSee('Not Applicable')->assertDontSee('Match score');
+        ->assertOk()->assertSee('View criteria with no restrictions')->assertSee('No restriction')->assertDontSee('Match score');
 });
 
 test('special requirement text is escaped instead of interpreted as markup', function () {

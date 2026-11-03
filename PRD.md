@@ -128,9 +128,13 @@ There are no points, weights, percentage match scores or hard/soft rule settings
 
 Each requirement records its key, label, required value, student value, outcome (met, not_met or not_applicable), and explanation. Scholarship cards and detail pages show these results. Eligible ! includes an expandable, keyboard-accessible explanation of special conditions.
 
+Student scholarship details present a short decision summary, the evaluator-selected qualification route, failed comparisons first, and grouped academic/other applicable checks. Qualification and study status share one comparison. Alternative routes and unrestricted criteria are collapsed by default. An amber provider section presents special conditions and uncertain dates; rolling/automatic application timing remains informational. Administrator logs retain their full comparison table. This is presentation only and does not change eligibility decisions or stored results.
+
 The recommendation page provides a filter sidebar beside a single column of full-width cards. Students can search scholarship/provider names and filter by award type, funded study level, supported field and institution type. All active filters combine; unrestricted programme criteria also match the selected programme choice. Filters narrow existing evaluations without changing the student's information or eligibility decision.
 
 Eligible and Not Eligible links display filtered group totals. Each group shows at most 10 scholarships per page, ordered by the existing deadline/name/ID rules. Numbered and previous/next links preserve filters and the chosen group. Applying filters, resetting or switching groups starts at page 1; out-of-range page numbers resolve to the last available page. On narrow screens, filters stack above the list. Empty filtered groups retain filters and offer a reset action.
+
+The student Dashboard Recommendations statistic shows the total Eligible count from the complete current evaluation, including Eligible results with provider-verification warnings. It is independent of the five-entry mixed-status preview and of filters on the recommendation list. The card reads N eligible; incomplete academic/profile inputs retain the existing unavailable display.
 
 ### 6.8 Saved Scholarships
 

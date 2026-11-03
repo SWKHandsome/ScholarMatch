@@ -136,7 +136,7 @@ npm run dev        # in separate terminal
 | REC-07 | Use official SPM results for Undergraduate funding | Compare the funding requirement against Undergraduate and academic route against SPM. |
 | REC-08 | Configure minimum As and minimum credits | Both must pass, including equality. |
 | REC-09 | Match one of multiple supported fields | Field check passes. |
-| REC-10 | Leave a criterion explicitly unrestricted | Detail table says Not Applicable. |
+| REC-10 | Leave a criterion explicitly unrestricted | Student details place it in the collapsed View criteria with no restrictions section, with the student's information available. Admin log tables retain Not Applicable. |
 | REC-11 | Use a scholarship with no rule record | Excluded; configuration notice appears. |
 | REC-12 | Use inactive/expired scholarships | Absent from current recommendations. Saved records remain available. |
 | REC-13 | Open a scholarship on its deadline day | It remains open until that day ends in the application timezone. |
@@ -147,7 +147,12 @@ npm run dev        # in separate terminal
 | REC-21 | Inspect View Details on dashboard/recommendation cards | Visible outlined button matches Save; Apply Now stays filled; View Details still opens the scholarship. |
 | REC-22 | Inspect wide dashboard and narrow recommendation cards | Eligible/Not Eligible badge stays at the top right; long titles wrap without overlap; award type and deadline are highlighted. |
 | REC-23 | Expand card explanations and open scholarship/log details | Met checks are green, Not Met red, Not Applicable neutral; required/student values are bold; labels and symbols also explain the outcome. |
-| REC-25 | Expand View Explanation on a recommendation card | One readable message per applicable check with bold green Met/red Not Met label; no repeated value rows or individual boxes. Detailed tables retain their comparison styling. |
+| REC-25 | Expand View Explanation on a recommendation card | One readable message per applicable check with bold green Met/red Not Met label; no repeated value rows or individual boxes. Student details use grouped comparisons; admin log tables retain their comparison styling. |
+| REC-26 | Open details with several alternative routes, including a passing route | Show the selected route, combine qualification/status and show its relevant comparisons. Other routes are collapsed and are not listed as overall failure reasons. |
+| REC-27 | Fail academic/general restrictions | Failed comparisons appear before passing academic/other checks. All configured restrictions remain visible, with required/actual values and red text/status. |
+| REC-28 | Open details with uncertain dates or special requirements | Amber Check with the provider section shows date confirmation and escaped special text. Rolling/automatic awards show application timing without an invented deadline failure. |
+| REC-29 | Expand alternatives and unrestricted criteria using mouse/keyboard | Both disclosures open, each alternative can be inspected independently, and unrestricted information is retained under No restriction. |
+| REC-30 | Inspect Eligible and Not Eligible details on desktop/390px | Values are side by side on desktop and stacked on mobile, text wraps without horizontal overflow, and real zero/income currency values remain readable. |
 | REC-26 | Open Recommendations on desktop and mobile | Filters appear beside a single column of full-width cards on desktop and above it on mobile; Dashboard cards are unchanged |
 | REC-27 | Apply search, award type, funded level, field and institution filters together | Name/provider search ignores case; all filters combine; unrestricted programme conditions and matching supported-field lists remain included; decisions are unchanged |
 | REC-28 | Open a group with more than 10 results and choose page 2 | First page has 10 cards; next page has the remaining cards in deadline order; counts/range/page are accurate; filters and group persist in navigation |
@@ -176,9 +181,13 @@ npm run dev        # in separate terminal
 | D1 | Incomplete profile/academic | Fresh student → `/student/dashboard` | Warning cards: "Complete Profile", "Add Academic Results" |
 | D2 | Complete both | After S2+AR2 → dashboard | Green checkmarks, quick action links |
 | D3 | Saved count | After SS1 → dashboard | "Saved Scholarships: 1" |
-| D4 | Recent recommendations | After R3 → dashboard | Shows top 3 recent recommendations |
-| D5 | No matches message | T20 student → dashboard | "No matching scholarships found" |
+| D4 | Recent recommendations | Complete profile/results and evaluate several scholarships | Shows up to five preview entries in the recommendation service's order; these may include Not Eligible entries. |
+| D5 | No available recommendations | Dashboard with no active/configured awards to evaluate | Shows No Scholarships Matched. A zero Eligible count with evaluated Not Eligible awards still permits the preview. |
 | D6 | Quick action links | Click "View Recommendations" / "Edit Profile" | Navigates correctly |
+| D7 | Eligible total differs from preview size | Four Eligible awards plus at least two Not Eligible awards | Recommendations card reads 4 eligible; preview still contains five entries. Eligible ! awards count as Eligible. |
+| D8 | Eligible total above five | Seven Eligible awards plus rejected awards | Card reads 7 eligible rather than the five-entry preview count. |
+| D9 | No Eligible awards | Six Not Eligible awards | Card reads 0 eligible while the preview can show five rejected awards. |
+| D10 | Academic update changes eligibility | Update official CGPA so an additional award passes, then reload Dashboard | Eligible total changes from four to five, even though the preview length stays five. |
 
 ---
 

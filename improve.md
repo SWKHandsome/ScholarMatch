@@ -554,3 +554,70 @@ Updated PRD.md, DESIGN.md, MANUAL_TEST_CASES.md A14–A17 and .ai-handoff.md. Th
 **Verification:** All 18 existing authentication tests passed (38 assertions). Production Vite build and whitespace checks passed. Browser measurements showed both modes at height 534px/top 145px on the desktop viewport, and height 534px/top 128px at 390px width, with no mobile horizontal overflow. Verified active/inert panel state, slider endpoints and 250ms styling, Back navigation, direct Register refresh, current-state icons, mouse focus without shadow, visible keyboard inset ring, masking after switches and invalid-login error display in the correct panel. Preview used a separate empty SQLite database and synthetic invalid credentials; no existing application records were changed.
 
 **Screenshots:** storage/app/private/auth-stable-register-preview.png, auth-stable-login-preview.png and auth-stable-mobile-preview.png. No commit or push was made.
+
+## IMP-021 — Distinguish Add Qualification with a blue button
+
+**Date:** 2026-11-01
+**Status:** Implemented
+
+- Changed **+ Add Qualification** from the outlined button style to the existing Primary Blue style with white text. **+ Add Another Requirement** retains its outlined style, distinguishing adding a qualification route from adding conditions inside one route.
+- Updated resources/views/admin/rules/_qualification-routes.blade.php. This shared editor applies the same appearance to Add/Edit Scholarship and the Rules form. Click behaviour and the 50-route limit are unchanged.
+
+**FYP documentation:** Refresh the administrator scholarship/rules screenshots and user guide to show the blue Add Qualification action and outlined Add Another Requirement action. No algorithm, ERD or data dictionary changes are needed.
+
+**Verification:** Checked the scoped diff, existing primary-button CSS and whitespace. This reuses an existing compiled style; no new CSS, JavaScript, schema or automated tests were needed. No commit or push was made.
+
+## IMP-022 — Place qualification removal in the header
+
+**Date:** 2026-11-01
+**Status:** Implemented
+
+- Moved the red Remove action onto the same header row as Qualification 1/2/etc., aligned right inside the box. Removed its separate row above the dropdowns, reducing unused vertical space.
+- Kept the numbered fieldset legend available to screen readers, the existing accessible Remove qualification label, and normal spacing between the header and controls. The shared editor applies this layout to Add/Edit Scholarship and Rules. Removal behaviour is unchanged.
+- Updated resources/views/admin/rules/_qualification-routes.blade.php and DESIGN.md Administrator Qualification Boxes.
+
+**FYP documentation:** Refresh administrator scholarship/rule form screenshots and explain the qualification header's right-aligned Remove action in the user guide. No data model or algorithm changes.
+
+**Verification:** All 9 existing qualification-route tests passed (59 assertions), covering shared Add/Edit rendering and route operations. Scoped diff and whitespace checks passed. Existing compiled layout utilities are reused; no new automated tests or asset rebuild were needed. No commit or push was made.
+
+## IMP-023 — Simplify student scholarship requirement explanations
+
+**Date:** 2026-11-01
+**Status:** Implemented and verified locally
+
+- Replaced the dense student detail table with a short decision summary and grouped comparisons. The selected qualification route is identified once; qualification and study status share one comparison. Failing checks appear first, followed by passing academic and other configured restrictions.
+- Each comparison shows a readable label, Met/Not Met pill and bold required/student values. Green/red text reinforces outcomes. Values sit side by side on desktop and stack on mobile; income values include RM, and real zero values are retained.
+- Other accepted routes are collapsed, with a reminder that a student needs to pass only one complete route. Each alternative can be opened separately. Alternative failures are not promoted into overall rejection reasons. Unrestricted/irrelevant rows move into View criteria with no restrictions, retaining their student information.
+- Consolidated provider checks into one amber section for uncertain dates and special conditions. Rolling/automatic timing stays informational. Special text is escaped. Removed duplicate failed-requirement and special-condition panels from outside the main explanation.
+- Added app/Support/StudentRequirementExplanation.php and student-requirement-explanation/student-requirement-row Blade components; updated student/recommendations/show.blade.php. The helper groups existing evaluator results and uses the selected route's existing checks; it does not rerank routes, recalculate eligibility or change stored results. Administrator logs retain the existing detailed table. No migration or algorithm-version change was required.
+
+**FYP documentation updates**
+
+| Section | Update |
+| --- | --- |
+| Interface design/screenshots | Replace student Scholarship Details explanation screenshots; show failure-first grouping, combined qualification/status, collapsed alternatives/unrestricted criteria and amber provider checks. |
+| Requirements/user guide | Describe how to compare required/student values, inspect other routes and find conditions needing provider confirmation. |
+| Implementation | Describe the display-only grouping helper and student-specific Blade components; explain that matching and admin log data remain unchanged. |
+| Testing/evaluation | Cover passing alternatives versus overall failure, configured restrictions, uncertain versus rolling dates, escaping, zero/currency values, disclosure keyboard use and mobile stacking. |
+| Algorithm/ERD/data dictionary | No change to eligibility logic or schema. |
+
+Updated PRD.md 6.7, DESIGN.md, MANUAL_TEST_CASES.md REC-10/REC-25–REC-30 and .ai-handoff.md.
+
+**Verification:** Five new presentation-semantic tests and existing student recommendation, grade-rule and admin-log checks passed: **52 tests / 206 assertions**. Production Vite build, changed-PHP Pint formatting and whitespace checks passed. Read-only browser previews using the actual Blade templates verified the selected passing A-Level route, collapsed alternatives, mouse/Enter disclosure operation, a failed grade condition displayed first, amber provider notes and desktop/390px layouts without horizontal overflow. Preview data used a separate SQLite database with synthetic records; no existing application data was changed.
+
+**Screenshots:** storage/app/private/requirement-explanation-desktop.png, requirement-explanation-mobile.png and requirement-explanation-failed.png. No commit or push was made.
+
+## IMP-024 — Correct the Dashboard Eligible recommendation count
+
+**Date:** 2026-11-01
+**Status:** Fixed and verified
+
+**Cause:** DashboardController sliced the mixed Eligible/Not Eligible evaluation list to five preview entries, and the statistic displayed count(recentRecommendations). Any five-or-more evaluated awards therefore produced 5 found, even when only four were Eligible. It was a preview-count bug, not a fixed value in the matching engine.
+
+**Fix:** Compute eligibleCount from the entire current recommendation result before slicing the separate preview. Count only status=Eligible, including Eligible results with special-verification warnings. Display N eligible to make its meaning explicit. The preview retains up to five entries and its existing ordering/statuses; the card's View All link opens the default Eligible list. Dashboard totals are independent of filters applied on the recommendation list.
+
+**Files:** app/Http/Controllers/Student/DashboardController.php, resources/views/student/dashboard.blade.php and tests/Feature/Student/DashboardTest.php. No eligibility-rule, cache-version, schema or existing data changes were needed.
+
+**FYP documentation:** Update the Dashboard screenshot/user guide to describe the full Eligible count separately from the five-entry preview. Document scenarios where four Eligible awards still produce five preview entries, where the total exceeds five, and where no awards are Eligible. PRD.md 6.7 and MANUAL_TEST_CASES.md D4–D10 reflect these behaviours; .ai-handoff.md was updated. No algorithm/ERD changes.
+
+**Verification:** Five new regression cases cover four Eligible plus rejected awards, more than five Eligible awards, all rejected awards, no evaluated awards, and an academic-result update changing the count while preview length stays five. Eligible-with-verification is included in the fixtures. All related dashboard/recommendation/filter checks passed: **41 tests / 186 assertions**. Changed-PHP Pint and whitespace checks passed. Existing CSS is reused; no asset build was needed. Tests use an isolated database; the user's demo records were not changed. No commit or push was made.
