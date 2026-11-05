@@ -17,7 +17,7 @@ test('student can view profile edit page', function () {
     $response = $this->actingAs($user)->get(route('student.profile.edit'));
 
     $response->assertOk();
-    $response->assertSee('Edit Profile');
+    $response->assertSee('Complete Student Profile');
 });
 
 test('student can create a personal profile without academic programme fields', function () {
@@ -30,7 +30,7 @@ test('student can create a personal profile without academic programme fields', 
         'number_of_dependents' => 3,
     ]);
 
-    $response->assertRedirect(route('student.dashboard'));
+    $response->assertRedirect(route('student.academic-result.edit'));
     $response->assertSessionHas('success');
 
     $profile = StudentProfile::where('user_id', $user->id)->first();
@@ -91,7 +91,7 @@ test('student can update existing profile', function () {
         'number_of_dependents' => 2,
     ]);
 
-    $response->assertRedirect(route('student.dashboard'));
+    $response->assertRedirect(route('student.academic-result.edit'));
     $response->assertSessionHas('success');
 
     $profile = $user->fresh()->studentProfile;

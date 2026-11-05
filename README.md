@@ -7,6 +7,9 @@ Built as a Final Year Project (FYP), ScholarMatch focuses on making scholarship 
 ## Key features
 
 - Student registration/login with a Register | Login switch, password visibility controls, recovery return links and role-based access control
+- Guided Student Profile → Academic Result setup for new/incomplete students, with saved-state resume and shortened territory names
+- Numeric shortfall sentences that refine existing requirement explanations
+- Administrator rule-testing preview for unsaved requirements, with synthetic qualification/profile samples and A-Level grade presets
 - Student profile management for nationality, state, household income, dependents and income category
 - Grouped qualification selection, official grade-count counters for SPM, IGCSE, O-Level, A-Level and Senior UEC, STAM pangkat and existing CGPA-based results
 - Programme Seeking Funding section in Academic Result groups funding level, institution type and field of study
@@ -20,6 +23,8 @@ Built as a Final Year Project (FYP), ScholarMatch focuses on making scholarship 
 - Fixed catalogue of 50 clearly fictional demo scholarships covering supported matching scenarios, plus local test accounts
 
 ## How recommendations work
+
+The [administrator rule preview](docs/ELIGIBILITY_PLANNING.md) reuses the existing rule engine to test unsaved requirements against a synthetic student without creating records. Student comparisons retain their existing decisions, with small numeric shortfall explanations where useful. Run the preview request regressions with `npm run test:planning` alongside the academic editor tests.
 
 ScholarMatch checks every applicable scholarship requirement against the student's official academic results and profile. There are no points, weights or percentage match scores.
 

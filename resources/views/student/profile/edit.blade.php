@@ -1,12 +1,15 @@
-@extends('layouts.student', ['pageTitle' => 'Edit Profile'])
+@extends('layouts.student', ['pageTitle' => $onboarding ? 'Student Profile' : 'Edit Profile'])
 
 @section('content')
 <div class="max-w-2xl mx-auto">
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-on-surface">Edit Profile</h1>
+        <h1 class="text-2xl font-bold text-on-surface">{{ $onboarding ? 'Complete Student Profile' : 'Edit Profile' }}</h1>
         <p class="text-on-surface-variant mt-1">Update your personal and socioeconomic information for better scholarship matching.</p>
     </div>
 
+    @if($onboarding)
+        @include('components.student-setup', ['currentStep' => 1])
+    @endif
     <form method="POST" action="{{ route('student.profile.update') }}" class="card p-6 space-y-6">
         @csrf
         @method('PATCH')
@@ -30,8 +33,8 @@
             <label for="state" class="label">State <span class="text-error">*</span></label>
             <select id="state" name="state" class="input @error('state') input-error @enderror" required>
                 <option value="">Select State</option>
-                @foreach(['Johor', 'Kedah', 'Kelantan', 'Melaka', 'Negeri Sembilan', 'Pahang', 'Perak', 'Perlis', 'Pulau Pinang', 'Sabah', 'Sarawak', 'Selangor', 'Terengganu', 'Wilayah Persekutuan Kuala Lumpur', 'Wilayah Persekutuan Labuan', 'Wilayah Persekutuan Putrajaya'] as $state)
-                    <option value="{{ $state }}" {{ old('state', $profile->state) === $state ? 'selected' : '' }}>{{ $state }}</option>
+                @foreach(\App\Models\StudentProfile::STATES as $state)
+                    <option value="{{ $state }}" {{ \App\Models\StudentProfile::normalizeState(old('state', $profile->state)) === $state ? 'selected' : '' }}>{{ $state }}</option>
                 @endforeach
             </select>
             @error('state')
@@ -103,7 +106,7 @@
         <!-- Actions -->
         <div class="flex justify-end gap-3 pt-4 border-t border-outline-variant">
             <a href="{{ route('student.dashboard') }}" class="btn btn-outline">Cancel</a>
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="submit" class="btn btn-primary">{{ $onboarding ? 'Save and Continue' : 'Save Changes' }}</button>
         </div>
     </form>
 </div>

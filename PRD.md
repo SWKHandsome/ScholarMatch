@@ -1,7 +1,7 @@
 # ScholarMatch — Product Requirements Document (PRD)
 
-**Version:** 3.9 — Automatic completed STPM CGPA
-**Updated:** 2026-10-31 (Asia/Singapore)
+**Version:** 4.0 — Administrator rule testing and explanation refinements
+**Updated:** 2026-11-03 (Asia/Singapore)
 **Project:** Final Year Project for Malaysian scholarship discovery
 **Stack:** Laravel 13, PHP 8.3+, MySQL/SQLite, Blade, Tailwind CSS, Alpine.js and Vite
 
@@ -42,6 +42,10 @@ Students can maintain a profile, enter their latest official results, select a f
 ### 6.1 Authentication and Role Management
 
 Registration and login use Laravel Breeze. Student and administrator routes are protected by role middleware. Account-profile and password workflows remain available.
+
+New registrations open Student Profile. On login and the generic /dashboard landing route, students open their first incomplete section: Student Profile, then Academic Result, then Dashboard once both are complete. Incomplete students' previous intended URLs are cleared; completed users keep normal intended navigation and administrators retain their existing flow. Profile completeness uses the same required-field rules as saving; a genuine zero income/dependent count is complete. Academic completeness uses the existing official-result readiness check.
+
+Saving either setup form continues to the first remaining incomplete section or Dashboard. During setup a two-step progress indicator and Save and Continue profile action guide the student. Existing saved information is retained; manual editing remains available. State options display Kuala Lumpur, Labuan and Putrajaya. The previous Wilayah Persekutuan-prefixed values preselect their short equivalents and are normalised when that profile is saved, without a bulk data rewrite.
 
 Login and Register cards provide a full-width Register | Login navigation switch, with the current page highlighted in blue. Forgot Password and Reset Password include Back to Login. Login, Register and Reset Password fields start masked and each password/confirmation field has an independent, keyboard-accessible show/hide control. Required inputs, validation errors and reset status messages remain available in the forms.
 
@@ -135,6 +139,12 @@ The recommendation page provides a filter sidebar beside a single column of full
 Eligible and Not Eligible links display filtered group totals. Each group shows at most 10 scholarships per page, ordered by the existing deadline/name/ID rules. Numbered and previous/next links preserve filters and the chosen group. Applying filters, resetting or switching groups starts at page 1; out-of-range page numbers resolve to the last available page. On narrow screens, filters stack above the list. Empty filtered groups retain filters and offer a reset action.
 
 The student Dashboard Recommendations statistic shows the total Eligible count from the complete current evaluation, including Eligible results with provider-verification warnings. It is independent of the five-entry mixed-status preview and of filters on the recommendation list. The card reads N eligible; incomplete academic/profile inputs retain the existing unavailable display.
+
+### 6.7.1 Explanation refinements and administrator rule testing
+
+Existing required/student comparisons and Met/Not Met outcomes remain. A small explanation refinement adds numeric shortfall sentences beside failed checks, such as CGPA 0.30 below the requirement. It does not introduce a new eligibility feature or matching algorithm. Grade shortfalls can overlap and are not summed.
+
+Administrators can test unsaved requirements in Add/Edit Scholarship and Rules using synthetic academic/profile inputs. The preview supports all existing qualification formats and validates the draft and sample without saving either. It shows automatic check results and unresolved provider conditions; editing inputs invalidates the last result. The administrator preview uses the same evaluator as normal matching. See docs/ELIGIBILITY_PLANNING.md for scope and examples.
 
 ### 6.8 Saved Scholarships
 

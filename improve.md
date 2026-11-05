@@ -621,3 +621,101 @@ Updated PRD.md 6.7, DESIGN.md, MANUAL_TEST_CASES.md REC-10/REC-25–REC-30 and .
 **FYP documentation:** Update the Dashboard screenshot/user guide to describe the full Eligible count separately from the five-entry preview. Document scenarios where four Eligible awards still produce five preview entries, where the total exceeds five, and where no awards are Eligible. PRD.md 6.7 and MANUAL_TEST_CASES.md D4–D10 reflect these behaviours; .ai-handoff.md was updated. No algorithm/ERD changes.
 
 **Verification:** Five new regression cases cover four Eligible plus rejected awards, more than five Eligible awards, all rejected awards, no evaluated awards, and an academic-result update changing the count while preview length stays five. Eligible-with-verification is included in the fixtures. All related dashboard/recommendation/filter checks passed: **41 tests / 186 assertions**. Changed-PHP Pint and whitespace checks passed. Existing CSS is reused; no asset build was needed. Tests use an isolated database; the user's demo records were not changed. No commit or push was made.
+
+## IMP-025 — Add eligibility gaps, future CGPA simulation and draft rule testing
+
+**Date:** 2026-11-03
+**Status:** Historical implementation; simulator removed in IMP-026. Numeric gap text is a small explanation refinement; admin rule preview remains.
+
+**Student eligibility gaps**
+
+- Failed comparisons now explain per-condition differences: CGPA 3.20 against 3.50 gives a 0.30 shortfall, and grade conditions report missing qualifying subjects. Other blockers remain visible. Income differences describe recorded values; no nationality/income changes are suggested.
+- Gaps refer to the evaluator-selected route, not a globally minimal change across every alternative. Passing one condition does not guarantee eligibility. Grade shortfalls can overlap and must not be added together because stronger subjects can satisfy several thresholds.
+
+**Student future CGPA simulator**
+
+- Added Explore a future CGPA from Recommendations and Dashboard. Ready, currently studying STPM/Foundation/Matriculation/Diploma/Bachelor's Degree students can enter a hypothetical overall CGPA between their official value and 4.00, with at most two decimal places. Completed/pending/grade-only records are excluded; real zero/equal boundaries are supported.
+- A separate page compares current automatic matches, hypothetical matches and additional possibilities. New matches appear first, blocked awards retain remaining gaps, and provider conditions remain visible. Ten results per page use POST controls preserving the hypothetical value. Links open current scholarship details; simulated cards have no Apply/Save actions.
+- Only CGPA changes on an unsaved academic replica. Subject counts, qualification, current status/year, income, nationality and target programme stay fixed. No official profile/result, saved award or recommendation log is written, and hypothetical results do not enter the official cache. This explores a target rather than predicting grades or guaranteeing an award.
+
+**Administrator draft rule preview**
+
+- Add/Edit Scholarship and Add/Edit Rules include Test these rules with a sample student. It evaluates current unsaved requirements plus synthetic academic/profile inputs using the existing AND/OR rules and general restrictions.
+- Supports current qualification formats: grade counts and IGCSE scales, CGPA/status/year, STAM pangkat, and completed STPM PA-based calculation. AAB/ABB/BBB A-Level presets fill all unused grades with zero. Against 1 A-or-better AND 3 B-or-better, AAB/ABB pass and BBB fails.
+- Shows pass/fail comparisons and provider checks. Invalid drafts/samples return inline JSON errors. Editing input clears the prior result; responses arriving after an edit are discarded. Last-moment input rendering is completed before the preview snapshot is captured.
+- Sample inputs belong to a separate form so they do not interfere with normal saves. The preview keeps CSRF protection and removes the outer Edit form's PUT override before its POST. JSON exceptions are enabled only for the new preview route alongside the existing API behaviour. No student, scholarship, rule or recommendation-log records are created or updated by preview requests.
+
+**Implementation**
+
+- Extracted the existing per-award logic into ScholarshipEligibilityEvaluator. ScholarshipRecommendationService retains readiness, catalogue selection, official cache/order and explicit log handling. Student simulations and admin previews call the same evaluator, preventing parallel matching implementations.
+- Extracted existing academic validation/normalisation into AcademicResultInput; official saves and synthetic previews share grade/scales/status/year/PA checks. Synthetic internal format flags do not create or certify an official record.
+- Added Student SimulationController, Admin RulePreviewController, EligibilityGap, simulation view, admin preview view and rule-preview.js. Updated routes, existing detail/row components, Dashboard/Recommendations links, admin shared rule form/layout and app.js. No schema migration or evaluation-version change was needed; normal rule semantics remain decisions-v8-stpm-cgpa.
+
+**Where to update the FYP report**
+
+| Area | Required update |
+| --- | --- |
+| Problem/objectives/contribution | Explain decision support beyond browsing: identify eligibility gaps, explore a hypothetical academic target and validate administrator rule entry. |
+| Functional requirements/use cases | Add gap inspection, student simulation with before/after comparison, and unsaved admin sample testing; distinguish official and hypothetical results. |
+| Interface design/user guide | Add simulator and rule-preview screenshots, navigation links, result counts, remaining blockers, provider checks, pagination, presets and validation behaviour. |
+| Architecture/sequence diagrams | Show shared evaluator/academic validator and unsaved replicas instead of new student/award records; describe read-only preview request paths. |
+| Algorithms | Document per-condition difference formatting and rerunning the same rules against one hypothetical CGPA. Do not claim machine learning, grade prediction or globally minimal counterfactual search. |
+| Data dictionary/ERD | No schema change; hypothetical models/results are not persisted. |
+| Evaluation | Include numeric boundaries, overlapping grades, unchanged field/grade blockers, special conditions, no-persistence and role checks, ABB/OR examples, stale responses, edit method handling and mobile layout. Independently labelled accuracy/usability studies remain separate evaluation work. |
+
+Added docs/ELIGIBILITY_PLANNING.md; updated PRD.md/ARCHITECTURE.md to version 4.0, README.md, DESIGN.md, MANUAL_TEST_CASES.md SIM/PRE/PLAN cases and .ai-handoff.md.
+
+**Verification:** The final full PHP suite passed **476 tests / 2,260 assertions**, including 25 new feature cases for simulation, gaps and draft preview. All **18 academic JavaScript tests and 4 planning JavaScript tests** passed. Production Vite build, changed-PHP Pint and whitespace checks passed. Browser checks on actual authenticated student/admin pages verified CGPA 3.20→3.50 gives 1→3 automatic matches with two new possibilities, wrong-field blocking and retained interview verification; actual details still show a 0.30 gap and Dashboard remains at 1 Eligible. Admin ABB/AAB passed, BBB failed, unsaved AAB-rule edits made ABB fail, invalid data produced inline errors, and edits cleared old results. Desktop/390px layouts showed no horizontal overflow. Synthetic users/awards existed only in a separate SQLite preview database; no real application data was changed or reseeded.
+
+**Screenshots:** storage/app/private/student-cgpa-simulator-preview.png, student-cgpa-simulator-mobile-preview.png, student-eligibility-gap-preview.png, admin-rule-preview.png and admin-rule-preview-mobile.png.
+
+**Limits:** Student simulation changes overall CGPA only for currently studying CGPA levels; it does not simulate future subject grades, year progression, alternative personal facts or provider decisions. Admin previews assess a hypothetical sample and do not certify real eligibility. SQLite verification passed; MySQL integration and a real student usability study were not run. No commit or push was made.
+
+## IMP-026 — Remove future CGPA simulation and clarify the explanation change
+
+**Date:** 2026-11-03
+**Status:** Completed; supersedes the simulator scope in IMP-025
+
+- Removed the Future CGPA simulator controller, view, GET/POST route and Dashboard/Recommendations links. Removed simulation-specific tests while retaining a separate shortfall-formatting test. No simulation data migration was required because the feature never persisted hypothetical records.
+- Retained the administrator unsaved-rule preview, shared evaluator and academic validator, which remain in use by normal matching/official academic saves and administrator preview.
+- Corrected the feature description: the student already had required/student comparisons, Met/Not Met results, route explanations and failed-condition messages. The incremental change only adds numeric sentences such as CGPA 0.30 below the requirement, missing qualifying subjects, or an income amount above a limit. Eligible checks receive no extra sentence; non-numeric checks generally reuse existing messages. This is a small explanation refinement, not a new matching feature or eligibility algorithm.
+- Current FYP documentation should describe the admin rule-testing preview as the new functional capability. Describe numeric shortfall text under explanation/usability improvements. Do not claim future-CGPA planning or a separate gap-analysis engine as implemented contributions.
+
+Updated PRD.md/ARCHITECTURE.md version 4.0 titles/scope, README.md, DESIGN.md, MANUAL_TEST_CASES.md, docs/ELIGIBILITY_PLANNING.md and .ai-handoff.md. IMP-025 remains a historical record, marked as superseded for simulation.
+
+**Verification:** The full PHP suite passed **463 tests / 2,220 assertions**, including retained administrator preview checks and a regression confirming official student decisions/shortfall text, absence of simulator links/named route, and 404 responses for the removed GET/POST URL. Production Vite build, changed-test Pint and whitespace checks passed. Existing application data was unchanged. No commit or push was made.
+
+## IMP-027 — Guide incomplete students through setup and simplify territory names
+
+**Date:** 2026-11-03
+**Status:** Implemented and verified locally
+
+**Navigation**
+
+- New student registrations open Student Profile. Login and the generic /dashboard landing select the first incomplete section: Student Profile → Academic Result → Dashboard. A student with a complete personal profile skips directly to incomplete academics; existing information remains filled in.
+- Incomplete accounts override and clear previously intended URLs at login. Complete accounts retain normal intended navigation/default Dashboard behaviour. Administrators keep their existing login/dashboard flow. Registration assigns the student role explicitly, so the new account is recognised immediately.
+- Saving either form continues to the first remaining incomplete section, or Dashboard when both are complete. If a student manually saves academic results before a personal profile exists, the result is retained and navigation goes to Student Profile. Saved model relations are refreshed before checking the next step.
+- Added a two-step setup indicator to incomplete profile/academic forms. Profile setup uses Complete Student Profile and Save and Continue. Normal completed-profile editing retains Edit Profile/Save Changes. This guides landing/save navigation rather than globally blocking existing pages; Cancel/manual navigation remains available, including for students waiting for official results.
+
+**Completeness and state names**
+
+- StudentOnboarding centralises the next-step decision. StudentProfile::isComplete uses the same required-field validation rules as saving nationality, state, income and dependents; an empty/invalid saved row is not automatically complete. Genuine zero income/dependents are valid. Academic readiness reuses the existing official-result checks. Dashboard personal-profile status uses this same completeness definition.
+- State dropdown choices now use Kuala Lumpur, Labuan and Putrajaya. StudentProfile::normalizeState maps their previous Wilayah Persekutuan-prefixed values when prefilling or processing a save. Existing records are not rewritten on reads or through a bulk migration; the short value is saved only when the student submits the profile. Other state choices and the existing state validation contract are retained.
+
+**Implementation:** StudentOnboarding; StudentProfile validation/state helpers; authentication, profile/academic and Dashboard controllers; generic dashboard route; student-setup Blade component and both setup forms. No schema migration or scholarship eligibility-rule/version change was needed.
+
+**Where to update the FYP report**
+
+| Area | Required update |
+| --- | --- |
+| Functional requirements/use cases | Add first-incomplete-step navigation after registration/login and setup saves; distinguish returning/complete users and administrators. |
+| Activity/sequence diagrams | Registration/login → completeness check → Profile or Academic; successful saves recheck completeness → next step/Dashboard. |
+| Interface design/user guide | Replace profile/academic setup screenshots, show the two-step indicator and Save and Continue, and use short territory names. |
+| Validation/data dictionary | Describe required-field completeness, valid zero values and compatibility with old territory labels. ERD/schema is unchanged. |
+| Testing | Cover new/resumed/completed accounts, intended URLs, validation errors, academic-first saves, preserved records, legacy territory selections and admin navigation. |
+
+Updated PRD.md, ARCHITECTURE.md, README.md, DESIGN.md, MANUAL_TEST_CASES.md SET-01–SET-06 and .ai-handoff.md.
+
+**Verification:** Full PHP suite passed **480 tests / 2,303 assertions**, including 17 new setup/state cases. Existing redirect assertions were updated where incomplete students now continue setup. Production Vite build and changed-PHP formatting/whitespace checks passed. Actual browser checks with a synthetic student verified first login opens Profile, all three short state choices appear, saving Kuala Lumpur/zero dependents opens Academic Result, a subsequent login resumes academics, official academic save reaches Dashboard, and the completed student's next login returns to Dashboard. Automated tests verify all three legacy territory aliases remain selected without GET writes and normalise on save. Preview data used a separate SQLite database; no existing application records were changed or reseeded.
+
+**Screenshot:** storage/app/private/student-profile-setup-preview.png. No commit or push was made.

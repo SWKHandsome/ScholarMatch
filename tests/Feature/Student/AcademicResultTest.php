@@ -25,7 +25,7 @@ test('academic form explains official results study status and funding level', f
 test('currently studying students can save their latest official CGPA', function () {
     $user = User::factory()->create(['role' => 'student']);
     $this->actingAs($user)->patch(route('student.academic-result.update'), academicPayload())
-        ->assertSessionHasNoErrors()->assertRedirect(route('student.dashboard'));
+        ->assertSessionHasNoErrors()->assertRedirect(route('student.profile.edit'));
     $result = $user->fresh()->academicResult;
     expect($result->year_of_study)->toBe(2)->and($result->isReadyForRecommendations())->toBeTrue();
 });

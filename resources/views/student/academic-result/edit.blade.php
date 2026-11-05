@@ -18,6 +18,9 @@
 <div class="max-w-3xl mx-auto">
     <h1 class="text-2xl font-bold">Academic Qualification and Results</h1>
     <p class="mt-2 mb-6 text-on-surface-variant">Select your current or latest qualification and enter official results.</p>
+    @if($onboarding)
+        @include('components.student-setup', ['currentStep' => 2])
+    @endif
     <form method="POST" action="{{ route('student.academic-result.update') }}" class="card p-6 space-y-6"
         id="academic-form" x-data="academicResultEditor(@js($qualificationConfig), @js($initialAcademic))">
         @csrf

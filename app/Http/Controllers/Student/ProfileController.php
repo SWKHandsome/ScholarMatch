@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\IncomeCategory;
 use App\Models\StudentProfile;
+use App\Support\StudentOnboarding;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
@@ -16,20 +16,17 @@ class ProfileController extends Controller
         $user = Auth::user();
         $profile = $user->studentProfile ?? new StudentProfile(['user_id' => $user->id]);
         $incomeCategories = IncomeCategory::orderBy('min_income')->get();
+        $onboarding = StudentOnboarding::nextRoute($user) !== null;
 
-        return view('student.profile.edit', compact('profile', 'incomeCategories'));
+        return view('student.profile.edit', compact('profile', 'incomeCategories', 'onboarding'));
     }
 
     public function update(Request $request)
     {
         $user = Auth::user();
 
-        $validated = $request->validate([
-            'nationality' => ['required', 'string', Rule::in(config('scholarship.nationalities'))],
-            'state' => ['required', 'string', 'max:255'],
-            'household_income' => ['required', 'numeric', 'min:0'],
-            'number_of_dependents' => ['required', 'integer', 'min:0'],
-        ]);
+        $request->merge(['state' => StudentProfile::normalizeState($request->input('state'))]);
+        $validated = $request->validate(StudentProfile::validationRules());
 
         $incomeCategory = IncomeCategory::classifyIncome((float) $validated['household_income']);
 
@@ -38,7 +35,9 @@ class ProfileController extends Controller
             array_merge($validated, ['income_category' => $incomeCategory])
         );
 
-        return redirect()->route('student.dashboard')
+        $user->unsetRelation('studentProfile');
+
+        return redirect()->route(StudentOnboarding::nextRoute($user) ?? 'student.dashboard')
             ->with('success', 'Profile updated successfully.');
     }
 }

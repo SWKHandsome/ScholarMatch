@@ -2,8 +2,8 @@
 
 **Project:** FYP ScholarMatch — Scholarship Recommendation Platform for Malaysian Students
 **Stack:** Laravel 13 + PHP 8.3 + Pest + Tailwind CSS + Vite + SQLite (dev)
-**Last Updated:** 2026-10-31 (Asia/Singapore)
-**Test Suite Status:** Full suite from IMP-018: 441/441 PHP tests passed (2,087 assertions) and 18/18 JavaScript tests passed. After the authentication UI update, all 18 authentication tests passed (38 assertions); see IMP-019 in improve.md for desktop/mobile browser and build verification.
+**Last Updated:** 2026-11-03 (Asia/Singapore)
+**Test Suite Status:** After guided setup/state changes, 480 PHP tests passed (2,303 assertions). The unchanged JavaScript suites passed 18 academic and 4 admin-preview tests under IMP-025. See IMP-027 in improve.md for current workflow/build verification.
 
 ---
 
@@ -41,8 +41,8 @@ npm run dev        # in separate terminal
 
 | # | Test Case | Steps | Expected |
 |---|-----------|-------|----------|
-| A1 | Student register | `/register` → fill form → submit | Redirect to `/student/dashboard`, profile incomplete warning |
-| A2 | Student login | `/login` with student creds | Redirect to `/student/dashboard` |
+| A1 | Student register | `/register` → fill form → submit | Open Student Profile setup, with Save and Continue and the two-step indicator. |
+| A2 | Student login | `/login` with student creds | Open first incomplete Student Profile/Academic Result; both complete goes to Dashboard or the normal intended page. |
 | A3 | Admin login | `/login` with admin creds | Redirect to `/admin/dashboard` |
 | A4 | Wrong password | `/login` with bad password | Error "These credentials do not match" |
 | A5 | Logout | Click "Log Out" dropdown | Redirect to `/`, session destroyed |
@@ -58,6 +58,12 @@ npm run dev        # in separate terminal
 | A15 | Animated switch and history | Switch forms, use Back/Forward, refresh each URL and open a link normally in a new tab | Blue background slides for 250ms, selected form fades in for 150ms, URL/active state follow selection. Direct routes and native link navigation work. Reduced-motion settings disable panel/slider transitions. |
 | A16 | Current-state eye icons and focus | Toggle each eye by mouse, then reach it using Tab | Masked = crossed eye; visible = open eye. Mouse clicks show no blue outline; keyboard focus has a visible inset ring. Labels describe the next action. |
 | A17 | Inactive form and validation | Inspect keyboard/assistive navigation; submit invalid Login details; switch modes | Only the visible form is interactive/exposed. Login errors appear in Login, unique field IDs label the correct inputs, and switching masks revealed passwords. |
+| SET-01 | First registration/login | Use a student without personal/academic information | Open Student Profile first, overriding old intended URLs; show two-step progress. |
+| SET-02 | Resume setup | Log in with a complete profile but missing/pending/incomplete academics | Open Academic Result directly; retain saved profile information. |
+| SET-03 | Save profile then academics | Submit valid personal information, then official academic results | Profile save continues to Academic Result; academic save reaches Dashboard once both are complete. If academics already exist, profile save can finish setup directly. |
+| SET-04 | Manual edit and completed login | Use a student with both sections complete | Keep normal intended/default Dashboard navigation and Save Changes; hide setup progress. Admin flow is unchanged. |
+| SET-05 | Legacy/partial profile and genuine zero values | Inspect missing/invalid required fields and zero income/dependents | Partial records prompt the first incomplete step; valid zero values are complete. Failed validation retains the current form and entered values. |
+| SET-06 | Territory names and old records | Open/save Kuala Lumpur, Labuan and Putrajaya, including old prefixed selections | Dropdown shows only short names; existing Wilayah Persekutuan selections stay selected and change to short storage only on profile save. |
 
 ---
 
@@ -190,6 +196,19 @@ npm run dev        # in separate terminal
 | D10 | Academic update changes eligibility | Update official CGPA so an additional award passes, then reload Dashboard | Eligible total changes from four to five, even though the preview length stays five. |
 
 ---
+
+## Explanation refinements and rule preview
+
+| # | Test case | Expected |
+| --- | --- | --- |
+| GAP-01 | Official 3.20 versus required 3.50 | Details show a 0.30 gap and all other failed conditions. Grade shortfalls are not added together. |
+| PRE-01 | Test ABB rule with AAB, ABB and BBB presets | AAB/ABB pass; BBB fails. All unused grades are zero and no student/award/log record is created. |
+| PRE-02 | Edit the draft requirement before running | Preview evaluates the unsaved values; the saved scholarship remains unchanged. Edit and Rules forms work despite their ordinary PUT action. |
+| PRE-03 | Invalid rule/grade/scale/PA data | Inline JSON errors appear without saving or navigating away. Completed STPM computes PA plus best three and ignores manual CGPA. |
+| PRE-04 | Edit rules/sample while a result/request exists | Previous result clears and stale responses are discarded. Run again evaluates the new values. |
+| PRE-05 | General restrictions, OR routes and provider conditions | All configured general checks apply, any complete route may pass, and special/date checks remain visible. |
+| PRE-06 | Normal scholarship save with empty/invalid sample controls | Sample inputs belong to their own form and do not block or contaminate a normal save. |
+| PRE-07 | Guest/wrong-role requests and desktop/390px layout | Admin preview auth/role guards apply; controls/results wrap without horizontal overflow. |
 
 ## 8. Admin Dashboard
 

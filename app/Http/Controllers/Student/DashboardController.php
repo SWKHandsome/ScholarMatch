@@ -19,7 +19,7 @@ class DashboardController extends Controller
         $profile = $user->studentProfile;
         $academicResult = $user->academicResult;
 
-        $profileComplete = $profile !== null;
+        $profileComplete = $profile?->isComplete() ?? false;
         $academicComplete = $academicResult?->isReadyForRecommendations() ?? false;
 
         $savedCount = SavedScholarship::where('user_id', $user->id)->count();

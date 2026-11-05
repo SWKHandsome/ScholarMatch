@@ -20,7 +20,7 @@ function gradeCountPayload(string $level = 'SPM', ?string $scale = 'spm', array 
 test('each supported grade format saves its official counts and reloads the selected qualification', function ($level, $scale, $counts) {
     $user = User::factory()->create(['role' => 'student']);
     $this->actingAs($user)->patch(route('student.academic-result.update'), gradeCountPayload($level, $scale, $counts))
-        ->assertSessionHasNoErrors()->assertRedirect(route('student.dashboard'));
+        ->assertSessionHasNoErrors()->assertRedirect(route('student.profile.edit'));
     $academic = $user->fresh()->academicResult;
     expect($academic->education_level)->toBe($level)->and($academic->grading_scale)->toBe($scale)
         ->and($academic->grade_counts)->toBe($counts)->and($academic->cgpa)->toBeNull()

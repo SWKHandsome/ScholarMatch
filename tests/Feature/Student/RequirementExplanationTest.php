@@ -2,8 +2,20 @@
 
 use App\Services\ScholarshipRecommendationService;
 use App\Support\StudentRequirementExplanation;
+use Illuminate\Support\Facades\Route;
 
 beforeEach(fn () => seedIncomeCategories());
+
+test('student pages retain official recommendations without the removed simulator', function () {
+    $student = makeStudent([], ['cgpa' => 3.20]);
+    $award = makeScholarship([], ['min_cgpa' => 3.50]);
+    $this->actingAs($student)->get(route('student.dashboard'))->assertOk()->assertSee('0 eligible')->assertDontSee('simulator')->assertDontSee('Explore a future CGPA');
+    $this->get(route('student.recommendations'))->assertOk()->assertDontSee('Explore a future CGPA');
+    $this->get(route('student.recommendations.show', $award))->assertOk()->assertSee('Your CGPA is 0.30 below this requirement.')->assertSee('3.20')->assertSee('3.50');
+    expect(Route::has('student.simulator'))->toBeFalse();
+    $this->get('/student/simulator')->assertNotFound();
+    $this->post('/student/simulator', ['simulated_cgpa' => 4])->assertNotFound();
+});
 
 function detailExplanationFixture(array $counts = ['A' => 3], array $profile = []): array
 {

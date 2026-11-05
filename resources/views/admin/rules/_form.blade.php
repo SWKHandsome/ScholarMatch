@@ -71,3 +71,4 @@
         @endforeach
     </select>
 </div>
+@include('admin.rules._preview')

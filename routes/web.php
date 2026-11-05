@@ -26,7 +26,7 @@ Route::get('/dashboard', function () {
     if ($user->isAdmin()) {
         return redirect()->route('admin.dashboard');
     }
-    return redirect()->route('student.dashboard');
+    return redirect()->route(\App\Support\StudentOnboarding::nextRoute($user) ?? 'student.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -54,6 +54,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/rule-preview', \App\Http\Controllers\Admin\RulePreviewController::class)->name('rule-preview');
 
     Route::resource('scholarships', AdminScholarshipController::class);
     Route::resource('scholarships.rules', AdminScholarshipRuleController::class)->except(['show', 'destroy']);

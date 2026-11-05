@@ -167,6 +167,8 @@ Primary buttons use the Primary Blue (#1E40AF) with white text. Hover states tra
 
 ### Authentication Cards
 
+Incomplete student accounts enter guided setup after registration/login. Student Profile and Academic Result show a two-step navigation indicator with the current step highlighted. First-time profile entry uses Complete Student Profile and Save and Continue; completed accounts retain the normal Edit Profile/Save Changes presentation. Save proceeds to the remaining required section, then Dashboard. The State dropdown uses Kuala Lumpur, Labuan and Putrajaya, recognising old prefixed selections without making students reselect them.
+
 Login/Register now share one grid container: both panels contribute to its natural height, while the inactive panel is invisible and inert. This reserves the taller form's space and aligns both submit buttons at the bottom without a hard-coded height or clipped errors. Switch the visible panel in place, fade it in over 150ms and slide one blue background between the links over 250ms. Keep URL/history and Back/Forward in sync; ordinary and modified links retain navigation fallback. Disable panel/slider transitions for reduced-motion preferences.
 
 Eye icons describe current state: crossed eye for a masked field, open eye for visible text. Action labels remain Show password/Hide password. Use focus-visible with an inset ring on the eye control, so mouse clicks add no blue outline while keyboard focus stays visible. Switching panels masks all password fields again.
@@ -197,6 +199,8 @@ Nationality selectors offer Malaysian and Non-Malaysian. Profile retains an unan
 
 ### Administrator Qualification Boxes
 
+Add/Edit Scholarship and Rules include a collapsed Test these rules with a sample student section after the general restrictions. Sample academic controls follow qualification-specific formats, with full sample profile/programme inputs and A-Level AAB/ABB/BBB presets. Run rule test is a non-submit button; results use green/red text and required/sample comparisons, with amber provider notes. Errors render inline; edits clear stale results. Keep sample controls associated with their separate form so ordinary scholarship saves remain independent.
+
 Place the visible qualification number and red Remove action in the same header row inside the box, with Remove aligned right. Keep a screen-reader legend for the fieldset and use normal spacing below the header before the level/status dropdowns. Avoid a separate removal row above the controls.
 
 Add/Edit Scholarship and Rules use the same editor. Add Qualification creates a numbered fieldset with grouped qualification options, level/status * controls and a labelled Remove button. Stable identities keep values attached to their own box and grade condition when another item is removed. Exam-based qualifications force Completed; CGPA levels permit Currently Studying/Completed/Either, with year limits only for Currently Studying. Changing level/status clears inapplicable values, and hidden controls are disabled. Result minimums and each year boundary are explicitly optional. No boxes displays an unrestricted-qualification explanation.
@@ -213,6 +217,8 @@ Use green text and a pale green pill for Eligible, and rose text with a pale ros
 On cards, special-condition text opens in a bounded amber panel anchored below the top-right badge. Keep it inside the viewport and preserve keyboard activation. Met/Not Met/Not Applicable requirement pills pair colour with explicit text and a check/cross/dash, so colour is not the only signal.
 
 ### Academic Form and Requirement Explanations
+
+Existing failed comparisons include small numeric shortfall explanations, such as CGPA 0.30 below the requirement. Retain all other blockers and explain that overlapping grade shortfalls cannot be added. This refines the existing Required/Your information comparison rather than adding a separate student feature.
 
 Use two accessible radio groups styled as blue selected pills: education category, then current/latest qualification. Secondary contains SPM, Cambridge IGCSE and Cambridge O-Level; Pre-U, Diploma & Pathway contains STPM, STAM, A-Level, Senior UEC, Matriculation, Foundation and Diploma; Undergraduate contains Bachelor’s Degree. Grouping organises choices without asserting equivalence. Preserve stored qualification identifiers while showing friendly labels.
 

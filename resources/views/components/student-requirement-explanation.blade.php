@@ -16,6 +16,10 @@
     @if($explanation['failed'])
         <section class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2">
             <h3 class="pt-2 font-semibold text-rose-800">Not Eligible - Failed Requirements</h3>
+            <p class="mt-2 text-sm text-rose-800">Each gap below is a separate condition. Meeting one condition alone does not guarantee eligibility; all applicable conditions in one accepted route and the general requirements must pass.</p>
+            @if(collect($explanation['failed'])->contains(fn ($check) => str_starts_with($check['key'], 'min_grade_count_')))
+                <p class="mt-2 text-sm text-rose-800">Grade-count shortfalls can overlap. A stronger subject can satisfy more than one threshold, so do not add these shortfalls together.</p>
+            @endif
             @foreach($explanation['failed'] as $item)
                 @include('components.student-requirement-row')
             @endforeach

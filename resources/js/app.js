@@ -2,10 +2,12 @@
 
 import Alpine from 'alpinejs';
 import { authCard } from './auth-card';
+import { rulePreview } from './rule-preview';
 import { academicResultEditor, qualificationEditor } from './academic-qualifications';
 
 window.Alpine = Alpine;
 Alpine.data('authCard', authCard);
+Alpine.data('rulePreview', rulePreview);
 
 Alpine.data('academicResultEditor', academicResultEditor);
 Alpine.data('qualificationEditor', qualificationEditor);

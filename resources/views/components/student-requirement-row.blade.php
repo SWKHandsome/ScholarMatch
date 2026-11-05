@@ -7,4 +7,7 @@
         <div><dt class="text-on-surface-variant">Required</dt><dd class="mt-1 break-words font-semibold">{{ $item['required'] }}</dd></div>
         <div><dt class="text-on-surface-variant">{{ $item['key'] === 'deadline' ? 'Today' : 'Your information' }}</dt><dd class="mt-1 break-words font-semibold {{ $item['outcome'] === 'not_met' ? 'text-rose-800' : 'text-emerald-800' }}">{{ $item['actual'] }}</dd></div>
     </dl>
+    @if(!empty($item['gap']))
+        <p class="mt-3 text-sm font-medium text-rose-800">{{ $item['gap'] }}</p>
+    @endif
 </div>

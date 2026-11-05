@@ -1,7 +1,7 @@
 # ScholarMatch — Architecture Document
 
-**Version:** 3.9 — Automatic completed STPM CGPA
-**Updated:** 2026-10-31 (Asia/Singapore)
+**Version:** 4.0 — Administrator rule testing and explanation refinements
+**Updated:** 2026-11-03 (Asia/Singapore)
 **Stack:** Laravel 13, PHP 8.3+, MySQL/SQLite, Blade, Tailwind CSS, Alpine.js, Vite and Pest
 
 ## 1. Architecture Overview
@@ -16,9 +16,21 @@ Controllers validate requests and coordinate views. Models provide relationships
 
 ## 3. Core Modules
 
+### Shared evaluation and rule-testing services
+
+ScholarshipEligibilityEvaluator contains the existing single-award rule comparisons. ScholarshipRecommendationService retains official readiness/catalogue/cache/order responsibilities and calls that evaluator. AcademicResultInput contains the former academic-controller validation/normalisation; official saves and synthetic previews share it. These extractions retain decisions-v8-stpm-cgpa semantics and the existing schema.
+
+EligibilityGap adds display-only shortfall sentences to existing student comparisons. This is an explanation refinement; the recommendation decisions and required/student values are unchanged.
+
+Admin RulePreviewController validates draft rules with ScholarshipRuleEditor and synthetic sample data with AcademicResultInput, builds unsaved model relationships and returns JSON comparisons. Sample controls use their own form, so normal saves are unaffected. The AJAX controller strips the parent's method override, retains CSRF, and discards stale responses on edits. bootstrap/app.php enables JSON exceptions specifically for admin.rule-preview alongside existing API routes. See docs/ELIGIBILITY_PLANNING.md.
+
 ### 3.1 Authentication Module
 
 Laravel Breeze handles authentication and account management. RoleMiddleware protects student and administrator routes. Nested rule controllers verify that the supplied rule belongs to the supplied scholarship.
+
+StudentOnboarding::nextRoute centralises first-incomplete-section navigation for student login, the generic dashboard landing and setup form saves. It calls StudentProfile::isComplete (shared required-field validation) and AcademicResult::isReadyForRecommendations. New registration assigns the student role explicitly and opens profile setup. Login clears stale intended URLs only for incomplete students; completed users retain normal intended navigation. Model relations are refreshed after saves so a just-created result/profile is recognised. Existing student pages remain accessible; this is guided navigation rather than a new global access-blocking middleware.
+
+StudentProfile::STATES provides the dropdown's short territory names. normalizeState maps the three legacy Wilayah Persekutuan labels for prefilling and submitted saves; GET requests do not rewrite saved data. No onboarding-state column, state enum restriction, migration or eligibility-rule change was introduced.
 
 ### 3.2 Student Profile Module
 

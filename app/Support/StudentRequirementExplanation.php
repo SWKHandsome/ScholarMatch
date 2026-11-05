@@ -31,6 +31,7 @@ class StudentRequirementExplanation
             $combined['required'] = AcademicQualifications::label($qualification['required']).($status ? ' · '.$status['required'] : '');
             $combined['actual'] = AcademicQualifications::label($qualification['actual']).($status ? ' · '.$status['actual'] : '');
             $combined['outcome'] = $qualification['outcome'] === 'not_met' || ($status['outcome'] ?? null) === 'not_met' ? 'not_met' : 'met';
+            $combined['gap'] = implode(' ', array_filter([EligibilityGap::describe($qualification), $status ? EligibilityGap::describe($status) : null]));
             $rows[] = self::row($combined);
         }
 
@@ -79,6 +80,7 @@ class StudentRequirementExplanation
         };
 
         return array_merge($check, [
+            'gap' => $check['gap'] ?? EligibilityGap::describe($check),
             'label' => match (true) {
                 str_starts_with($check['key'], 'min_grade_count_') => 'At least '.$check['required'].' '.preg_replace('/^Subjects /', (int) $check['required'] === 1 ? 'subject ' : 'subjects ', $check['label']),
                 $check['key'] === 'min_cgpa' => 'Minimum CGPA',
