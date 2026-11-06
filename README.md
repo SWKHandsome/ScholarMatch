@@ -46,13 +46,19 @@ Administrators add alternative qualification boxes directly on Add/Edit Scholars
 
 Only active scholarships with configured rules and an unexpired or unknown deadline are evaluated. Eligible (including !) and Not Eligible results are grouped separately and ordered by nearest recorded deadline, with unknown dates last. Unknown dates require provider verification. Special requirements do not override a failed automatic condition. Providers make the final award decisions.
 
-## Upgrading an existing installation
+## Updating an existing installation or device
 
-Apply the additive migration and rebuild assets:
+The SQLite database file is local to each device and is excluded from Git. Pulling or copying newer project files does not update that device's database schema. Whenever you bring newer code onto a device, run its pending migrations from the project folder before using the app, then rebuild the frontend assets:
 
 ```bash
 php artisan migrate
 npm run build
+```
+
+`php artisan migrate` updates the database schema; it does not populate seed data. New databases should be initialized with `php artisan migrate --seed` as shown under Local installation. If an existing device database is missing the default B40/M40/T20 rows, restore only those rows with:
+
+```bash
+php artisan db:seed --class=IncomeCategorySeeder
 ```
 
 Existing profiles and scholarships are preserved. Existing students must confirm their study status and selected funding level, and supply official results, before generating new decisions. Old evaluation logs remain identified as Previous Evaluation until refreshed; their historical score data is preserved but not treated as a current decision.
