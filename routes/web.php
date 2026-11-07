@@ -10,16 +10,13 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ScholarshipController as AdminScholarshipController;
 use App\Http\Controllers\Admin\ScholarshipRuleController as AdminScholarshipRuleController;
 use App\Http\Controllers\Admin\IncomeCategoryController as AdminIncomeCategoryController;
+use App\Http\Controllers\Admin\StudyFieldController;
 use App\Http\Controllers\Admin\RecommendationLogController as AdminRecommendationLogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('public.home');
 })->name('home');
-
-Route::get('/about', function () {
-    return view('public.about');
-})->name('about');
 
 Route::get('/dashboard', function () {
     $user = auth()->user();
@@ -59,6 +56,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('scholarships', AdminScholarshipController::class);
     Route::resource('scholarships.rules', AdminScholarshipRuleController::class)->except(['show', 'destroy']);
     Route::resource('income-categories', AdminIncomeCategoryController::class)->except(['create', 'edit', 'show']);
+    Route::get('matching-settings', [AdminIncomeCategoryController::class, 'index'])->name('matching-settings');
+    Route::post('matching-settings/fields', [StudyFieldController::class, 'store'])->name('study-fields.store');
+    Route::patch('matching-settings/fields/{studyField}', [StudyFieldController::class, 'update'])->name('study-fields.update');
     Route::get('recommendation-logs', [AdminRecommendationLogController::class, 'index'])->name('recommendation-logs.index');
 Route::get('recommendation-logs/{recommendationLog}', [AdminRecommendationLogController::class, 'show'])->name('recommendation-logs.show');
 });

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\IncomeCategory;
 use App\Models\StudentProfile;
 use App\Models\User;
 use Database\Seeders\IncomeCategorySeeder;
@@ -18,6 +19,40 @@ test('student can view profile edit page', function () {
 
     $response->assertOk();
     $response->assertSee('Complete Student Profile');
+});
+
+test('zero income uses the current range rather than an outdated stored category', function () {
+    $student = makeStudent(['household_income' => 0, 'income_category' => 'T20']);
+    $this->actingAs($student)->get(route('student.profile.edit'))->assertOk()
+        ->assertSee('Your income category: B40')->assertSee('Current range: RM 0.00 – RM 3,169.00/month');
+    // Merely viewing a profile does not rewrite it.
+    expect($student->fresh()->studentProfile->income_category)->toBe('T20');
+});
+
+test('profile helper reflects retained input after validation errors', function () {
+    $student = makeStudent(['household_income' => 2500]);
+    $this->actingAs($student)->from(route('student.profile.edit'))->patch(route('student.profile.update'), [
+        'nationality' => '', 'state' => 'Johor', 'household_income' => 5000, 'number_of_dependents' => 0,
+    ])->assertSessionHasErrors('nationality');
+    $this->get(route('student.profile.edit'))->assertOk()
+        ->assertSee('Your income category: M40')->assertSee('Current range: RM 3,170.00 – RM 6,339.00/month');
+    expect($student->fresh()->studentProfile->income_category)->toBe('B40');
+});
+
+test('income gaps and missing configuration have explicit feedback instead of stale labels', function () {
+    $student = makeStudent(['household_income' => 3169.5]);
+    $this->actingAs($student)->get(route('student.profile.edit'))->assertOk()
+        ->assertSee('Income category unavailable')->assertSee('No category matches this amount.');
+    IncomeCategory::query()->delete();
+    $this->get(route('student.profile.edit'))->assertOk()->assertSee('No income ranges are configured.');
+});
+
+test('income input rejects precision that would change its classification when stored', function () {
+    $student = makeStudent();
+    $this->actingAs($student)->patch(route('student.profile.update'), [
+        'nationality' => 'Malaysian', 'state' => 'Johor', 'household_income' => '3169.001', 'number_of_dependents' => 0,
+    ])->assertSessionHasErrors('household_income');
+    expect($student->fresh()->studentProfile->household_income)->toBe('2500.00');
 });
 
 test('student can create a personal profile without academic programme fields', function () {

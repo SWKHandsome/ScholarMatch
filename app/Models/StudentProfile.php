@@ -34,7 +34,7 @@ class StudentProfile extends Model
         return [
             'nationality' => ['required', 'string', Rule::in(config('scholarship.nationalities'))],
             'state' => ['required', 'string', 'max:255'],
-            'household_income' => ['required', 'numeric', 'min:0'],
+            'household_income' => ['required', ...IncomeCategory::amountRules()],
             'number_of_dependents' => ['required', 'integer', 'min:0'],
         ];
     }

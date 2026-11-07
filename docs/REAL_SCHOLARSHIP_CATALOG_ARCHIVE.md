@@ -1,3 +1,5 @@
+> Historical source register. Current seeding and replacement behaviour is documented in [SCHOLARSHIP_CATALOG.md](SCHOLARSHIP_CATALOG.md). Older instructions below that describe deleting all awards or require SQLite are superseded.
+
 # Archived real-world catalogue (not seeded)
 
 This document describes the previous dataset. The default is now the fictional demo catalogue; see DEMO_SCHOLARSHIPS.md.

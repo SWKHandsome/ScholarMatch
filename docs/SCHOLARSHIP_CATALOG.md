@@ -1,30 +1,20 @@
-# Default scholarship catalogue
+# Scholarship catalogue
 
-The current default is **70 fictional demo scholarships**, defined in [demo-scholarships.json](../database/data/demo-scholarships.json). Version: scholarmatch-demo-70-v2.
+For another device, see [fresh installation and existing-70-demo upgrade commands](ANOTHER_DEVICE_SETUP.md).
 
-See [the 70-award scenario guide](DEMO_SCHOLARSHIPS.md) for every rule, useful demo profiles, exact boundary examples and instructions for sharing the same initial data across devices. All academic conditions use fields supported by the existing matcher; the cancelled academic-audit changes are not required.
+The current seed is **20 richer fictional scholarships**, version `scholarmatch-rich-demo-20-v1`, defined in [demo-scholarships.json](../database/data/demo-scholarships.json). See [all scenarios](DEMO_SCHOLARSHIPS.md). Manually entered scholarships coexist with these records and are not overwritten by demo seeding.
 
-All 70 records are active and open. Sixty fixed synthetic dates use 2099; nine awards are rolling and one automatic. Complete profiles receive 70 unfiltered evaluations. The sample names, providers and dates are fictional. No official verification or real application links are presented.
+Providers, benefits, dates and eligibility thresholds are invented examples for the FYP. Names and descriptions identify fiction; source URLs/check dates are empty. Application URLs use reserved `scholarmatch.example` placeholders. Fixed 2099 dates are synthetic test data. Named subjects, offer letters, portfolios, interviews, renewal and loan/bond terms go in Special Requirements and do not become automatic checks.
 
-Demo 51–60 add ten complex Diploma-funded cases; Demo 61–70 add ten Degree-funded cases (the app calls Degree **Undergraduate**). They combine programme funding with entry/continuing qualification routes, grades, current year, income, nationality, fields and institutions. On a device already using the original 50 demos, run `php artisan db:seed --class=ScholarshipCatalogSeeder` once to add the new awards without deleting bookmarks/history.
+For a fresh database, run `php artisan migrate --seed`. To upsert the current demo awards/rules without changing users, run `php artisan db:seed --class=ScholarshipCatalogSeeder`. Demo keys are `demo-rich-01` through `demo-rich-20`. Reseeding preserves scholarship IDs and bookmarks, restores current demo rules and does not reintroduce the retired 70-entry dataset.
 
-Fresh device:
-
-```bash
-php artisan migrate --seed
-npm run build
-```
-
-Existing SQLite installation changing to this catalogue:
+To remove the old `demo-01` through `demo-70` catalogue:
 
 ```bash
-php artisan migrate
+php artisan scholarships:replace-catalog --dry-run
 php artisan scholarships:replace-catalog
-npm run build
 ```
 
-Replacement first creates a full SQLite backup, then removes old scholarships and their related rules, saved links and recommendation logs. Student accounts, profiles and academic results are preserved. This is the path to exactly 70 demo records on an existing device.
+The command validates the new catalogue, creates a backup, deletes only the exact retired demo keys and their associated rules/bookmarks/logs, then seeds the current 20. Other scholarships, their related records and all student accounts/profiles/results remain. Repeating the command preserves manual awards and does not duplicate the current demos. This targeted behaviour supersedes older documentation describing removal of every scholarship.
 
-Ordinary `php artisan db:seed --class=ScholarshipCatalogSeeder` upserts the same demo keys without duplicates and preserves custom records/history. It does not delete older real-world rows, so use replacement once when switching an existing database. Refreshing the website alone does not seed a different device.
-
-The earlier real-world JSON remains at [malaysia-scholarships.json](../database/data/malaysia-scholarships.json), with its [archived source register](REAL_SCHOLARSHIP_CATALOG_ARCHIVE.md). It is retained for reference and is not used by the default seeders.
+MySQL and file-backed SQLite backups are supported. See [MySQL setup](MYSQL_SETUP.md) for transfer, backup formats and separate database testing. Historical real-world source material is retained in REAL_SCHOLARSHIP_CATALOG_ARCHIVE.md and is not a statement of current scholarship availability.

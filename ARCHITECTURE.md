@@ -1,8 +1,8 @@
 # ScholarMatch — Architecture Document
 
-**Version:** 4.0 — Administrator rule testing and explanation refinements
-**Updated:** 2026-11-03 (Asia/Singapore)
-**Stack:** Laravel 13, PHP 8.3+, MySQL/SQLite, Blade, Tailwind CSS, Alpine.js, Vite and Pest
+**Version:** 4.2 — Shared matching settings and editable fields of study
+**Updated:** 2026-11-07 (Asia/Singapore)
+**Stack:** Laravel 13, PHP 8.3+, MySQL (application), SQLite (isolated tests), Blade, Tailwind CSS, Alpine.js, Vite and Pest
 
 ## 1. Architecture Overview
 
@@ -174,7 +174,7 @@ Migration 2026_10_20_000000_move_programme_details_to_academic_results adds null
 
 Tests cover individual requirement failures, AND/OR combinations, qualification/funding separation, zero and boundary values, official-result validation, special-warning priority, expired/unconfigured scholarships, stable ordering, cache invalidation, log snapshots and role/nested-resource protection.
 
-Pest uses an isolated in-memory SQLite database. Migration tests exercise old log preservation, grade-count schema upgrades, protected rollback and academic-data preservation. Grade tests cover both IGCSE scales, A-Level AND/OR thresholds, UEC averages/totals, STPM counts/averages versus overall CGPA, and STAM rank direction. Node tests exercise counters, clearing and stable editor identities. Synthetic browser checks verify save/reload, restored admin grade options and mobile layout, alongside the existing recommendation controls.
+Pest uses isolated in-memory SQLite by default. The full suite also runs against a separate MySQL database, including five MySQL-only transfer/backup cases. JSON object comparisons ignore key order while retaining strict grade/count values. No test runs against the application database. See docs/MYSQL_SETUP.md.
 
 ## 9. Security Design
 
@@ -182,11 +182,11 @@ Use server-side validation and role middleware, escaped Blade output, CSRF forms
 
 ## 10. Seed Data and Localhost
 
-Seeders provide demonstration users, income ranges and a fixed 70-entry fictional scholarship catalogue for study in Malaysia. `database/data/demo-scholarships.json` supplies metadata and rules. Stable `catalog_key` values support normal upserts. See `docs/DEMO_SCHOLARSHIPS.md` for the scenario register; the old real-world dataset remains archived and is not seeded.
+Seeders provide local demonstration users, income ranges and a deterministic 20-entry fictional scholarship catalogue. database/data/demo-scholarships.json supplies metadata and rules using stable demo-rich-01 through demo-rich-20 keys. See docs/DEMO_SCHOLARSHIPS.md; earlier catalogues are historical and are not seeded.
 
-`ScholarshipCatalogSeeder` updates scholarships/rules without running account seeders. Rerunning it restores the snapshot, keeps scholarship IDs and bookmarks, and deactivates exact matches of old demo metadata without deletion. Custom rows are preserved. A fresh installation contains exactly 70 scholarships; existing installations may retain archived/custom rows. `composer setup` now includes seeding.
+`ScholarshipCatalogSeeder` upserts the 20 current demo awards/rules without running account seeders. IDs and bookmarks on those scholarships are preserved; the demo rules are restored from the snapshot. Manual awards remain. The backed-up replacement command deletes only the 70 exact retired demo keys before seeding the new catalogue. Fresh installations have 20 awards; existing installations can include manual awards.
 
-Each record persists `deadline_type`: published, admission-linked, calculated relative, rolling, intake-based, automatic or unconfirmed. The current demo snapshot has 60 synthetic fixed dates in 2099, nine rolling awards and one automatic award; all remain open for repeatable demonstrations. The matcher version is decisions-v8-stpm-cgpa. `scholarships:replace-catalog` validates dates, backs up file-backed SQLite, and transactionally deletes/reseeds all scholarships (cascading scholarship-related records only). Ordinary catalogue reseeding still preserves IDs/custom records/history.
+Each record persists `deadline_type`: published, admission-linked, relative, rolling, intake-based, automatic or unconfirmed. The current catalogue uses synthetic 2099 dates or rolling/intake/automatic timing. Matching semantics and version decisions-v8-stpm-cgpa are unchanged. `DatabaseSnapshot` creates SQLite or MySQL data backups before targeted demo replacement; foreign keys cascade only records associated with removed awards. Catalogue caches are invalidated after seed/replacement.
 
 For an existing database, apply php artisan migrate; do not use migrate:fresh. Existing students update their academic status and funding level before generating new decisions. Rebuild frontend assets after changing templates.
 
@@ -194,10 +194,26 @@ Date-only deadlines close after the configured application's deadline day. Exist
 
 ## 11. Final Architecture Notes
 
+### Shared study-field registry
+
+Matching Settings renders Income Categories above Fields of Study at /admin/matching-settings; the old income-category index remains compatible. StudyField stores current name, stable original seed_name and active status. The migration initializes defaults/backfills used labels without rewriting existing academic/rule records. Runtime forms/validation/readiness use the database registry; config is now the initial seed definition only.
+
+StudyFieldController restricts writes to administrators. A rename updates academic/legacy profile strings and both legacy single-field and current multi-field rule values within one transaction, then invalidates catalogue caches. Existing historical logs remain snapshots. Deactivation blocks new assignments while preserving existing selections, matching and edits; filters/non-persistent previews can inspect all known fields. No delete endpoint is provided. Field references remain labels rather than new foreign-key IDs. StudyFieldSeeder preserves edits, and demo rule seeding resolves original default labels to current names through seed_name. See docs/MATCHING_SETTINGS.md.
+
+SqliteDatabaseTransfer includes study_fields. It accepts only an empty registry or untouched migration defaults on an otherwise empty destination, replacing those unused defaults in the import transaction. Source field IDs/labels/status are then copied and verified. Edited/custom destination settings are refused. This permits new-install migrations without losing source field customizations.
+
+### MySQL transfer and targeted catalogue refresh
+
+IncomeCategory provides shared ordered classification, range-label formatting and monetary validation. Admin category writes run with batched saved-profile reclassification inside one transaction, followed by catalogue cache invalidation. Updated incomes are guarded during batch writes. ProfileController builds server-rendered feedback and a JSON snapshot of the same ranges; income-category-preview.js updates text through Alpine while typing. The reference cards use the model's rangeLabel, rather than fixed thresholds. No classification ranges are changed automatically, and refresh is required to obtain later admin edits. Historical recommendation logs remain snapshots rather than being rewritten.
+
+MySQL is the application default; SQLite is retained for isolated tests and legacy data transfer. The early saved-scholarship migration now defers its scholarship foreign key until the parent table exists, allowing a clean MySQL installation while retaining the same migration names. No logical table/relationship redesign was needed. MySQL DATE/DECIMAL/JSON storage representations are handled during verified transfer, without changing eligibility logic.
+
+`database:import-sqlite` delegates to `SqliteDatabaseTransfer`: read-only source snapshot, integrity/foreign-key checks, matching migration history, empty destination checks, parent-first inserts and row-content/count verification within a MySQL transaction. It preserves primary keys and password hashes, retains the destination's migration history and rebuilds caches. Import failures roll back inserted rows. `DatabaseSnapshot` provides pre-refresh SQLite snapshots or verified MySQL JSON data backups. See docs/MYSQL_SETUP.md for operational limits and hosting preparation.
+
 This version evaluates one latest qualification. It does not infer earlier qualifications, GPA equivalence, award renewal eligibility, or entry/enrolment context solely from the selected funding level. Conditions requiring evidence beyond the supported fields belong in the special-requirements description or a future data-model extension.
 
 ### Current default: fictional demo catalogue
 
-`ScholarshipCatalog::entries()` reads `database/data/demo-scholarships.json` (version `scholarmatch-demo-70-v2`), a deterministic 70-record fictional dataset. The previous real-world JSON is retained as an archive and is not seeded. All 70 demo awards have supported structured rules and active/open windows: 60 fixed synthetic dates in 2099, nine rolling and one automatic. The data covers the original six result qualifications, all six institution types, all configured fields, all three income categories, both nationality categories and six award types. The grade-count extension does not replace or expand this catalogue; new qualification rules are configured in the administrator editor and covered by separate tests.
+`ScholarshipCatalog::entries()` reads database/data/demo-scholarships.json, version scholarmatch-rich-demo-20-v1. Twenty fictional awards combine realistic benefit descriptions, academic alternatives, grade counts, STPM average/CGPA, STAM rank, UEC totals/average, current-year limits and personal/programme restrictions. The dataset covers all 11 supported qualifications and six award types. Named-subject, interview, admission, portfolio, renewal and bond conditions remain explicit provider checks.
 
-Demo keys use `demo-01` through `demo-70`. `Scholarship::isDemo()` identifies them for a fictional-data label and an Apply label even for rolling demo awards. Cards and details show Apply for Eligible results; saved listings also expose the application link. These buttons use reserved placeholder URLs for presentations. Source URL/check date stay null. Catalogue validation requires a clear Demo name, fictional description and reserved scholarmatch.example placeholder; real records still require a source. Normal seeders upsert by stable keys; explicit replacement remains the backed-up path to removing the prior dataset.
+Current demo keys use demo-rich-01 through demo-rich-20. `Scholarship::isDemo()` recognises their demo- prefix. Names/descriptions label fiction, source fields are null, and presentation Apply links use reserved scholarmatch.example placeholders. Automatic checks determine Eligible / Not Eligible; provider conditions retain Eligible ! semantics.

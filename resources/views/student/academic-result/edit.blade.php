@@ -1,6 +1,7 @@
 @extends('layouts.student', ['pageTitle' => 'Academic Result'])
 @section('content')
 @php
+    $activeStudyFields = \App\Models\StudyField::selectableNames();
     $initialAcademic = [
         'level' => old('education_level', $academicResult->education_level),
         'category' => old('education_category', \App\Support\AcademicQualifications::category(old('education_level', $academicResult->education_level))),
@@ -185,8 +186,8 @@
                     <label class="label" for="field_of_study">Field of Study <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
                     <select class="input" id="field_of_study" name="field_of_study" required>
                         <option value="">Select Field of Study</option>
-                        @foreach(config('scholarship.fields_of_study') as $field)
-                            <option value="{{ $field }}" @selected(old('field_of_study', $academicResult->field_of_study) === $field)>{{ $field }}</option>
+                        @foreach(\App\Models\StudyField::selectableNames(array_filter([$academicResult->field_of_study])) as $field)
+                            <option value="{{ $field }}" @selected(old('field_of_study', $academicResult->field_of_study) === $field)>{{ $field }}{{ in_array($field, $activeStudyFields, true) ? '' : ' (Inactive)' }}</option>
                         @endforeach
                     </select>
                 </div>

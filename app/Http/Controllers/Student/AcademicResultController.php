@@ -30,7 +30,7 @@ class AcademicResultController extends Controller
 
     public function update(Request $request)
     {
-        $validated = app(AcademicResultInput::class)->validate($request);
+        $validated = app(AcademicResultInput::class)->validate($request, $request->user()->academicResult?->field_of_study);
         AcademicResult::updateOrCreate(['user_id' => $request->user()->id], $validated);
         $request->user()->unsetRelation('academicResult');
 

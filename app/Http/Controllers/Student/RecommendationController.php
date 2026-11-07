@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Models\AcademicResult;
 use App\Models\Scholarship;
+use App\Models\StudyField;
 use App\Services\ScholarshipRecommendationService;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -24,7 +25,7 @@ class RecommendationController extends Controller
             'search' => ['nullable', 'string', 'max:255'],
             'award_type' => ['nullable', 'string', 'max:255'],
             'study_level' => ['nullable', 'string', Rule::in(AcademicResult::EDUCATION_LEVELS)],
-            'field_of_study' => ['nullable', 'string', Rule::in(config('scholarship.fields_of_study'))],
+            'field_of_study' => ['nullable', 'string', Rule::in(StudyField::names())],
             'institution_type' => ['nullable', 'string', Rule::in(config('scholarship.institution_types'))],
             'decision' => ['nullable', 'string', Rule::in(['Eligible', 'Not Eligible'])],
             'page' => ['nullable', 'integer', 'min:1'],

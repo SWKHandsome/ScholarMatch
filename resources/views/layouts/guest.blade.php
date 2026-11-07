@@ -6,6 +6,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
+        <x-site-icon />
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -16,9 +17,16 @@
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+            <div class="shrink-0">
+                <a href="{{ route('home') }}" class="inline-block rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4">
+                    <img
+                        src="{{ asset('images/scholarmatch-logo-blue.png') }}"
+                        alt="ScholarMatch"
+                        width="1536"
+                        height="1024"
+                        class="block h-auto w-48 sm:w-56"
+                        decoding="async"
+                    >
                 </a>
             </div>
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\StudentProfile;
 use App\Models\User;
 
 beforeEach(fn () => seedIncomeCategories());
@@ -28,9 +29,13 @@ test('a partially filled or invalid personal profile is not complete', function 
     $this->post(route('login'), ['email' => $student->email, 'password' => 'password'])->assertRedirect(route('student.profile.edit'));
 })->with([
     'missing state' => [['state' => '']],
-    'invalid dependents' => [['number_of_dependents' => -1]],
     'unsupported nationality' => [['nationality' => 'Legacy nationality']],
 ]);
+
+test('profile completeness rejects negative dependents before database storage', function () {
+    $profile = new StudentProfile(onboardingProfileData(['number_of_dependents' => -1]));
+    expect($profile->isComplete())->toBeFalse();
+});
 
 test('returning students resume academic setup without saving a completed personal profile again', function ($attributes) {
     $student = makeStudent([], $attributes);

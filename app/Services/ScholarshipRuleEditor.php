@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AcademicResult;
 use App\Models\Scholarship;
 use App\Models\ScholarshipRule;
+use App\Models\StudyField;
 use App\Support\AcademicQualifications;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +14,7 @@ use Illuminate\Validation\Rule;
 
 class ScholarshipRuleEditor
 {
-    public function validate(Request $request): array
+    public function validate(Request $request, array $retainedFields = []): array
     {
         $validator = Validator::make($request->all(), [
             'qualification_routes_submitted' => $request->boolean('rules_submitted') ? ['required', 'accepted'] : ['sometimes', 'accepted'],
@@ -22,7 +23,7 @@ class ScholarshipRuleEditor
             'required_income_category' => ['nullable', Rule::in(['B40', 'M40', 'T20'])],
             'max_household_income' => ['nullable', 'numeric', 'min:0'],
             'required_fields_of_study' => ['nullable', 'array'],
-            'required_fields_of_study.*' => [Rule::in(config('scholarship.fields_of_study')), 'distinct'],
+            'required_fields_of_study.*' => ['string', Rule::in(StudyField::selectableNames($retainedFields)), 'distinct'],
             'required_institution_type' => ['nullable', Rule::in(config('scholarship.institution_types'))],
             'qualification_routes' => ['nullable', 'array', 'max:50'],
             'qualification_routes.*' => ['array:education_level,study_status,min_spm_as,min_spm_credits,min_cgpa,min_year_of_study,max_year_of_study,grading_scale,grade_requirements,min_stam_rank,uec_average,stpm_average,uec_total'],

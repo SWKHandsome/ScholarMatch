@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Scholarship;
+use App\Models\StudyField;
 use App\Services\ScholarshipRecommendationService;
 use App\Services\ScholarshipRuleEditor;
 use Illuminate\Database\Seeder;
@@ -14,6 +15,7 @@ class ScholarshipRuleSeeder extends Seeder
     {
         DB::transaction(function () {
             foreach (ScholarshipCatalog::entries() as $entry) {
+                $entry['rules']['required_fields_of_study'] = StudyField::resolveSeedNames($entry['rules']['required_fields_of_study'] ?? []);
                 $scholarship = Scholarship::where('catalog_key', $entry['catalog_key'])->firstOrFail();
 
                 // Reset absent fields so obsolete thresholds cannot survive a catalogue update.

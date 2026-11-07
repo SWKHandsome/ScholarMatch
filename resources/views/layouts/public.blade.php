@@ -7,7 +7,7 @@
 
         <title>{{ config('app.name', 'ScholarMatch') }}</title>
 
-        <link rel="icon" href="data:,">
+        <x-site-icon />
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -16,7 +16,11 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased bg-background text-on-background min-h-screen">
-        @yield('content')
+    <body class="font-sans antialiased bg-background text-on-background min-h-screen flex flex-col">
+        <x-public-header />
+        <main class="flex-1">
+            @yield('content')
+        </main>
+        <x-public-footer />
     </body>
 </html>

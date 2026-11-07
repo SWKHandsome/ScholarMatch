@@ -13,11 +13,11 @@ use Database\Seeders\ScholarshipCatalogSeeder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
-test('catalogue contains seventy distinct fictional demo awards and supported rule values', function () {
+test('catalogue contains twenty distinct fictional demo awards and supported rule values', function () {
     $entries = collect(ScholarshipCatalog::entries());
-    expect($entries)->toHaveCount(70)
-        ->and($entries->pluck('catalog_key')->unique())->toHaveCount(70)
-        ->and($entries->pluck('name')->unique())->toHaveCount(70);
+    expect($entries)->toHaveCount(20)
+        ->and($entries->pluck('catalog_key')->unique())->toHaveCount(20)
+        ->and($entries->pluck('name')->unique())->toHaveCount(20);
 
     foreach ($entries as $entry) {
         $validator = Validator::make($entry, [
@@ -49,34 +49,38 @@ test('catalogue contains seventy distinct fictional demo awards and supported ru
     ScholarshipCatalog::validateReplacement($entries->all(), '2026-10-20');
 });
 
-test('replacement removes the old catalogue and related history but preserves student data', function () {
+test('replacement removes retired demos but preserves manual scholarships and student data', function () {
     $this->travelTo(now()->setDate(2026, 10, 20)->startOfDay());
     seedIncomeCategories();
     $student = makeStudent();
-    $old = makeScholarship(['name' => 'Old demonstration record']);
+    $old = makeScholarship(['name' => 'Old demonstration record', 'catalog_key' => 'demo-01']);
     $student->savedScholarships()->create(['scholarship_id' => $old->id]);
     RecommendationLog::create(['user_id' => $student->id, 'scholarship_id' => $old->id, 'status' => 'Eligible']);
     $profile = $student->studentProfile->getAttributes();
     $academic = $student->academicResult->getAttributes();
 
+    $manual = makeScholarship(['name' => 'Manual scholarship']);
+    $student->savedScholarships()->create(['scholarship_id' => $manual->id]);
+    RecommendationLog::create(['user_id' => $student->id, 'scholarship_id' => $manual->id, 'status' => 'Eligible']);
     ScholarshipCatalog::replace();
 
-    expect(Scholarship::count())->toBe(70)
-        ->and(ScholarshipRule::count())->toBe(70)
+    expect(Scholarship::count())->toBe(21)
+        ->and(ScholarshipRule::count())->toBe(21)
+        ->and($manual->fresh()->name)->toBe('Manual scholarship')
         ->and(Scholarship::find($old->id))->toBeNull()
-        ->and($student->savedScholarships()->count())->toBe(0)
-        ->and(RecommendationLog::count())->toBe(0)
+        ->and($student->savedScholarships()->count())->toBe(1)
+        ->and(RecommendationLog::count())->toBe(1)
         ->and($student->fresh()->studentProfile->getAttributes())->toBe($profile)
         ->and($student->fresh()->academicResult->getAttributes())->toBe($academic);
     $recommendations = app(ScholarshipRecommendationService::class)->getRecommendations($student)['recommendations'];
-    expect($recommendations)->toHaveCount(70);
+    expect($recommendations)->toHaveCount(21);
     expect(collect($recommendations)->where('status', 'Eligible')->count()
-        + collect($recommendations)->where('status', 'Not Eligible')->count())->toBe(70);
+        + collect($recommendations)->where('status', 'Not Eligible')->count())->toBe(21);
 });
 
 test('expired replacement data is rejected before any scholarships are removed', function () {
-    $this->travelTo(now()->setDate(2100, 1, 1)->startOfDay());
     $old = makeScholarship();
+    $this->travelTo(now()->setDate(2100, 1, 1)->startOfDay());
     expect(fn () => ScholarshipCatalog::replace())->toThrow(InvalidArgumentException::class)
         ->and($old->fresh())->not->toBeNull()
         ->and(Scholarship::count())->toBe(1);
@@ -113,8 +117,8 @@ test('catalogue reseeding restores the snapshot without duplicate scholarships o
 
     $this->seed(ScholarshipCatalogSeeder::class);
 
-    expect(Scholarship::count())->toBe(71)
-        ->and(ScholarshipRule::count())->toBe(71)
+    expect(Scholarship::count())->toBe(21)
+        ->and(ScholarshipRule::count())->toBe(21)
         ->and(ScholarshipQualificationRoute::count())->toBe($routeCount)
         ->and(Scholarship::whereNotNull('catalog_key')->orderBy('catalog_key')->pluck('id', 'catalog_key')->all())->toBe($ids)
         ->and($user->savedScholarships()->where('scholarship_id', $scholarship->id)->exists())->toBeTrue()
@@ -134,7 +138,10 @@ test('full initial seeding can be repeated on a fresh device', function () {
         'application_link', 'source_url', 'source_checked_at', 'application_notes', 'special_requirements', 'is_active',
     ])->all();
     $this->seed(DatabaseSeeder::class);
-    expect(Scholarship::count())->toBe(70)->and(ScholarshipRule::count())->toBe(70)->and(User::count())->toBe(3);
+    expect(Scholarship::count())->toBe(20)->and(ScholarshipRule::count())->toBe(20)->and(User::count())->toBe(3);
+    expect(ScholarshipQualificationRoute::count())->toBe(52)
+        ->and(Scholarship::orderBy('catalog_key')->pluck('catalog_key')->all())
+        ->toBe(collect(ScholarshipCatalog::entries())->pluck('catalog_key')->sort()->values()->all());
     expect(Scholarship::orderBy('catalog_key')->get()->map->only(array_keys($first[0]))->all())->toEqual($first);
 });
 
@@ -152,7 +159,7 @@ test('only unmodified legacy demo records are retired and history is preserved',
     $this->seed(ScholarshipCatalogSeeder::class);
     expect($demo->fresh()->is_active)->toBeFalse()->and($edited->fresh()->is_active)->toBeTrue()
         ->and($user->savedScholarships()->where('scholarship_id', $demo->id)->exists())->toBeTrue()
-        ->and(Scholarship::whereNotNull('catalog_key')->count())->toBe(70);
+        ->and(Scholarship::whereNotNull('catalog_key')->count())->toBe(20);
 });
 
 test('unknown dates require provider verification and sort after confirmed deadlines', function () {

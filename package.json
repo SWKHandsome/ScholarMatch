@@ -6,7 +6,8 @@
         "build": "vite build",
         "dev": "vite",
         "test:academic": "node --test tests/js/academic-qualifications.test.js",
-        "test:planning": "node --test tests/js/rule-preview.test.js"
+        "test:planning": "node --test tests/js/rule-preview.test.js",
+        "test:income": "node --test tests/js/income-category-preview.test.js"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",

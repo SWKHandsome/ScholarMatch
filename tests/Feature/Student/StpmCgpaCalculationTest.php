@@ -23,7 +23,7 @@ test('completed STPM CGPA includes Pengajian Am once and the best three other su
         'grade_counts' => $counts, 'stpm_pa_grade' => $pa,
     ]))->assertSessionHasNoErrors();
     $academic = $user->fresh()->academicResult;
-    expect($academic->cgpa)->toBe($expected)->and($academic->grade_counts)->toBe($counts)
+    expect($academic->cgpa)->toBe($expected)->and(collect($academic->grade_counts)->sortKeys()->all())->toBe(collect($counts)->sortKeys()->all())
         ->and($academic->stpm_pa_grade)->toBe($pa)->and($academic->stpm_cgpa_confirmed)->toBeTrue()
         ->and($academic->isReadyForRecommendations())->toBeTrue();
     $this->get(route('student.academic-result.edit'))->assertOk()->assertSee('Calculated Overall CGPA')

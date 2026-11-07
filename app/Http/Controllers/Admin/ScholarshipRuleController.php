@@ -23,7 +23,7 @@ class ScholarshipRuleController extends Controller
 
     public function store(Request $request, Scholarship $scholarship, ScholarshipRuleEditor $editor)
     {
-        $editor->save($scholarship, $editor->validate($request));
+        $editor->save($scholarship, $editor->validate($request, $scholarship->rule?->supportedFieldsOfStudy() ?? []));
         ScholarshipRecommendationService::invalidateCatalogCache();
 
         return redirect()->route('admin.scholarships.rules.index', $scholarship)
@@ -40,7 +40,7 @@ class ScholarshipRuleController extends Controller
     public function update(Request $request, Scholarship $scholarship, ScholarshipRule $rule, ScholarshipRuleEditor $editor)
     {
         abort_unless($rule->scholarship_id === $scholarship->id, 404);
-        $editor->save($scholarship, $editor->validate($request));
+        $editor->save($scholarship, $editor->validate($request, $rule->supportedFieldsOfStudy()));
         ScholarshipRecommendationService::invalidateCatalogCache();
 
         return redirect()->route('admin.scholarships.rules.index', $scholarship)

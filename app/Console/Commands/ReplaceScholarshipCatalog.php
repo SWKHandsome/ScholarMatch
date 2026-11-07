@@ -2,37 +2,34 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Scholarship;
+use App\Services\DatabaseSnapshot;
 use Database\Seeders\ScholarshipCatalog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
 class ReplaceScholarshipCatalog extends Command
 {
-    protected $signature = 'scholarships:replace-catalog {--force : Replace without an interactive prompt}';
+    protected $signature = 'scholarships:replace-catalog {--dry-run : Show the targeted counts without writes} {--force : Replace without an interactive prompt}';
 
-    protected $description = 'Back up SQLite and replace all scholarships with the bundled fictional demo awards';
+    protected $description = 'Back up the database and replace only the retired demo catalogue, preserving manual scholarships';
 
-    public function handle(): int
+    public function handle(DatabaseSnapshot $snapshot): int
     {
         ScholarshipCatalog::validateReplacement(ScholarshipCatalog::entries(), today()->toDateString());
-        $connection = DB::connection();
-        if ($connection->getDriverName() !== 'sqlite' || $connection->getDatabaseName() === ':memory:') {
-            $this->error('This replacement command requires a file-backed SQLite database for its backup.');
-
-            return self::FAILURE;
+        $oldCount = Scholarship::whereIn('catalog_key', ScholarshipCatalog::retiredKeys())->count();
+        $this->info("Retired demos to remove: {$oldCount}. New catalogue: ".ScholarshipCatalog::EXPECTED_COUNT.'. Other scholarships are preserved.');
+        if ($this->option('dry-run')) {
+            return self::SUCCESS;
         }
-        if (! $this->option('force') && ! $this->confirm('Replace all scholarships and their saved links/recommendation history? Student accounts and profiles will be kept.')) {
+        if (! $this->option('force') && ! $this->confirm('Back up and remove only retired demos and their saved links/logs, then seed the new catalogue?')) {
             return self::SUCCESS;
         }
 
-        File::ensureDirectoryExists(storage_path('app/backups'));
-        $backup = storage_path('app/backups/before-local-catalog-'.now()->format('Ymd-His').'-'.Str::random(6).'.sqlite');
-        $connection->statement('VACUUM INTO ?', [$backup]);
+        $backup = $snapshot->create(DB::connection());
         $this->info('Database backup: '.$backup);
         ScholarshipCatalog::replace();
-        $this->info('Replaced the catalogue: exactly '.ScholarshipCatalog::EXPECTED_COUNT.' fictional demo scholarships and awards.');
+        $this->info('Seeded '.ScholarshipCatalog::EXPECTED_COUNT.' richer fictional awards. Manual scholarships and their related records were preserved.');
 
         return self::SUCCESS;
     }

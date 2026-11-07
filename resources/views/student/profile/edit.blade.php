@@ -43,32 +43,18 @@
         </div>
 
         <!-- Household Income -->
-        <div>
+        <div x-data="incomeCategoryPreview(@js($incomePreview))">
             <label for="household_income" class="label">Household Income (RM) <span class="text-error">*</span></label>
-            <input type="number" id="household_income" name="household_income" step="0.01" min="0" class="input @error('household_income') input-error @enderror"
-                value="{{ old('household_income', $profile->household_income) }}" required>
+            <input type="number" id="household_income" name="household_income" step="0.01" min="0" max="9999999999.99" class="input @error('household_income') input-error @enderror"
+                value="{{ $incomeValue }}" @input="setIncome($event.target.value, $event.target.validity.badInput)"
+                aria-describedby="income-category-feedback @error('household_income') household-income-error @enderror" required>
             @error('household_income')
-                <p class="mt-1 text-sm text-error">{{ $message }}</p>
+                <p id="household-income-error" class="mt-1 text-sm text-error">{{ $message }}</p>
             @enderror
-            <p class="mt-1 text-sm text-on-surface-variant">
-                Income category (auto-classified):
-                @php
-                    $income = old('household_income', $profile->household_income);
-                    $category = $income ? \App\Models\IncomeCategory::classifyIncome((float)$income) : ($profile->income_category ?? null);
-                @endphp
-                @if($category)
-                    <span class="font-medium text-primary">{{ strtoupper($category) }}</span>
-                    @if($category === 'B40')
-                        (≤ RM 3,169)
-                    @elseif($category === 'M40')
-                        (RM 3,170 – 6,339)
-                    @elseif($category === 'T20')
-                        (≥ RM 6,340)
-                    @endif
-                @else
-                    <span class="text-on-surface-variant">Enter income to see category</span>
-                @endif
-            </p>
+            <div id="income-category-feedback" class="mt-2 min-h-[3rem] space-y-1 text-sm leading-5" role="status" aria-live="polite" aria-atomic="true">
+                <p class="font-medium text-primary" x-text="heading">{{ $incomeHeading }}</p>
+                <p class="text-on-surface-variant" x-text="detail">{{ $incomeDetail }}</p>
+            </div>
         </div>
 
         <!-- Number of Dependents -->
@@ -85,22 +71,26 @@
 
         <!-- Income Category Reference -->
         <div class="bg-surface-container-low rounded-lg p-4 border border-outline-variant">
-            <h4 class="font-medium text-on-surface mb-3">Income Category Reference (Malaysia)</h4>
+            <h4 class="font-medium text-on-surface mb-3">Income Category Reference</h4>
             <div class="grid sm:grid-cols-3 gap-4 text-sm">
-                <div class="p-3 bg-success/5 rounded-lg border border-success/20">
-                    <div class="font-medium text-success mb-1">B40 (Bottom 40%)</div>
-                    <div class="text-on-surface-variant">≤ RM 3,169/month</div>
-                </div>
-                <div class="p-3 bg-warning/5 rounded-lg border border-warning/20">
-                    <div class="font-medium text-warning mb-1">M40 (Middle 40%)</div>
-                    <div class="text-on-surface-variant">RM 3,170 – 6,339/month</div>
-                </div>
-                <div class="p-3 bg-error/5 rounded-lg border border-error/20">
-                    <div class="font-medium text-error mb-1">T20 (Top 20%)</div>
-                    <div class="text-on-surface-variant">≥ RM 6,340/month</div>
-                </div>
+                @forelse($incomeCategories as $incomeCategory)
+                    @php
+                        $colour = match ($incomeCategory->name) {
+                            'B40' => ['bg-success/5 border-success/20', 'text-success'],
+                            'M40' => ['bg-warning/5 border-warning/20', 'text-warning'],
+                            'T20' => ['bg-error/5 border-error/20', 'text-error'],
+                            default => ['bg-primary/5 border-primary/20', 'text-primary'],
+                        };
+                    @endphp
+                    <div class="p-3 rounded-lg border {{ $colour[0] }}">
+                        <div class="font-medium mb-1 {{ $colour[1] }}">{{ $incomeCategory->name }}</div>
+                        <div class="text-on-surface-variant">{{ $incomeCategory->rangeLabel() }}</div>
+                    </div>
+                @empty
+                    <p class="sm:col-span-3 text-on-surface-variant">No income ranges are configured. Please contact the administrator.</p>
+                @endforelse
             </div>
-            <p class="mt-3 text-xs text-on-surface-variant">Based on DOSM 2022 household income classifications. Thresholds are admin-configurable.</p>
+            <p class="mt-3 text-xs text-on-surface-variant">Income ranges configured by the administrator.</p>
         </div>
 
         <!-- Actions -->

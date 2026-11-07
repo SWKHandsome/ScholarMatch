@@ -11,7 +11,8 @@ return new class extends Migration
         Schema::create('saved_scholarships', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('scholarship_id')->constrained()->onDelete('cascade');
+            // The scholarships table is created by the later 030123 migration.
+            $table->foreignId('scholarship_id')->index();
             $table->timestamps();
 
             $table->unique(['user_id', 'scholarship_id']);

@@ -44,7 +44,7 @@
                         <label class="label" for="field_of_study">Field of Study</label>
                         <select class="input" id="field_of_study" name="field_of_study">
                             <option value="">All fields</option>
-                            @foreach(config('scholarship.fields_of_study') as $field)
+                            @foreach(\App\Models\StudyField::names() as $field)
                                 <option value="{{ $field }}" @selected($filters['field_of_study'] === $field)>{{ $field }}</option>
                             @endforeach
                         </select>

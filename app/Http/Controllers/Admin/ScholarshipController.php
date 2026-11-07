@@ -84,7 +84,7 @@ class ScholarshipController extends Controller
             'is_active' => ['boolean'],
         ]);
 
-        $rules = $request->boolean('rules_submitted') ? $editor->validate($request) : null;
+        $rules = $request->boolean('rules_submitted') ? $editor->validate($request, $scholarship->rule?->supportedFieldsOfStudy() ?? []) : null;
         $validated['is_active'] = $request->boolean('is_active');
         DB::transaction(function () use ($scholarship, $validated, $rules, $editor) {
             $scholarship->update($validated);

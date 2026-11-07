@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\AcademicResult;
+use App\Models\StudyField;
 use App\Support\AcademicQualifications;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -10,7 +11,7 @@ use Illuminate\Validation\Rule;
 
 class AcademicResultInput
 {
-    public function validate(Request $request): array
+    public function validate(Request $request, ?string $retainedField = null): array
     {
         $level = is_string($request->input('education_level')) ? $request->input('education_level') : '';
         $cgpaBased = AcademicQualifications::isCgpa($level);
@@ -26,7 +27,7 @@ class AcademicResultInput
             'year_of_study' => [Rule::excludeIf(! $cgpaBased || $request->input('study_status') !== 'studying'), 'required', 'integer', 'between:1,10'],
             'funding_study_level' => ['required', Rule::in(AcademicResult::EDUCATION_LEVELS)],
             'institution_type' => ['required', Rule::in(config('scholarship.institution_types'))],
-            'field_of_study' => ['required', Rule::in(config('scholarship.fields_of_study'))],
+            'field_of_study' => ['required', 'string', Rule::in(StudyField::selectableNames($retainedField === null ? [] : [$retainedField]))],
             'grading_scale' => [Rule::excludeIf(! $gradeBased), 'required', 'string', Rule::in(AcademicQualifications::allowedScales($level))],
             'grade_counts' => [Rule::excludeIf(! $gradeBased), 'required', 'array'],
             'grade_counts.*' => [Rule::excludeIf(! $gradeBased), 'required', 'integer', 'between:0,20'],

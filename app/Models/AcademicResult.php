@@ -31,7 +31,7 @@ class AcademicResult extends Model
             || ! in_array($this->funding_study_level, self::EDUCATION_LEVELS, true)
             || ! in_array($this->study_status, ['studying', 'completed'], true)
             || ! in_array($this->institution_type, config('scholarship.institution_types'), true)
-            || ! in_array($this->field_of_study, config('scholarship.fields_of_study'), true)) {
+            || ! in_array($this->field_of_study, StudyField::names(), true)) {
             return false;
         }
         if (AcademicQualifications::isGradeBased($this->education_level)) {

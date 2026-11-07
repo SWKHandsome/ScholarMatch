@@ -10,7 +10,12 @@ use InvalidArgumentException;
 /** A deterministic fictional catalogue, shared by every demo installation. */
 class ScholarshipCatalog
 {
-    public const EXPECTED_COUNT = 70;
+    public const EXPECTED_COUNT = 20;
+
+    public static function retiredKeys(): array
+    {
+        return array_map(fn ($number) => 'demo-'.str_pad((string) $number, 2, '0', STR_PAD_LEFT), range(1, 70));
+    }
 
     public static function entries(): array
     {
@@ -49,10 +54,10 @@ class ScholarshipCatalog
         self::validateReplacement(self::entries(), today()->toDateString());
 
         DB::transaction(function () {
-            // Foreign keys remove only the deleted scholarships' rules, saved links and logs.
-            Scholarship::query()->delete();
+            // Retire only identified old demos; never delete manually entered scholarships.
+            Scholarship::whereIn('catalog_key', self::retiredKeys())->delete();
             Artisan::call('db:seed', ['--class' => ScholarshipCatalogSeeder::class, '--force' => true]);
-            if (Scholarship::count() !== self::EXPECTED_COUNT) {
+            if (Scholarship::whereIn('catalog_key', array_column(self::entries(), 'catalog_key'))->count() !== self::EXPECTED_COUNT) {
                 throw new InvalidArgumentException('Catalogue replacement did not produce exactly '.self::EXPECTED_COUNT.' records.');
             }
         });

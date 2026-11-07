@@ -6,9 +6,8 @@ return [
     'institution_types' => ['Public University', 'Private University', 'Polytechnic', 'Community College', 'Foundation College', 'Other'],
 
     /*
-     * These labels are used by both students and administrators. Keeping one
-     * shared list prevents a field saved in academic information from differing
-     * from the same field selected in a scholarship rule.
+     * Initial labels only. Runtime choices come from the study_fields table,
+     * managed by the administrator in Matching Settings.
      */
     'fields_of_study' => [
         'Accounting & Finance',

@@ -1,5 +1,7 @@
 @php
     $selectedFields = old('field_selection_submitted') ? (array) old('required_fields_of_study', []) : $rule->supportedFieldsOfStudy();
+    $activeFields = \App\Models\StudyField::selectableNames();
+    $availableFields = \App\Models\StudyField::selectableNames($rule->supportedFieldsOfStudy());
 @endphp
 <input type="hidden" name="rules_submitted" value="1">
 <div class="rounded-lg bg-primary/5 p-4 text-sm text-on-surface-variant">
@@ -52,11 +54,11 @@
     <legend class="label">Supported Fields of Study</legend>
     <input type="hidden" name="field_selection_submitted" value="1">
     <div class="grid sm:grid-cols-2 gap-2 mt-2">
-        @foreach(config('scholarship.fields_of_study') as $value)
+        @foreach($availableFields as $value)
             <label class="flex gap-2 items-center">
                 <input type="checkbox" name="required_fields_of_study[]" value="{{ $value }}"
                     @checked(in_array($value, $selectedFields, true))>
-                {{ $value }}
+                {{ $value }}{{ in_array($value, $activeFields, true) ? '' : ' (Inactive)' }}
             </label>
         @endforeach
     </div>

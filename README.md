@@ -13,14 +13,15 @@ Built as a Final Year Project (FYP), ScholarMatch focuses on making scholarship 
 - Student profile management for nationality, state, household income, dependents and income category
 - Grouped qualification selection, official grade-count counters for SPM, IGCSE, O-Level, A-Level and Senior UEC, STAM pangkat and existing CGPA-based results
 - Programme Seeking Funding section in Academic Result groups funding level, institution type and field of study
-- Automatic B40, M40, and T20 income-category classification
+- Administrator-configured income classification, live Profile feedback/reference ranges and automatic saved-category synchronization after admin changes
 - Scholarship, scholarship-rule, and income-threshold management for administrators
+- Matching Settings groups income ranges and editable fields of study on one page, with linked renames and inactive-field preservation
 - Repeatable qualification boxes on Add/Edit Scholarship, with separate results, study status and year limits for each accepted route
 - Explainable **Eligible / Not Eligible** decisions, with **!** for administrator-entered special requirements
 - Recommendation filters for name/provider, award type, funded level, field and institution, with full-width cards and 10 results per page
 - Saved scholarships for students
 - Recommendation logs for administrators
-- Fixed catalogue of 50 clearly fictional demo scholarships covering supported matching scenarios, plus local test accounts
+- Catalogue of 20 richer fictional scholarships with benefits, alternative qualifications and provider checks, alongside administrator-entered awards
 
 ## How recommendations work
 
@@ -48,7 +49,9 @@ Only active scholarships with configured rules and an unexpired or unknown deadl
 
 ## Updating an existing installation or device
 
-The SQLite database file is local to each device and is excluded from Git. Pulling or copying newer project files does not update that device's database schema. Whenever you bring newer code onto a device, run its pending migrations from the project folder before using the app, then rebuild the frontend assets:
+To get the same 20 fictional scholarships on another device, follow [the fresh/existing device setup guide](docs/ANOTHER_DEVICE_SETUP.md). The checked-in JSON is shared through Git; actual database rows and local `.env` settings are not.
+
+MySQL is the default development and deployment database. Use Laragon locally, start MySQL, create a database named `scholarmatch`, and configure `.env` using `.env.example`. Pulling newer project files does not update an existing database automatically. Run pending migrations and rebuild assets:
 
 ```bash
 php artisan migrate
@@ -62,6 +65,8 @@ php artisan db:seed --class=IncomeCategorySeeder
 ```
 
 Existing profiles and scholarships are preserved. Existing students must confirm their study status and selected funding level, and supply official results, before generating new decisions. Old evaluation logs remain identified as Previous Evaluation until refreshed; their historical score data is preserved but not treated as a current decision.
+
+For existing SQLite installations, follow [MySQL setup and transfer](docs/MYSQL_SETUP.md). The verified importer preserves IDs, password hashes and relationships, refuses a populated destination, and leaves SQLite unchanged. SQLite remains available for fast isolated tests.
 
 The qualification-route migration converts existing rules into equivalent child rows and retains the original columns. The grade-count migration adds result breakdowns and qualification-specific route settings while preserving records; the follow-up subject-point migration adds nullable STPM-average and UEC-total settings. Legacy SPM students must enter their grade breakdown; old As/credits are retained for reference. Legacy STPM students also need actual subject counts alongside their preserved official CGPA. Other valid CGPA records remain usable. Rebuild assets for the new editors. The STPM calculator migration adds a nullable PA grade and confirmation flag, preserving existing CGPA values and grades. Existing usable manual records stay valid until edited; completed STPM saves then use the new calculation. Earlier evaluations refresh under decisions-v8-stpm-cgpa. Legacy unsupported nationalities still need correction.
 
@@ -113,13 +118,13 @@ copy .env.example .env
 php artisan key:generate
 ```
 
-Configure the database credentials in `.env`, then migrate and seed the application:
+Start MySQL in Laragon and create the empty `scholarmatch` database. Configure database credentials in `.env`, then migrate and seed a **new installation**:
 
 ```bash
 php artisan migrate --seed
 ```
 
-This installs **70 fictional demo scholarships** from `database/data/demo-scholarships.json`. Devices using this repository revision receive the same initial records and rules. `composer setup` also includes seeding. The earlier real-world catalogue is archived and is not seeded.
+This installs **20 richer fictional demo scholarships** from `database/data/demo-scholarships.json`. Devices using this revision receive the same initial records and rules. `composer setup` also includes seeding and is intended for new local installations. The earlier catalogues are historical and are not seeded.
 
 For an existing database, update only the scholarship catalogue without running the account seeders:
 
@@ -128,9 +133,9 @@ php artisan migrate
 php artisan db:seed --class=ScholarshipCatalogSeeder
 ```
 
-Re-seeding restores the checked-in demo catalogue and updates its rules without duplicates. Other custom scholarships, bookmarks and history remain; unchanged legacy demo metadata is deactivated. Local edits to these 70 catalogue records are overwritten when re-seeded. See the [demo catalogue guide](docs/SCHOLARSHIP_CATALOG.md). To switch an existing real-world database to exactly 70 demos, run `php artisan scholarships:replace-catalog` after migrating. It removes old scholarships, saved links and recommendation history after creating a full SQLite backup; users, profiles and academic results remain.
+Re-seeding restores the 20 checked-in demos and their rules without duplicating scholarships. Manual scholarships remain. To remove the retired `demo-01` through `demo-70` catalogue, first run `php artisan scholarships:replace-catalog --dry-run`, then run it without `--dry-run`. The command backs up MySQL or file-backed SQLite, deletes only those retired demo keys and their related rules/bookmarks/logs, and seeds the new catalogue. Manual awards and their related records remain. See the [catalogue guide](docs/SCHOLARSHIP_CATALOG.md).
 
-All 70 demos are active and open: 60 use synthetic fixed dates in 2099, nine are rolling and one is automatic. The fictional dates are fixed across devices. Demo entries have no official-source claims. Apply buttons are available for presentations and use reserved placeholder URLs without real application submission. Mock interview/document conditions demonstrate Eligible !; ordinary academic thresholds are checked automatically.
+All 20 demos are active, with rolling/intake/automatic timing or clearly synthetic future dates in 2099. They cover all supported qualifications and six award types. Demo entries have no official-source claims. Presentation Apply links use reserved placeholder URLs. Interviews, named subjects and other provider checks demonstrate Eligible !; configured academic thresholds are checked automatically.
 
 Build the frontend assets and start the application:
 
@@ -189,6 +194,10 @@ tests/                      # Pest unit and feature tests
 
 - [Product Requirements Document](PRD.md)
 - [Architecture Document](ARCHITECTURE.md)
+- [MySQL / Laragon Setup and Data Transfer](docs/MYSQL_SETUP.md)
+- [Azure Hosting Concept and Infographic](docs/AZURE_HOSTING_CONCEPT.md)
+- [Azure Deployment Guide](docs/AZURE_DEPLOYMENT_GUIDE.md)
+- [Matching Settings and Fields of Study](docs/MATCHING_SETTINGS.md)
 - [Design System](DESIGN.md)
 - [Manual Test Cases](MANUAL_TEST_CASES.md)
 - [Academic Qualifications, Grade Formats and Matching Examples](docs/ACADEMIC_QUALIFICATIONS.md)
@@ -202,8 +211,6 @@ This project was developed for academic purposes as a Final Year Project.
 
 ## Fictional demonstration dataset
 
-The default initial catalogue now contains exactly 70 fictional awards. Academic cutoffs are stored in qualification rules, with varied nationality, income, funded level, status/year, field and institution restrictions. Most have no special conditions so plain Eligible appears; selected mock interviews/documents demonstrate Eligible !. All records are open, so unfiltered Eligible plus Not Eligible totals 70.
+The initial catalogue contains 20 richer fictional awards with benefit descriptions, qualification alternatives and combined academic/household/programme restrictions. All 11 supported qualifications and six award types are represented. Eligible ! identifies provider conditions; named-subject requirements remain manual checks.
 
-Demo 51–60 add ten complex Diploma-funded scenarios and Demo 61–70 add ten Degree-funded scenarios (displayed as Bachelor’s Degree, stored as Undergraduate). They demonstrate progression from completed qualifications, support for current students in specific years, alternative entry routes and combined academic/household/programme restrictions. The original 50 awards are unchanged.
-
-See [the scenario guide](docs/DEMO_SCHOLARSHIPS.md). New devices use `php artisan migrate --seed`. On an existing SQLite installation, `php artisan scholarships:replace-catalog` backs up the database and replaces the old scholarships with these 70 demos while preserving student accounts/profiles/results. Normal seeding upserts without duplication but retains unrelated old rows. Build assets with `npm run build`. Demo application buttons use placeholder links and source-verification claims are omitted.
+See [the scenario guide](docs/DEMO_SCHOLARSHIPS.md). New installations use `php artisan migrate --seed`. Existing installations use the backed-up targeted replacement command to remove only the old 70 demo keys and add the new 20, preserving manual scholarships and student records. Apply links are presentation placeholders.

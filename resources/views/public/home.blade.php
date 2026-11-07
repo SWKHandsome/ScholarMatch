@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('content')
-<div class="min-h-screen bg-background">
+<div class="bg-background">
     <!-- Hero Section -->
     <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">

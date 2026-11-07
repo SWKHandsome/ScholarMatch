@@ -117,6 +117,8 @@ spacing:
 
 ## Brand & Style
 
+Matching Settings uses one stacked page: Income Categories, followed by Fields of Study with clear section spacing. Both sections use the existing table/card style and blue primary add buttons. Fields have Active/Inactive text badges and an Edit action. A single labelled modal handles adding, renaming and availability, retaining values and displaying errors after validation failure. Explain inactive-field preservation below the table. Keep income actions and their layout unchanged.
+
 This design system is engineered for a high-trust, academic environment. It facilitates the complex journey of scholarship discovery and application through a **Corporate / Modern** aesthetic that emphasizes clarity, logic, and reliability. 
 
 The visual language is "Information-Forward," prioritizing the scannability of eligibility criteria and match scores. By utilizing a structured 4px grid and a "Soft Depth" philosophy, the UI feels technical and precise without being intimidating. The tone is professional and institutional, designed to instill confidence in students and educators navigating critical financial decisions.
@@ -239,3 +241,9 @@ During data fetching or match engine processing, use shimmering gray blocks that
 
 ### Navigation
 Clean, white top-bar with `text-primary` links. Use a bottom-border of 2px in Primary Blue for the active state to reinforce the brand's academic identity.
+
+### Profile income feedback
+
+Place a two-line income helper immediately below Household Income, with the category as the stronger first line and its current range on the second line. Both align with the input/label; reserve a small minimum height without clipping longer messages. Use an accessible polite status region and connect it through aria-describedby. Keep initial server-rendered text so a valid result remains available without JavaScript; Alpine updates text while typing.
+
+Income reference cards list actual administrator-configured names and ranges, including cents and open upper limits. Retain familiar B40/M40/T20 accents and use the primary accent for other names. Stack cards on small screens. The caption is Income ranges configured by the administrator; avoid a fixed statistical-source claim for editable thresholds. Empty, invalid, unmatched and unconfigured income states have distinct messages. A page refresh loads later admin changes.

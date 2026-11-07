@@ -1,9 +1,9 @@
 # ScholarMatch — Product Requirements Document (PRD)
 
-**Version:** 4.0 — Administrator rule testing and explanation refinements
-**Updated:** 2026-11-03 (Asia/Singapore)
+**Version:** 4.2 — Shared matching settings and editable fields of study
+**Updated:** 2026-11-07 (Asia/Singapore)
 **Project:** Final Year Project for Malaysian scholarship discovery
-**Stack:** Laravel 13, PHP 8.3+, MySQL/SQLite, Blade, Tailwind CSS, Alpine.js and Vite
+**Stack:** Laravel 13, PHP 8.3+, MySQL (application), SQLite (isolated tests), Blade, Tailwind CSS, Alpine.js and Vite
 
 ## 1. Product Overview
 
@@ -55,6 +55,8 @@ Login/Register share a stable-height card that reserves space for both forms. Sw
 
 Collect nationality, state, household income and number of dependents. Income categories are configured in the income_categories table. Recommendation evaluation reclassifies the current household income rather than trusting a stale stored category. Programme details are entered on Academic Result; Profile links to that page.
 
+The Profile income helper and reference cards display administrator-configured names/ranges from the database, including exact cents and open upper limits. The helper updates while typing and renders an initial server-side result without JavaScript. Zero income is valid. Blank, invalid, unconfigured and unmatched income have distinct messages. Loaded pages receive administrator changes on refresh; no cross-tab push is implied. Admin category creation, updates and deletion transactionally reclassify saved profiles and invalidate recommendation caches. Income amounts allow at most two decimal places, within DECIMAL(12,2); a configured maximum cannot be below its minimum. Existing gaps are not silently filled. Overlapping ranges use ascending minimum, then ID, consistently across matching and display.
+
 Nationality has exactly two student choices: Malaysian and Non-Malaysian. Scholarship nationality restrictions use the same two choices; leaving the restriction empty means Any nationality. Matching compares the selected categories exactly. Country-specific conditions can be recorded as Special Requirements for provider verification.
 
 State and number of dependents are recorded but are not automatic eligibility criteria in this version.
@@ -91,7 +93,7 @@ Programme Seeking Funding groups funding_study_level, institution_type and field
 
 Administrators manage name, provider, description, award type, confirmed deadline (optional), application/intake notes, application link, active status, and an optional special_requirements textbox on both Add and Edit Scholarship. Seeded records display their official source and check date.
 
-Fresh installations receive 50 sourced scholarships and tuition awards for study in Malaysia (pre-university/diploma/bachelor’s), checked on 20 October 2026. All 34 recorded dates are after this date; 16 rolling/automatic/intake-based awards retain their real rules and labels. Ordinary reseeding upserts stable keys. The explicit replacement command backs up SQLite then removes all scholarship rows and related rules/saved links/history before installing exactly 50, preserving student data. See docs/SCHOLARSHIP_CATALOG.md for sources and limits.
+Fresh installations receive 20 richer fictional Malaysian-study awards, version scholarmatch-rich-demo-20-v1. Each has realistic benefit text and supported academic/programme conditions. Providers, funding and application destinations are invented; source-verification fields remain empty. Manual awards coexist with the demo catalogue. Ordinary reseeding upserts current demo keys. The explicit replacement command backs up the database and removes only retired demo-01 through demo-70 and their related records, preserving manual awards and student data. See docs/SCHOLARSHIP_CATALOG.md.
 
 Special requirements are plain text, limited to 5,000 characters. The system displays this text safely rather than interpreting it as automatic eligibility logic.
 
@@ -160,7 +162,7 @@ Existing score-based evaluations retain a legacy snapshot and appear as Previous
 
 Public: Home, About, Login and Register.
 Student: Dashboard, Profile, Academic Result, Recommendations, Scholarship Details and Saved Scholarships.
-Administrator: Dashboard, Scholarships, Scholarship Rules, Income Categories and Recommendation Logs.
+Administrator: Dashboard, Scholarships, Scholarship Rules, Matching Settings and Recommendation Logs. Matching Settings displays Income Categories followed by Fields of Study on a single page.
 
 Recommendations have Eligible and Not Eligible groups. Eligible ! is included in Eligible. Incomplete onboarding shows a completion message instead of a scholarship decision.
 
@@ -172,6 +174,7 @@ Recommendations have Eligible and Not Eligible groups. Eligible ! is included in
 | student_profiles | user_id, nationality, state, household_income, number_of_dependents, income_category; inactive legacy institution/field values retained |
 | academic_results | Unique user_id; education_level, study_status, year_of_study, funding_study_level, institution_type, field_of_study, spm_as, spm_credits, cgpa, result_status, grading_scale, grade_counts JSON, stam_rank, stpm_pa_grade, stpm_cgpa_confirmed |
 | income_categories | name, min_income, max_income |
+| study_fields | id, unique current name, nullable original seed_name, is_active, timestamps; existing student/rule references remain string labels |
 | scholarships | name, provider, description, award_type, nullable deadline, deadline_type, application_link, is_active, special_requirements, catalog_key, source_url, source_checked_at, application_notes |
 | scholarship_rules | Unique scholarship_id; general nationality/funding/income/field/institution conditions; legacy academic columns retained |
 | scholarship_qualification_routes | scholarship_rule_id; education_level, study_status, min_spm_as, min_spm_credits, min_cgpa, min_year_of_study, max_year_of_study, grading_scale, grade_requirements JSON, min_stam_rank, uec_average JSON, stpm_average JSON, uec_total JSON |
@@ -192,7 +195,7 @@ This version collects one latest qualification. Earlier qualifications are not i
 
 ## 10. Data Seeding Strategy
 
-Seeders provide local demonstration users, income ranges, scholarships and requirements. The catalogue is sourced from provider material; conditions outside the supported academic/profile model require provider verification. Students complete the new academic fields before recommendations. Automated tests use an isolated in-memory SQLite database.
+Seeders provide local demonstration users, configurable income ranges and 20 richer fictional scholarships. Academic rules cover all 11 supported qualifications, alternative routes, grade patterns, UEC calculations, CGPA/status/year and provider checks. MySQL is the application database; isolated SQLite and separate MySQL tests verify behaviour. See docs/MYSQL_SETUP.md for safe transfer and hosting preparation.
 
 ## 11. Validation Rules
 

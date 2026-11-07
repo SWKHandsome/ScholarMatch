@@ -1,114 +1,221 @@
-# Demo scholarship catalogue
+# Richer fictional demonstration scholarships
 
-These 70 awards, providers, amounts and dates are fictional. They are designed for the current matching engine, not real applications. The default seed file is database/data/demo-scholarships.json, version scholarmatch-demo-70-v2. The previous real-world dataset is archived in database/data/malaysia-scholarships.json and is not seeded.
+Version: `scholarmatch-rich-demo-20-v1`, 7 November 2026.
 
-All 70 are active and open. Sixty use fixed synthetic dates in 2099, nine are rolling and one is automatic. They produce exactly 70 unfiltered evaluations for each student with complete official results: Eligible (including !) + Not Eligible = 70. Search, selected decision group and pagination can show fewer. Source URLs and verification dates are empty. Apply buttons are available for presentations and point to reserved .example placeholder URLs; they do not submit real applications.
+These 20 awards, providers, benefits and thresholds are fictional FYP examples. They follow the richer structure of manually entered scholarships: benefit descriptions, alternative qualification boxes, result conditions, programme restrictions and provider verification. No real funding or applications are offered. Source fields are empty and links use reserved scholarmatch.example placeholders. Synthetic dates in 2099 are test dates.
 
-Academic cutoffs live in structured qualification routes. Conditions within a route are AND; alternative routes are OR. Funded study level is independent from latest qualification. Special Requirements contain only the mock interview/document/portfolio/contract steps and are deliberately empty on most records so plain Eligible can also be demonstrated. All grade checks use existing SPM counts or a 4.00-scale CGPA; no subject-grade or percentage conversion is needed.
+Pass every general restriction AND every condition in any one qualification box. Different boxes are alternatives. Named subjects, interviews, admission offers, portfolios, renewal and bonds appear in Special Requirements. Automatic rules determine Eligible / Not Eligible; provider conditions add ! to an otherwise Eligible result.
 
-Income categories use this project's configurable demo values: B40 0–3169; M40 3170–6339; T20 6340 and above (RM/month). These are application seed settings, not a claim about official current Malaysian income classifications. Use 3169/3170 and 6339/6340 for integer boundary demonstrations.
+Fresh databases have 20 demo awards. The transferred local database also retains three manual awards, so it has 23 total; evaluated counts depend on active status and deadlines. The old 70 demos are retired, not part of the new seed.
 
-Demo 51–60 fund Diploma and Demo 61–70 fund Degree, shown as **Undergraduate** in the app. These 20 additions combine funded level with nationality, income, institution, field, qualification, grades and study status/year. The original 50 entries are unchanged. A completed Diploma can qualify for Degree funding; selecting Diploma funding instead fails the funded-level check even when the qualification route passes. Current-year restrictions refer to the latest qualification being studied, not a future programme's year.
+## Demo 01: Meridian Computing Entry Scholarship
 
-| # | Demo award | Automatic requirements | Successful result |
-|---|---|---|---|
-| 1 | Open Access Award | No additional qualification or result threshold. | Eligible when rules pass |
-| 2 | Interview Access Award | No additional qualification or result threshold. | Eligible ! when automatic rules pass |
-| 3 | Malaysian Student Award | Nationality: Malaysian. No additional qualification or result threshold. | Eligible when rules pass |
-| 4 | International Tuition Award | Nationality: Non-Malaysian. Funds: Undergraduate. Institution: Private University. No additional qualification or result threshold. | Eligible when rules pass |
-| 5 | B40 Household Support | Funds: Undergraduate. Income category: B40. Household income <= RM3169.00 per month. No additional qualification or result threshold. | Eligible when rules pass |
-| 6 | Foundation Low Income Award | Nationality: Malaysian. Funds: Foundation. Household income <= RM2000.00 per month. Pass any one qualification route: SPM (completed), SPM As >= 3, SPM credits >= 5. | Eligible when rules pass |
-| 7 | M40 Progression Award | Funds: Undergraduate. Income category: M40. Pass any one qualification route: STPM (completed), CGPA >= 3.00 OR Foundation (completed), CGPA >= 3.00 OR Matriculation (completed), CGPA >= 3.00 OR Diploma (completed), CGPA >= 3.00. | Eligible when rules pass |
-| 8 | T20 Academic Excellence | Funds: Undergraduate. Income category: T20. Pass any one qualification route: STPM (completed), CGPA >= 3.75 OR Foundation (completed), CGPA >= 3.75 OR Matriculation (completed), CGPA >= 3.75 OR Diploma (completed), CGPA >= 3.75. | Eligible when rules pass |
-| 9 | Flexible Income Support | Funds: Undergraduate. Household income <= RM7000.00 per month. Pass any one qualification route: Undergraduate (studying or completed), CGPA >= 2.75. | Eligible when rules pass |
-| 10 | SPM Foundation Entry | Funds: Foundation. Pass any one qualification route: SPM (completed), SPM As >= 0, SPM credits >= 5. | Eligible when rules pass |
-| 11 | SPM Three As Diploma | Funds: Diploma. Pass any one qualification route: SPM (completed), SPM As >= 3, SPM credits >= 5. | Eligible when rules pass |
-| 12 | SPM Seven As Foundation | Funds: Foundation. Pass any one qualification route: SPM (completed), SPM As >= 7, SPM credits >= 7. | Eligible when rules pass |
-| 13 | SPM Nine As Matriculation | Funds: Matriculation. Pass any one qualification route: SPM (completed), SPM As >= 9, SPM credits >= 9. | Eligible when rules pass |
-| 14 | SPM Credit Focus Diploma | Funds: Diploma. Pass any one qualification route: SPM (completed), SPM As >= 0, SPM credits >= 3. | Eligible when rules pass |
-| 15 | SPM As and Credits Award | Funds: Foundation. Institution: Foundation College. Pass any one qualification route: SPM (completed), SPM As >= 5, SPM credits >= 8. | Eligible when rules pass |
-| 16 | Completed STPM Progression | Funds: Undergraduate. Pass any one qualification route: STPM (completed), CGPA >= 2.50. | Eligible when rules pass |
-| 17 | Current STPM Support | Funds: STPM. Pass any one qualification route: STPM (studying), CGPA >= 3.00, year >= 1, year <= 2. | Eligible when rules pass |
-| 18 | Foundation to Degree Award | Funds: Undergraduate. Pass any one qualification route: Foundation (completed), CGPA >= 3.00. | Eligible when rules pass |
-| 19 | Diploma to Degree Award | Funds: Undergraduate. Pass any one qualification route: Diploma (completed), CGPA >= 3.25. | Eligible when rules pass |
-| 20 | Matriculation to Degree Award | Funds: Undergraduate. Pass any one qualification route: Matriculation (completed), CGPA >= 3.50. | Eligible when rules pass |
-| 21 | First Year Degree Support | Funds: Undergraduate. Pass any one qualification route: Undergraduate (studying), CGPA >= 2.50, year >= 1, year <= 1. | Eligible when rules pass |
-| 22 | Middle Years Degree Award | Funds: Undergraduate. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.00, year >= 2, year <= 3. | Eligible when rules pass |
-| 23 | Fourth Year Completion Award | Funds: Undergraduate. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.50, year >= 4, year <= 4. | Eligible ! when automatic rules pass |
-| 24 | Graduate Return Award | Funds: Undergraduate. Pass any one qualification route: Undergraduate (completed), CGPA >= 3.75. | Eligible when rules pass |
-| 25 | Diploma Either Status Award | Funds: Diploma. Pass any one qualification route: Diploma (studying or completed), CGPA >= 2.75. | Eligible when rules pass |
-| 26 | Diploma or Current Degree Award | Funds: Undergraduate. Pass any one qualification route: Diploma (completed), CGPA >= 3.00 OR Undergraduate (studying), CGPA >= 3.25, year >= 1, year <= 3. | Eligible when rules pass |
-| 27 | Three Qualification Choices | Pass any one qualification route: SPM (completed), SPM As >= 5, SPM credits >= 5 OR STPM (completed), CGPA >= 3.00 OR Foundation (completed), CGPA >= 3.20. | Eligible when rules pass |
-| 28 | Different Progression Thresholds | Nationality: Malaysian. Funds: Undergraduate. Pass any one qualification route: Foundation (completed), CGPA >= 3.50 OR Diploma (completed), CGPA >= 3.00. | Eligible when rules pass |
-| 29 | Public Engineering Award | Funds: Undergraduate. Institution: Public University. Field: Engineering. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.00. | Eligible when rules pass |
-| 30 | Private Business Award | Funds: Undergraduate. Institution: Private University. Field: Business. Pass any one qualification route: Undergraduate (studying or completed), CGPA >= 2.80. | Eligible when rules pass |
-| 31 | Polytechnic Practical Skills | Funds: Diploma. Institution: Polytechnic. Pass any one qualification route: Diploma (studying or completed), CGPA >= 2.50. | Eligible when rules pass |
-| 32 | Community College Support | Funds: Diploma. Household income <= RM4000.00 per month. Institution: Community College. No additional qualification or result threshold. | Eligible when rules pass |
-| 33 | Foundation College Science | Funds: Foundation. Institution: Foundation College. Field: Science or Natural Sciences or STEM. Pass any one qualification route: SPM (completed), SPM As >= 3, SPM credits >= 5. | Eligible when rules pass |
-| 34 | Other Institution Access | Funds: Diploma. Institution: Other. Pass any one qualification route: Diploma (studying or completed), CGPA >= 2.50. | Eligible when rules pass |
-| 35 | Computing and Engineering | Funds: Undergraduate. Field: Computer Science or Engineering. Pass any one qualification route: Foundation (completed), CGPA >= 3.00 OR Matriculation (completed), CGPA >= 3.00 OR Diploma (completed), CGPA >= 3.00 OR Undergraduate (studying), CGPA >= 3.20. | Eligible when rules pass |
-| 36 | Accounting and Finance | Funds: Undergraduate. Field: Accounting & Finance. Pass any one qualification route: STPM (completed), CGPA >= 3.25 OR Foundation (completed), CGPA >= 3.25 OR Diploma (completed), CGPA >= 3.25 OR Undergraduate (studying), CGPA >= 3.25. | Eligible when rules pass |
-| 37 | Arts and Design Portfolio | Funds: Diploma. Field: Arts & Design. Pass any one qualification route: SPM (completed), SPM As >= 3, SPM credits >= 3. | Eligible ! when automatic rules pass |
-| 38 | Communication and Media | Funds: Undergraduate. Field: Communication & Media. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.00, year >= 1, year <= 4. | Eligible ! when automatic rules pass |
-| 39 | Future Educator Award | Funds: Undergraduate. Institution: Public University. Field: Education. Pass any one qualification route: Undergraduate (studying), CGPA >= 2.80. | Eligible ! when automatic rules pass |
-| 40 | Health and Care Merit | Funds: Undergraduate. Field: Health Sciences or Medicine or Pharmacy or Psychology. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.30. | Eligible when rules pass |
-| 41 | Hospitality Diploma Award | Funds: Diploma. Field: Hospitality & Tourism. Pass any one qualification route: SPM (completed), SPM As >= 2, SPM credits >= 3. | Eligible when rules pass |
-| 42 | Law and Social Sciences | Funds: Undergraduate. Field: Law or Social Sciences. Pass any one qualification route: STPM (completed), CGPA >= 3.00 OR Undergraduate (studying), CGPA >= 3.20, year >= 1, year <= 3. | Eligible ! when automatic rules pass |
-| 43 | Agriculture and Veterinary | Funds: Undergraduate. Income category: B40. Institution: Public University. Field: Agriculture & Veterinary Science. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.00, year >= 2, year <= 4. | Eligible when rules pass |
-| 44 | Mathematics and Statistics | Funds: Undergraduate. Field: Mathematics & Statistics. Pass any one qualification route: Matriculation (completed), CGPA >= 3.25 OR Foundation (completed), CGPA >= 3.25 OR Undergraduate (studying), CGPA >= 3.25. | Eligible when rules pass |
-| 45 | Built Environment and Discovery | Funds: Undergraduate. Field: Architecture & Built Environment or Natural Sciences or Other. Pass any one qualification route: Undergraduate (studying or completed), CGPA >= 2.75. | Eligible when rules pass |
-| 46 | Diploma Study Loan | Nationality: Malaysian. Funds: Diploma. Household income <= RM6000.00 per month. Institution: Polytechnic. Pass any one qualification route: Diploma (studying), CGPA >= 2.00. | Eligible ! when automatic rules pass |
-| 47 | STEM Convertible Study Loan | Funds: Undergraduate. Field: Computer Science or Engineering or STEM. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.25, year >= 1, year <= 3. | Eligible ! when automatic rules pass |
-| 48 | Low Income Living Allowance | Income category: B40. Household income <= RM2500.00 per month. Pass any one qualification route: Diploma (studying), CGPA >= 2.00 OR Undergraduate (studying), CGPA >= 2.00. | Eligible ! when automatic rules pass |
-| 49 | Private Campus Tuition Waiver | Funds: Undergraduate. Institution: Private University. Pass any one qualification route: Foundation (completed), CGPA >= 3.80 OR Undergraduate (studying), CGPA >= 3.80, year >= 1, year <= 2. | Eligible when rules pass |
-| 50 | Combined Requirements Challenge | Nationality: Malaysian. Funds: Undergraduate. Income category: B40. Household income <= RM3000.00 per month. Institution: Public University. Field: Computer Science or Engineering. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.70, year >= 2, year <= 3. | Eligible ! when automatic rules pass |
+- Provider: Meridian Education Foundation (Fictional)
+- Award: Tuition Fee Waiver. RM10,000 tuition fee waiver for entry into a computing or engineering degree. The award supports the first academic year only.
+- Programme: Undergraduate; Private University; Computer Science, Engineering.
+- Nationality: Malaysian. Income: no category restriction.
+- Deadline: rolling.
+- Pass one complete route: A-Level (completed), 1 at A or better, 3 at B or better [a_level] **OR** STPM (completed), CGPA >= 3.3 **OR** Diploma (completed), CGPA >= 3.25.
+- Provider checks: An unconditional admission offer and a provider interview are required. Named-subject prerequisites must be confirmed with the provider.
 
-## Additional Diploma and Degree scenarios
+## Demo 02: Bayu Diploma Pathway Award
 
-| # | Demo award | Automatic requirements | Successful result |
-|---|---|---|---|
-| 51 | Diploma Public STEM Entry | Nationality: Malaysian. Funds: Diploma. Income category: B40. Household income <= RM3000.00 per month. Institution: Polytechnic. Field: Engineering or Computer Science. Pass any one qualification route: SPM (completed), SPM As >= 4, SPM credits >= 5 OR STPM (completed), CGPA >= 2.50. | Eligible when rules pass |
-| 52 | Diploma Community Access and Retention | Nationality: Malaysian. Funds: Diploma. Income category: B40. Household income <= RM2500.00 per month. Institution: Community College. Field: Hospitality & Tourism or Business. Pass any one qualification route: SPM (completed), SPM As >= 0, SPM credits >= 3 OR Diploma (studying), CGPA >= 2.50, year >= 1, year <= 2. | Eligible ! when automatic rules pass |
-| 53 | Diploma Private Computing Merit | Funds: Diploma. Income category: M40. Household income <= RM6000.00 per month. Institution: Private University. Field: Computer Science. Pass any one qualification route: SPM (completed), SPM As >= 5, SPM credits >= 6 OR Foundation (completed), CGPA >= 3.00 OR Diploma (studying), CGPA >= 3.25, year >= 1, year <= 2. | Eligible when rules pass |
-| 54 | Diploma International Business | Nationality: Non-Malaysian. Funds: Diploma. Institution: Private University. Field: Business or Accounting & Finance. Pass any one qualification route: SPM (completed), SPM As >= 3, SPM credits >= 5 OR Diploma (studying), CGPA >= 3.25, year >= 1, year <= 2. | Eligible when rules pass |
-| 55 | Diploma Polytechnic Continuing Support | Nationality: Malaysian. Funds: Diploma. Household income <= RM6500.00 per month. Institution: Polytechnic. Field: Engineering or Architecture & Built Environment. Pass any one qualification route: Diploma (studying), CGPA >= 3.00, year >= 2, year <= 3. | Eligible when rules pass |
-| 56 | Diploma Arts Entry and Portfolio | Nationality: Malaysian. Funds: Diploma. Income category: M40. Household income <= RM5500.00 per month. Institution: Private University. Field: Arts & Design or Communication & Media. Pass any one qualification route: SPM (completed), SPM As >= 2, SPM credits >= 5 OR Diploma (studying), CGPA >= 3.00, year >= 1, year <= 2. | Eligible ! when automatic rules pass |
-| 57 | Diploma Health Pathways | Nationality: Malaysian. Funds: Diploma. Income category: B40. Household income <= RM3169.00 per month. Institution: Private University. Field: Health Sciences. Pass any one qualification route: SPM (completed), SPM As >= 5, SPM credits >= 6 OR Diploma (studying), CGPA >= 3.50, year >= 1, year <= 2. | Eligible ! when automatic rules pass |
-| 58 | Diploma Hospitality Final Year | Funds: Diploma. Income category: M40. Household income <= RM5000.00 per month. Institution: Polytechnic. Field: Hospitality & Tourism. Pass any one qualification route: Diploma (studying), CGPA >= 3.20, year >= 3, year <= 3. | Eligible when rules pass |
-| 59 | Diploma Business Merit No Income Ceiling | Nationality: Malaysian. Funds: Diploma. Income category: T20. Institution: Private University. Field: Business or Accounting & Finance. Pass any one qualification route: SPM (completed), SPM As >= 7, SPM credits >= 7 OR Diploma (studying), CGPA >= 3.75, year >= 1, year <= 3. | Eligible when rules pass |
-| 60 | Diploma Combined Requirements Challenge | Nationality: Malaysian. Funds: Diploma. Income category: B40. Household income <= RM2800.00 per month. Institution: Polytechnic. Field: Computer Science or Engineering. Pass any one qualification route: SPM (completed), SPM As >= 6, SPM credits >= 7 OR Diploma (studying), CGPA >= 3.60, year >= 2, year <= 3. | Eligible ! when automatic rules pass |
-| 61 | Degree Public STEM Bridge | Nationality: Malaysian. Funds: Undergraduate. Income category: B40. Household income <= RM3000.00 per month. Institution: Public University. Field: Computer Science or Engineering. Pass any one qualification route: Diploma (completed), CGPA >= 3.20 OR Foundation (completed), CGPA >= 3.60 OR Matriculation (completed), CGPA >= 3.50. | Eligible when rules pass |
-| 62 | Degree Private Business Progression | Nationality: Malaysian. Funds: Undergraduate. Income category: M40. Household income <= RM6000.00 per month. Institution: Private University. Field: Business or Accounting & Finance. Pass any one qualification route: STPM (completed), CGPA >= 3.00 OR Diploma (completed), CGPA >= 3.10 OR Undergraduate (studying), CGPA >= 3.40, year >= 1, year <= 2. | Eligible when rules pass |
-| 63 | Degree International Computing | Nationality: Non-Malaysian. Funds: Undergraduate. Institution: Private University. Field: Computer Science or Mathematics & Statistics. Pass any one qualification route: Foundation (completed), CGPA >= 3.50 OR Diploma (completed), CGPA >= 3.30 OR Undergraduate (studying), CGPA >= 3.60, year >= 1, year <= 3. | Eligible when rules pass |
-| 64 | Degree Public Health Excellence | Nationality: Malaysian. Funds: Undergraduate. Income category: B40. Household income <= RM3169.00 per month. Institution: Public University. Field: Medicine or Pharmacy or Health Sciences. Pass any one qualification route: STPM (completed), CGPA >= 3.80 OR Matriculation (completed), CGPA >= 3.75 OR Undergraduate (studying), CGPA >= 3.70, year >= 2, year <= 4. | Eligible ! when automatic rules pass |
-| 65 | Degree Final Year Engineering | Nationality: Malaysian. Funds: Undergraduate. Income category: M40. Household income <= RM5500.00 per month. Institution: Public University. Field: Engineering or Architecture & Built Environment. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.50, year >= 4, year <= 4. | Eligible ! when automatic rules pass |
-| 66 | Degree Arts Portfolio Bridge | Nationality: Malaysian. Funds: Undergraduate. Household income <= RM7000.00 per month. Institution: Private University. Field: Arts & Design or Communication & Media. Pass any one qualification route: Foundation (completed), CGPA >= 3.00 OR Diploma (completed), CGPA >= 2.90 OR Undergraduate (studying), CGPA >= 3.25, year >= 1, year <= 3. | Eligible ! when automatic rules pass |
-| 67 | Degree Education and Community | Nationality: Malaysian. Funds: Undergraduate. Income category: B40. Household income <= RM2500.00 per month. Institution: Public University. Field: Education or Social Sciences. Pass any one qualification route: STPM (completed), CGPA >= 2.75 OR Diploma (completed), CGPA >= 3.00 OR Undergraduate (studying), CGPA >= 3.10, year >= 2, year <= 4. | Eligible ! when automatic rules pass |
-| 68 | Degree Merit No Income Ceiling | Nationality: Malaysian. Funds: Undergraduate. Income category: T20. Institution: Public University. Field: Engineering or Science or Mathematics & Statistics. Pass any one qualification route: STPM (completed), CGPA >= 3.85 OR Foundation (completed), CGPA >= 3.90 OR Matriculation (completed), CGPA >= 3.85 OR Diploma (completed), CGPA >= 3.80 OR Undergraduate (studying), CGPA >= 3.90, year >= 1, year <= 3. | Eligible when rules pass |
-| 69 | Degree Independent Institution Retention | Funds: Undergraduate. Income category: M40. Household income <= RM6300.00 per month. Institution: Other. Field: Business or Computer Science. Pass any one qualification route: Undergraduate (studying), CGPA >= 3.00, year >= 2, year <= 3 OR Diploma (completed), CGPA >= 3.25. | Eligible ! when automatic rules pass |
-| 70 | Degree Combined Requirements Challenge | Nationality: Malaysian. Funds: Undergraduate. Income category: B40. Household income <= RM3000.00 per month. Institution: Public University. Field: Computer Science or Engineering. Pass any one qualification route: Diploma (completed), CGPA >= 3.50 OR Foundation (completed), CGPA >= 3.75 OR Undergraduate (studying), CGPA >= 3.70, year >= 2, year <= 3. | Eligible ! when automatic rules pass |
+- Provider: Bayu Learning Trust (Fictional)
+- Award: Partial Scholarship. Covers 30% of diploma tuition fees for the normal programme duration, subject to provider renewal terms.
+- Programme: Diploma; Private University; Business, Accounting & Finance.
+- Nationality: Malaysian. Income: no category restriction.
+- Deadline: rolling.
+- Pass one complete route: SPM (completed), SPM As >= 5, SPM credits >= 5 **OR** IGCSE (completed), 3 at A or better, 5 at C or better [igcse_letters] **OR** UEC (completed), best 5 total <= 11, each B6 or better.
+- Provider checks: Mathematics must be at least C or a provider-accepted equivalent. Confirm the named-subject equivalence and renewal terms with the provider.
 
-## Useful walkthroughs
+## Demo 03: Rimba Continuing Degree Support
 
-- Demo 01 passes for every complete profile and Demo 02 passes with !; neither bypasses incomplete-profile or official-result validation.
-- Demo 15: SPM 5 As and 7 credits fails; changing to 8 credits passes the academic route. Use Foundation funding and Foundation College institution.
-- Demo 22: an Undergraduate CGPA 3.00 student in Year 2 or 3 passes; Year 1 or 4 fails. Fund Undergraduate.
-- Demo 26: completed Diploma CGPA 3.00 OR studying Undergraduate CGPA 3.25, Years 1–3. Only one whole route must pass.
-- Demo 28: completed Foundation CGPA 3.49 fails, 3.50 passes; completed Diploma needs only 3.00. Malaysian, Undergraduate funding.
-- Demo 35: Computer Science and Engineering both pass the field condition; Business fails.
-- Demo 50: Malaysian, B40, income 3000, Public University, Engineering or Computer Science, studying Undergraduate Year 2/3 and CGPA 3.70 passes with !. Changing CGPA to 3.69, income to 3001 or Year to 4 gives a precise failure.
-- Demo 51: Malaysian, income 3000, Polytechnic, Engineering or Computer Science, Diploma funding, completed SPM 4 As/5 credits passes. Completed STPM CGPA 2.50 is an alternative. SPM 3 As, 4 credits, income 3000.01 or Degree funding fails the corresponding check.
-- Demo 53: M40 income 6000, Private University, Computer Science, Diploma funding. Completed SPM 5 As/6 credits OR completed Foundation CGPA 3.00 OR current Diploma Year 1/2 CGPA 3.25 passes. A current Diploma CGPA 3.24 cannot use the lower Foundation threshold.
-- Demo 58: M40 income 5000, Polytechnic, Hospitality & Tourism, current Diploma Year 3 CGPA 3.20, Diploma funding passes. Year 2 fails even with the same grades.
-- Demo 60: Malaysian, B40 income 2800, Polytechnic, Engineering or Computer Science, Diploma funding. Completed SPM 6 As/7 credits OR current Diploma Year 2/3 CGPA 3.60 passes with ! for a mock agreement briefing.
-- Demo 61: Malaysian, B40 income 3000, Public University, Engineering or Computer Science, Degree/Undergraduate funding. Completed Diploma CGPA 3.20 OR Foundation 3.60 OR Matriculation 3.50 passes. An unfinished Diploma or Diploma funding fails; Foundation CGPA 3.20 cannot borrow the Diploma threshold.
-- Demo 65: Malaysian, M40 income 5500, Public University, Engineering or Architecture & Built Environment, current Undergraduate Year 4 CGPA 3.50, Degree funding passes with ! for a mock project review. Years 3 and 5 fail.
-- Demo 66: Malaysian, income 7000, Private University, Arts & Design or Communication & Media, Degree funding. Completed Diploma CGPA 2.90 passes, while completed Foundation needs 3.00 and current Undergraduate Year 1–3 needs 3.25. All passing routes show ! for mock portfolio review.
-- Demo 68: Malaysian, T20 income 20000, Public University, Engineering, Degree funding, completed Diploma CGPA 3.80 passes. This award has no maximum-income ceiling, but an M40 household still fails its category restriction.
-- Demo 70: Malaysian, B40 income 3000, Public University, Engineering or Computer Science, Degree funding. Completed Diploma CGPA 3.50 OR completed Foundation 3.75 OR current Undergraduate Year 2/3 CGPA 3.70 passes with !. Current Undergraduate CGPA 3.69 cannot use the completed Diploma threshold.
+- Provider: Rimba Community Foundation (Fictional)
+- Award: Living Allowance. RM6,000 annual living allowance for continuing degree students in Years 2 or 3.
+- Programme: Undergraduate; Public University; Engineering, Computer Science.
+- Nationality: Malaysian. Income: no category restriction; maximum RM4000 monthly.
+- Deadline: fixed (synthetic 2099-06-30).
+- Pass one complete route: Undergraduate (studying), CGPA >= 3.4, Years 2-3.
+- Provider checks: Attend an interview and declare other financial assistance. The provider determines whether concurrent awards are permitted.
 
-Fresh installation: php artisan migrate --seed. Existing installation: php artisan scholarships:replace-catalog (creates a full SQLite backup, replaces scholarship rows and related saved links/logs, preserves student accounts/profiles/results). Normal php artisan db:seed --class=ScholarshipCatalogSeeder upserts by stable demo key without duplicates or lost bookmarks; it deliberately does not remove unrelated older rows. Use the same checked-in JSON on every device. Browser refresh alone does not seed another database.
+## Demo 04: Cendana Academic Excellence Award
 
-To upgrade another device that already has the original 50 demos, use `php artisan db:seed --class=ScholarshipCatalogSeeder` once. It adds Demo 51–70, restores the original 50 from the snapshot and keeps bookmarks/history. No replacement is needed for this upgrade.
+- Provider: Cendana Higher Learning Fund (Fictional)
+- Award: Tuition Fee Waiver. A 50% first-year tuition fee waiver for high-achieving Foundation or Diploma graduates progressing to a degree.
+- Programme: Undergraduate; Private University; Business, Accounting & Finance, Computer Science, Engineering.
+- Nationality: Malaysian. Income: no category restriction.
+- Deadline: automatic.
+- Pass one complete route: Foundation (completed), CGPA >= 3.75 **OR** Diploma (completed), CGPA >= 3.6.
+- Provider checks: None configured; automatic matches show plain Eligible.
 
-Closed/inactive scenarios can be demonstrated by temporarily editing a demo award in Admin: an expired or inactive record is excluded, so the total becomes 69. Re-seed to restore the seventy open demo records.
+## Demo 05: Suria Foundation Excellence Scholarship
+
+- Provider: Suria Pathways Foundation (Fictional)
+- Award: Partial Scholarship. Covers 50% of Foundation tuition fees for applicants with strong final secondary-school results.
+- Programme: Foundation; Foundation College; STEM, Science, Engineering, Computer Science.
+- Nationality: Malaysian. Income: no category restriction.
+- Deadline: rolling.
+- Pass one complete route: SPM (completed), SPM As >= 6, SPM credits >= 6 **OR** IGCSE (completed), 5 at A or better, 6 at C or better [igcse_letters] **OR** IGCSE (completed), 5 at 7 or better, 6 at 4 or better [igcse_9_1] **OR** O-Level (completed), 5 at A or better, 6 at C or better [o_level].
+- Provider checks: None configured; automatic matches show plain Eligible.
+
+## Demo 06: Lestari Engineering Progression Scholarship
+
+- Provider: Lestari Skills Trust (Fictional)
+- Award: Full Scholarship. Full tuition support for a public-university engineering or computing degree, prioritising lower-income households.
+- Programme: Undergraduate; Public University; Engineering, Computer Science.
+- Nationality: Malaysian. Income: B40; maximum RM3000 monthly.
+- Deadline: admission (synthetic 2099-06-30).
+- Pass one complete route: Diploma (completed), CGPA >= 3.2 **OR** Foundation (completed), CGPA >= 3.6 **OR** Matriculation (completed), CGPA >= 3.5.
+- Provider checks: Confirm programme admission prerequisites, including Mathematics, and participation in the provider community-service programme.
+
+## Demo 07: Pelangi International Business Merit Award
+
+- Provider: Pelangi Global Education Trust (Fictional)
+- Award: Partial Scholarship. A 25% tuition award for international entrants to Business or Accounting and Finance degrees.
+- Programme: Undergraduate; Private University; Business, Accounting & Finance.
+- Nationality: Non-Malaysian. Income: no category restriction.
+- Deadline: rolling.
+- Pass one complete route: A-Level (completed), 2 at A or better, 3 at B or better [a_level] **OR** UEC (completed), 3 at A2 or better, 5 at B6 or better [uec] **OR** Diploma (completed), CGPA >= 3.3.
+- Provider checks: None configured; automatic matches show plain Eligible.
+
+## Demo 08: Teras Polytechnic Progress Award
+
+- Provider: Teras Technical Learning Fund (Fictional)
+- Award: Living Allowance. RM400 monthly study allowance for ten teaching months, supporting continuing technical diploma students.
+- Programme: Diploma; Polytechnic; Engineering, Computer Science, Architecture & Built Environment.
+- Nationality: Malaysian. Income: no category restriction; maximum RM6000 monthly.
+- Deadline: rolling.
+- Pass one complete route: Diploma (studying), CGPA >= 3, Years 2-3.
+- Provider checks: None configured; automatic matches show plain Eligible.
+
+## Demo 09: Anggerik Community Pathways Grant
+
+- Provider: Anggerik Community Education Trust (Fictional)
+- Award: Partial Scholarship. RM3,000 annual tuition grant for community-college diploma entry or early-year continuation.
+- Programme: Diploma; Community College; Business, Hospitality & Tourism, Arts & Design.
+- Nationality: Malaysian. Income: B40; maximum RM2500 monthly.
+- Deadline: rolling.
+- Pass one complete route: SPM (completed), SPM credits >= 3 **OR** Diploma (studying), CGPA >= 2.5, Years 1-2.
+- Provider checks: The provider checks financial documents and participation in a local community activity.
+
+## Demo 10: Saujana STPM Science Scholarship
+
+- Provider: Saujana Science Foundation (Fictional)
+- Award: Full Scholarship. Full first-year tuition support for public-university science and mathematics degree entrants.
+- Programme: Undergraduate; Public University; Science, Natural Sciences, Mathematics & Statistics, STEM.
+- Nationality: Malaysian. Income: no category restriction.
+- Deadline: fixed (synthetic 2099-06-30).
+- Pass one complete route: STPM (completed), 1 at A or better, 3 at B or better [stpm], best 3 average >= 3, each C or better **OR** Matriculation (completed), CGPA >= 3.5.
+- Provider checks: None configured; automatic matches show plain Eligible.
+
+## Demo 11: Kencana UEC Excellence Scholarship
+
+- Provider: Kencana Academic Foundation (Fictional)
+- Award: Tuition Fee Waiver. RM15,000 first-year tuition waiver for academically strong UEC or A-Level entrants.
+- Programme: Undergraduate; Private University; Business, Computer Science, Engineering.
+- Nationality: Malaysian. Income: no category restriction.
+- Deadline: rolling.
+- Pass one complete route: UEC (completed), best 5 total <= 11, each B6 or better **OR** A-Level (completed), 2 at A or better, 3 at B or better [a_level].
+- Provider checks: The provider checks Mathematics and English subject requirements against the official result slip.
+
+## Demo 12: Bintang Education and Community Scholarship
+
+- Provider: Bintang Learning Foundation (Fictional)
+- Award: Partial Scholarship. Covers 40% of tuition fees for public-university education or social-science degree entrants.
+- Programme: Undergraduate; Public University; Education, Social Sciences.
+- Nationality: Malaysian. Income: no category restriction.
+- Deadline: rolling.
+- Pass one complete route: STAM (completed), pangkat >= Jayyid Jiddan **OR** STPM (completed), CGPA >= 3.2 **OR** Diploma (completed), CGPA >= 3.
+- Provider checks: A provider interview assesses communication skills and interest in community education.
+
+## Demo 13: Jelita Arts Portfolio Award
+
+- Provider: Jelita Creative Education Trust (Fictional)
+- Award: Partial Scholarship. RM5,000 tuition support for Arts and Design or Communication and Media entrants and continuing students.
+- Programme: Undergraduate; Private University; Arts & Design, Communication & Media.
+- Nationality: Malaysian. Income: no category restriction; maximum RM7000 monthly.
+- Deadline: rolling.
+- Pass one complete route: Foundation (completed), CGPA >= 3 **OR** Diploma (completed), CGPA >= 2.9 **OR** Undergraduate (studying), CGPA >= 3.25, Years 1-3.
+- Provider checks: Submit a portfolio for provider assessment. Admission and continuing-award conditions are checked by the provider.
+
+## Demo 14: Nusa Health Professionals Scholarship
+
+- Provider: Nusa Health Education Fund (Fictional)
+- Award: Full Scholarship. Full annual tuition support for selected health-related degrees, with provider renewal assessment.
+- Programme: Undergraduate; Public University; Medicine, Pharmacy, Health Sciences, Psychology.
+- Nationality: Malaysian. Income: no category restriction; maximum RM5000 monthly.
+- Deadline: fixed (synthetic 2099-06-30).
+- Pass one complete route: Foundation (completed), CGPA >= 3.8 **OR** Matriculation (completed), CGPA >= 3.75 **OR** STPM (completed), CGPA >= 3.8 **OR** Undergraduate (studying), CGPA >= 3.7, Years 2-4.
+- Provider checks: The provider checks clinical-placement suitability, named science subjects, interview performance and renewal conditions.
+
+## Demo 15: Seri Business Completion Grant
+
+- Provider: Seri Graduate Support Trust (Fictional)
+- Award: Living Allowance. RM500 monthly allowance for ten months of the third year of an eligible business-related degree.
+- Programme: Undergraduate; Private University; Business, Accounting & Finance.
+- Nationality: Malaysian. Income: no category restriction; maximum RM6000 monthly.
+- Deadline: rolling.
+- Pass one complete route: Undergraduate (studying), CGPA >= 3.4, Years 3-3.
+- Provider checks: None configured; automatic matches show plain Eligible.
+
+## Demo 16: Mutiara Hospitality Transition Award
+
+- Provider: Mutiara Hospitality Education Fund (Fictional)
+- Award: Tuition Fee Waiver. A 30% tuition fee waiver for entry into a hospitality diploma.
+- Programme: Diploma; Private University; Hospitality & Tourism.
+- Nationality: Malaysian. Income: no category restriction.
+- Deadline: rolling.
+- Pass one complete route: SPM (completed), SPM As >= 2, SPM credits >= 5 **OR** IGCSE (completed), 2 at A or better, 5 at C or better [igcse_letters] **OR** O-Level (completed), 2 at A or better, 5 at C or better [o_level] **OR** UEC (completed), best 5 average <= 4, each B6 or better.
+- Provider checks: English must be at least C or an accepted equivalent. The provider checks subject equivalence.
+
+## Demo 17: Horizon Discovery and Research Award
+
+- Provider: Horizon Independent Learning Trust (Fictional)
+- Award: Partial Scholarship. RM8,000 tuition and project grant for scientific discovery programmes at an independent institution.
+- Programme: Undergraduate; Other; Natural Sciences, Mathematics & Statistics, Science, Other.
+- Nationality: Malaysian. Income: no category restriction.
+- Deadline: rolling.
+- Pass one complete route: Undergraduate (studying), CGPA >= 3.1, Years 2-4 **OR** Diploma (completed), CGPA >= 3.2.
+- Provider checks: Submit a short project proposal and obtain provider approval for the proposed study programme.
+
+## Demo 18: Damai Flexible Diploma Study Loan
+
+- Provider: Damai Education Finance Trust (Fictional)
+- Award: Loan. An education loan of up to RM12,000 per academic year. This demonstration loan is repayable, not a grant.
+- Programme: Diploma; Private University; Business, Engineering, Computer Science.
+- Nationality: Malaysian. Income: no category restriction; maximum RM6500 monthly.
+- Deadline: rolling.
+- Pass one complete route: Diploma (studying), CGPA >= 2, Years 1-3 **OR** SPM (completed), SPM credits >= 3.
+- Provider checks: A guarantor and signed repayment agreement are required. The provider checks financing terms and other sponsorship.
+
+## Demo 19: Puncak STEM Convertible Study Loan
+
+- Provider: Puncak Skills Development Fund (Fictional)
+- Award: Convertible Loan. Up to RM20,000 annual tuition financing, with possible conversion under provider-approved completion and service terms.
+- Programme: Undergraduate; Public University; Engineering, Computer Science, STEM.
+- Nationality: Malaysian. Income: no category restriction; maximum RM8000 monthly.
+- Deadline: rolling.
+- Pass one complete route: Undergraduate (studying), CGPA >= 3.5, Years 1-3 **OR** Diploma (completed), CGPA >= 3.5 **OR** STPM (completed), CGPA >= 3.5.
+- Provider checks: Conversion is not automatic. The provider checks the final classification, service bond, employer placement and signed agreement.
+
+## Demo 20: Wawasan Independent Merit Scholarship
+
+- Provider: Wawasan Academic Trust (Fictional)
+- Award: Full Scholarship. Full first-year tuition scholarship for academically excellent entrants in selected professional and social-science programmes.
+- Programme: Undergraduate; Private University; Law, Social Sciences, Education, Architecture & Built Environment.
+- Nationality: Malaysian. Income: no category restriction.
+- Deadline: rolling.
+- Pass one complete route: Foundation (completed), CGPA >= 3.75 **OR** Diploma (completed), CGPA >= 3.6 **OR** Matriculation (completed), CGPA >= 3.75 **OR** UEC (completed), 3 at A2 or better, 5 at B3 or better [uec].
+- Provider checks: None configured; automatic matches show plain Eligible.
+
+## Demonstration walkthroughs
+
+- Meridian: A-Level ABB or AAB passes its academic pattern; BBB fails because there is no A. The stored conditions are at least 1 A and 3 B-or-better subjects. Interview/admission checks remain visible.
+- Bayu/Kencana UEC: A1 x2, A2 x1, B3 x1, B4 x1 gives best-five total 11 and meets the maximum 11. A1 x1, A2 x1, B3 x3 gives 12 and fails. Lower UEC points are better.
+- Cendana: completed Foundation needs 3.75, completed Diploma needs 3.60. A Foundation student cannot borrow the lower Diploma threshold. Eligible results have no special-condition warning.
+- Rimba: continuing Undergraduate Year 2/3, CGPA 3.40 and income RM4,000 meets the automatic rules. CGPA 3.39, Year 1/4 or income RM4,000.01 fails the corresponding condition.
+- Suria: IGCSE letter grades and 9-1 results use separate boxes/scales; they are not silently converted.
+- Bintang: STAM Jayyid Jiddan meets its rank threshold; Jayyid fails.
+- Mutiara: its best-five UEC average is a separate configured calculation from Bayu's maximum total.
+
+Use the backed-up targeted refresh described in [the catalogue guide](SCHOLARSHIP_CATALOG.md). Existing student and manual-scholarship data must not be replaced with demo account seeders during transfer.

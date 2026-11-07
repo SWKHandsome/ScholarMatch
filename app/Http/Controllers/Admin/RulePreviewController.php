@@ -9,6 +9,7 @@ use App\Models\Scholarship;
 use App\Models\ScholarshipQualificationRoute;
 use App\Models\ScholarshipRule;
 use App\Models\StudentProfile;
+use App\Models\StudyField;
 use App\Services\AcademicResultInput;
 use App\Services\ScholarshipEligibilityEvaluator;
 use App\Services\ScholarshipRuleEditor;
@@ -22,7 +23,7 @@ class RulePreviewController extends Controller
 {
     public function __invoke(Request $request, ScholarshipRuleEditor $editor, AcademicResultInput $academicInput, ScholarshipEligibilityEvaluator $evaluator)
     {
-        $draftRules = $editor->validate($request);
+        $draftRules = $editor->validate($request, StudyField::names());
         $data = $request->validate([
             'sample' => ['required', 'array:education_level,study_status,year_of_study,funding_study_level,institution_type,field_of_study,grading_scale,grade_counts,stam_rank,cgpa,stpm_pa_grade,nationality,household_income'],
             'sample.nationality' => ['required', Rule::in(config('scholarship.nationalities'))],
@@ -34,7 +35,7 @@ class RulePreviewController extends Controller
         ]);
         // Reuse the official form's data-shape validation on unsaved synthetic models.
         $sample = $data['sample'];
-        $validatedAcademic = $academicInput->validate(new Request(array_merge($sample, ['result_status' => 'official', 'stpm_cgpa_confirmed' => '1'])));
+        $validatedAcademic = $academicInput->validate(new Request(array_merge($sample, ['result_status' => 'official', 'stpm_cgpa_confirmed' => '1'])), is_string($sample['field_of_study'] ?? null) ? $sample['field_of_study'] : null);
         $academic = new AcademicResult($validatedAcademic);
         $category = IncomeCategory::classifyIncome((float) $sample['household_income']);
         if ($category === null) {

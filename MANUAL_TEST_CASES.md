@@ -1,9 +1,9 @@
 # ScholarMatch — Manual Test Cases
 
 **Project:** FYP ScholarMatch — Scholarship Recommendation Platform for Malaysian Students
-**Stack:** Laravel 13 + PHP 8.3 + Pest + Tailwind CSS + Vite + SQLite (dev)
-**Last Updated:** 2026-11-03 (Asia/Singapore)
-**Test Suite Status:** After guided setup/state changes, 480 PHP tests passed (2,303 assertions). The unchanged JavaScript suites passed 18 academic and 4 admin-preview tests under IMP-025. See IMP-027 in improve.md for current workflow/build verification.
+**Stack:** Laravel 13 + PHP 8.3 + Pest + Tailwind CSS + Vite + MySQL (dev; SQLite isolated tests)
+**Last Updated:** 2026-11-07 (Asia/Singapore)
+**Test Suite Status:** MySQL: 474 passed / 2,249 assertions. SQLite: 467 passed / 2,223 assertions, with seven MySQL-only cases skipped. Production build and changed-PHP formatting passed. The unchanged JavaScript suites previously passed 18 academic, 4 admin-preview and 5 income-preview cases. See IMP-033 in improve.md.
 
 ---
 
@@ -356,4 +356,54 @@ php artisan db:seed --class=ScholarshipRuleSeeder
 
 ## Automated Test Coverage
 
-Run `php artisan test` and `npm run test:academic`. Tests cover the decision engine, official-result form validation, all supported grade formats, latest qualification versus funding level, special warnings, exact/near-miss boundaries, caches, migration preservation/protected rollback, and existing authentication/admin/student workflows. Automated results and synthetic browser checks are recorded in improve.md. Manual cases above describe expected behaviour; they are not a claim that every manual case has been executed. MySQL integration was not run.
+Run `php artisan test` and `npm run test:academic`. Tests cover the decision engine, official-result form validation, all supported grade formats, latest qualification versus funding level, special warnings, exact/near-miss boundaries, caches, migration preservation/protected rollback, and existing authentication/admin/student workflows. Automated results and synthetic browser checks are recorded in improve.md. Manual cases above describe expected behaviour; they are not a claim that every manual case has been executed. MySQL integration is now included; see the MySQL migration verification entry in improve.md.
+
+## MySQL transfer and richer catalogue
+
+| ID | Scenario | Expected result |
+|---|---|---|
+| DB-01 | Start Laragon MySQL, run app with MySQL `.env` | App uses the intended MySQL database; existing accounts can sign in with their unchanged passwords. |
+| DB-02 | Run all migrations on an empty separate MySQL database | Tables and cascading relationships are created successfully, including saved scholarships. |
+| DB-03 | Import a migrated SQLite snapshot into empty MySQL | Matching history/integrity checks pass; IDs, records, hashes and relationships are verified before commit; SQLite stays unchanged. |
+| DB-04 | Import dry run, populated destination or mismatched schema | Dry run writes nothing; populated/mismatched targets are refused. |
+| DB-05 | A late source value violates MySQL schema | Entire data import rolls back; previously imported parent rows are absent. |
+| CAT-01 | Refresh the retired 70 demos | Backup is created first; only the 70 exact retired keys and associated records are removed; 20 richer demos are seeded. Manual awards and student records stay intact. |
+| CAT-02 | Seed/refresh again | No duplicate current demo awards; manual scholarships/bookmarks/logs remain; old 70 do not return. |
+| CAT-03 | Open Meridian with A-Level ABB, AAB, BBB | ABB/AAB meet academic conditions; BBB fails the A threshold; provider checks remain visible. |
+| CAT-04 | UEC best-five total 11 versus 12 | Bayu/Kencana total 11 passes; 12 fails. A best-five average is a separate Mutiara condition. |
+| CAT-05 | Test all 20 example applicants and change funded level | Each documented applicant meets its award; incorrect funded level fails even when academic results pass. |
+| CAT-06 | Open fictional scholarship information | Fictional providers/benefits and reserved presentation links appear; no official-source verification is claimed. |
+
+MySQL tests use only `scholarmatch_test`, never the application database. See docs/MYSQL_SETUP.md for commands and docs/DEMO_SCHOLARSHIPS.md for all 20 examples. Azure provisioning remains a later task.
+
+## Income-category synchronization and live feedback
+
+| ID | Scenario | Expected result |
+|---|---|---|
+| IC-SYNC-01 | Change a category range in Admin, then reload Student Profile | Helper and reference cards use the saved database range; affected saved student categories are reclassified without student resubmission. |
+| IC-SYNC-02 | Add, rename or delete a category | Current names/ranges appear after refresh; stored student categories are recomputed, including null when no range matches. |
+| IC-SYNC-03 | Enter zero, a boundary, a different category or clear the input | Zero is classified normally; inclusive boundaries match server evaluation; helper changes while typing and clearing removes the previous category. |
+| IC-SYNC-04 | Enter RM3169.50 with the unchanged seeded ranges | Explicit no-match message; the system does not invent a category or fill the configured gap. |
+| IC-SYNC-05 | Submit income with three decimal places, or an admin maximum below its minimum | Validation rejects the value/settings; no silent rounding or partial range/profile writes. |
+| IC-SYNC-06 | Reload after an unrelated profile validation error | Entered income is retained and its matching helper is shown; stored income/category remains unchanged until a successful save. |
+| IC-SYNC-07 | Use custom names or no configured categories | Custom names render as escaped text with current ranges; missing configuration gives an explicit message. |
+| IC-SYNC-08 | Temporarily overlapping configured ranges | Matching, saved classification and helper consistently use lowest minimum then ID; do not silently alter administrator ranges. |
+
+The browser demonstration uses synthetic accounts and illustrative ranges in an isolated MySQL database. It does not change the application's actual thresholds. Use npm run test:income for the five live-preview tests.
+
+## Matching Settings — Fields of Study
+
+Use an isolated database for rename/deactivation checks.
+
+| ID | Action | Expected result |
+| --- | --- | --- |
+| MF-01 | Open Matching Settings from the admin navigation, then the old income-category URL | Income Categories appears above Fields of Study; existing income controls still work. |
+| MF-02 | Add a new field, then open student Academic Result and admin scholarship/rule editors | The same new active field is available across forms. |
+| MF-03 | Rename a field used in an academic record and single/multiple-field scholarship restrictions | Linked current records update together; matching still uses the renamed label. Historical log snapshots stay unchanged. |
+| MF-04 | Deactivate a field, then use a new student/scholarship form | The field is unavailable for new assignments; it remains inspectable in filters/sample preview. |
+| MF-05 | Edit a student or scholarship already using an inactive field | Existing selection remains visible and can be retained; the student's academic readiness is preserved. |
+| MF-06 | Submit duplicate/case-only duplicate or blank field names | Validation errors appear in the reopened editor with entered values retained; no partial writes. |
+| MF-07 | Rerun the study-field seeder after rename/deactivation in a test database | Renames/status survive; bundled demo field restrictions resolve stable original aliases. |
+| MF-08 | Import an updated SQLite snapshot into migrated empty MySQL, then try a target with custom field settings | Untouched destination defaults may be replaced transactionally; edited/custom target settings are refused. IDs, labels and active status are preserved. |
+
+Browser verification covered MF-01–MF-06 using synthetic users on desktop, including a renamed existing student field and an inactive field hidden from new selections. Automated tests cover seed/import behaviour and permissions. Screenshot: storage/app/private/matching-settings-preview.png. No mobile viewport check was performed for this change.

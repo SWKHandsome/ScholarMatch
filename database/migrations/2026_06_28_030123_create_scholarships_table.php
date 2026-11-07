@@ -19,10 +19,15 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
+
+        Schema::table('saved_scholarships', function (Blueprint $table) {
+            $table->foreign('scholarship_id')->references('id')->on('scholarships')->cascadeOnDelete();
+        });
     }
 
     public function down(): void
     {
+        Schema::table('saved_scholarships', fn (Blueprint $table) => $table->dropForeign(['scholarship_id']));
         Schema::dropIfExists('scholarships');
     }
 };

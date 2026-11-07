@@ -23,11 +23,11 @@ test('each supported grade format saves its official counts and reloads the sele
         ->assertSessionHasNoErrors()->assertRedirect(route('student.profile.edit'));
     $academic = $user->fresh()->academicResult;
     expect($academic->education_level)->toBe($level)->and($academic->grading_scale)->toBe($scale)
-        ->and($academic->grade_counts)->toBe($counts)->and($academic->cgpa)->toBeNull()
+        ->and(collect($academic->grade_counts)->sortKeys()->all())->toBe(collect($counts)->sortKeys()->all())->and($academic->cgpa)->toBeNull()
         ->and($academic->year_of_study)->toBeNull()->and($academic->isReadyForRecommendations())->toBeTrue();
     $this->get(route('student.academic-result.edit'))->assertOk()->assertSee('Grade summary')
         ->assertSee('Final Results (Official)')->assertDontSee('name="spm_as"', false)
-        ->assertViewHas('academicResult', fn ($result) => $result->grade_counts === $counts);
+        ->assertViewHas('academicResult', fn ($result) => collect($result->grade_counts)->sortKeys()->all() === collect($counts)->sortKeys()->all());
 })->with([
     ['SPM', 'spm', ['A+' => 1, 'A-' => 2, 'G' => 3]],
     ['IGCSE', 'igcse_letters', ['A*' => 2, 'C' => 3, 'G' => 1, 'U' => 1]],

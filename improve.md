@@ -719,3 +719,180 @@ Updated PRD.md, ARCHITECTURE.md, README.md, DESIGN.md, MANUAL_TEST_CASES.md SET-
 **Verification:** Full PHP suite passed **480 tests / 2,303 assertions**, including 17 new setup/state cases. Existing redirect assertions were updated where incomplete students now continue setup. Production Vite build and changed-PHP formatting/whitespace checks passed. Actual browser checks with a synthetic student verified first login opens Profile, all three short state choices appear, saving Kuala Lumpur/zero dependents opens Academic Result, a subsequent login resumes academics, official academic save reaches Dashboard, and the completed student's next login returns to Dashboard. Automated tests verify all three legacy territory aliases remain selected without GET writes and normalise on save. Preview data used a separate SQLite database; no existing application records were changed or reseeded.
 
 **Screenshot:** storage/app/private/student-profile-setup-preview.png. No commit or push was made.
+
+## IMP-028 — Install Laragon for the planned MySQL migration
+
+**Date:** 2026-11-07
+**Status:** Laragon installed; the subsequent MySQL startup, database transfer and catalogue replacement were completed in IMP-029.
+
+- Installed Laragon Full 8.8.0 at `D:\laragon`, using the installer linked from the official Laragon download page. It includes MySQL Community Server 8.4.3 and PHP 8.3.36. The project remains at `D:\Github\ScholarMatch`.
+- Verified the installer's valid DEVYRA LABS LLC Authenticode signature and SHA-256 against the official GitHub release asset digest. The unattended installation exited successfully without requiring a restart. Windows startup and automatic virtual hosts were left disabled.
+- Verified the installed MySQL and PHP binaries with their version commands. The Windows computer-control request to open the Laragon controls timed out; a MySQL connection has not yet been verified. Open Laragon and start its services before continuing the migration.
+- Current application configuration and SQLite records remain unchanged. The approved next scope is to back up and migrate existing data, preserve manually entered scholarships and student records, then replace only the 70 identified demos with 20 richer fictional examples. Update the seeder so the old catalogue does not return. The previous replace-catalog command deletes every scholarship and must not be used for this targeted cleanup.
+
+**FYP documentation:** Record Laragon/MySQL under the planned development environment. Keep SQLite as the current application database until transfer and MySQL verification are complete; do not yet claim that the application has migrated or that the new catalogue exists. After migration, update deployment/setup instructions, database verification and catalogue examples. No current eligibility algorithm, interface or schema change.
+
+**Verification:** Installer checksum/signature, successful exit code, installed executable paths, MySQL 8.4.3 and PHP 8.3.36 version output. Installer log: `storage/logs/laragon-install.log`. Application tests were not rerun for this machine-only installation. No commit or push was made.
+
+## IMP-029 — Move the application to MySQL and replace only the retired demos
+
+**Date:** 2026-11-07
+**Status:** Implemented, applied locally and verified. Azure deployment is a later step.
+
+**MySQL application database**
+
+- Verified Laragon MySQL 8.4.3 is running and PHP 8.3.36 provides both PDO MySQL and SQLite. Created the separate `scholarmatch` application database and `scholarmatch_test` test database. Updated the local `.env` to MySQL while retaining APP_KEY; configuration/view caches were cleared. Enabled the already-installed PDO MySQL extension in the earlier local PHP toolchain so both PHP installations can connect. The project remains at `D:\Github\ScholarMatch`.
+- Changed checked-in defaults in `.env.example`, `config/database.php` and queue database fallbacks to MySQL. Removed automatic SQLite file creation from Composer's new-project hook. MySQL SSL attribute configuration now supports PHP 8.3 as well as newer PHP versions. SQLite remains supported for isolated tests and read-only legacy transfer.
+- Fixed a clean-install migration ordering issue: `saved_scholarships` previously referenced `scholarships` before the latter existed. The same migration names are retained; the scholarship foreign key is added once its parent table exists and removed appropriately during rollback. Logical relationships and the current eligibility algorithm/version are unchanged.
+- Added `database:import-sqlite` / `SqliteDatabaseTransfer`: read-only source, source integrity/foreign-key checks, matching completed migrations, refusal of nonempty destination tables, dry run, parent-first inserts, transaction rollback and content/count verification. IDs, password hashes and application relationships are retained. JSON object key order, numeric-column trailing zeros and midnight DATE formatting are normalised only for comparison. Migration history stays native to the new database and recommendation caches are rebuilt.
+
+**Richer fictional catalogue and targeted deletion**
+
+- Replaced the seed JSON with 20 awards, version `scholarmatch-rich-demo-20-v1`, using distinct `demo-rich-01`–`demo-rich-20` keys. The data includes 52 qualification routes covering all 11 supported qualifications and all six award types. Examples include Meridian Computing Entry, Bayu Diploma Pathway, Rimba Continuing Degree Support and Cendana Academic Excellence.
+- Added realistic benefit descriptions and combined academic/programme/household restrictions: grade counts, ABB patterns, IGCSE letter/9–1 alternatives, CGPA, STAM rank, UEC best-subject totals/averages, STPM average, current year and alternative qualification routes. Subject names, admission offers, interviews, portfolios, renewal and loan/bond terms remain explicit provider checks. Names/providers/amounts are fictional, source fields are empty, links are reserved placeholders, and 2099 deadlines are clearly synthetic. This expands demonstration coverage, not the matching algorithm.
+- Changed `scholarships:replace-catalog` to back up SQLite or MySQL and delete only the exact retired `demo-01`–`demo-70` keys, with their associated rules, bookmarks and logs. It preserves manual awards and their related records, then seeds the 20 current demos. Added `--dry-run`. Ordinary seeding uses the new file and does not restore the old 70. This supersedes historical instructions describing deletion of every scholarship.
+- Added `DatabaseSnapshot`: file-backed SQLite snapshots or verified MySQL JSON data backups. The JSON backup contains all table data and requires the matching schema to restore; a separate full MySQL SQL dump was also created for this local operation.
+
+**Applied data and preservation evidence**
+
+- Imported and verified the original 73 scholarships, 73 rules, 126 routes, 6 users, 3 profiles, 3 academic records, 3 income categories, 1 saved item, 73 logs and existing session/queue tables before the catalogue refresh.
+- Removed exactly 70 retired demos and inserted the 20 richer demos. Final MySQL totals: **23 scholarships / 23 rules / 65 routes**. All 3 manual awards, their 3 rules and 13 routes remain identical under database-type normalisation. All 6 users (including password hashes), 3 profiles, 3 academic records, 3 income categories, 1 saved item and 3 manual-award logs were compared against the original snapshot and preserved. The 70 removed demos' logs were deleted with their awards.
+- Compared manual-award evaluation results for all 3 existing profiled students: **9 before/after comparisons matched**. All three students remain ready for recommendations and evaluate the current 23 awards. Existing logs were not overwritten by this verification.
+- Rechecked every transferred table in the live SQLite source against the initial snapshot: no source changes occurred during this operation. The original SQLite file remains a rollback copy; the application now uses MySQL.
+
+**Backups and receipt** (private, Git-ignored)
+
+- `storage/app/private/backups/before-mysql-20261107-b80cd5.sqlite` — consistent SQLite backup; integrity OK.
+- `storage/app/private/backups/before-mysql-20261107.env` — original local environment configuration.
+- `storage/app/private/backups/before-rich-demos-20261107.sql` — full MySQL SQL dump before demo deletion.
+- `storage/app/private/backups/before-demo-refresh-20261107-050457-qMf1Mhoz.json` — verified pre-refresh MySQL data backup.
+- `storage/app/private/backups/mysql-migration-verification-20261107.json` — final preservation/count receipt.
+
+**Where to update the FYP report**
+
+| Area | Required update |
+| --- | --- |
+| Technology stack/development environment | MySQL application database, Laragon locally, PHP PDO MySQL, SQLite retained for fast isolated testing. |
+| Architecture/implementation | Environment-driven connection, corrected parent/foreign-key creation order, read-only transfer, transactional verification, backup and targeted demo refresh. Logical ERD relationships remain unchanged. |
+| Deployment | Explain GitHub source/deployment, Azure PHP hosting and a separately configured MySQL service. Local setup is verified; do not claim Azure has been deployed. |
+| Dataset/evaluation | Replace the 70 simple demos with the 20 richer fictional awards and 52 routes. Distinguish fictional cases from manually entered real-provider records; do not claim current real-provider verification. |
+| Testing | Include SQLite/MySQL suite results, data/hash/relationship preservation, rollback/refusal cases, JSON object-order differences, all 20 successful applicants and near-miss boundaries. |
+| User/admin guide | Keep MySQL running in Laragon; use new demo names/examples. Document targeted refresh and preservation of manual awards. |
+
+Updated README.md, PRD.md/ARCHITECTURE.md version 4.1, MANUAL_TEST_CASES.md DB/CAT cases, catalogue/scenario guides, the archive notice, docs/MYSQL_SETUP.md and .ai-handoff.md.
+
+**Verification:** Full MySQL suite **450 passed / 2,118 assertions**. SQLite suite **445 passed / 2,100 assertions**, with the 5 MySQL-only transfer/backup cases skipped. Replaced obsolete catalogue-specific fixtures with current rich-demo cases; existing core workflow tests remain. Database-specific fixtures now compare JSON object contents without assuming key order, reject negative dependents before storage, and create existing records before travelling past MySQL TIMESTAMP's supported future range. Tests ran only on isolated databases. Changed-PHP Pint and whitespace checks passed. Application boot/evaluation checks verified the live MySQL connection and preserved manual decisions; no interface assets changed, so no frontend rebuild was required. Local data transfer and catalogue refresh are complete. Azure resources were not created. No commit or push was made.
+
+## IMP-030 — Synchronize income settings, saved categories and Profile feedback
+
+**Date:** 2026-11-07
+**Status:** Implemented and verified
+
+**Cause:** Student Profile's reference cards and range suffixes contained fixed B40/M40/T20 amounts and a fixed DOSM-2022 caption. The helper only ran when rendering the page, with a truthiness fallback that treated zero as missing. Saving admin ranges invalidated recommendations but did not update the derived category saved on student profiles. Matching already consulted the database, so displayed information could disagree with the settings or saved label.
+
+**Changes**
+
+- IncomeCategory now supplies ordered classification, shared DECIMAL(12,2) amount validation and rangeLabel formatting. Profile cards/helper use the actual database category names/ranges, exact cents and open upper limits. The caption is Income ranges configured by the administrator. No editable thresholds are presented as fixed official classifications.
+- Added income-category-preview.js as an Alpine component. Typing updates the helper immediately; category and range occupy two readable, aligned lines below the input. A minimum height reduces jumping while longer messages can grow naturally. A polite status region and aria-describedby provide accessible feedback. Initial server text remains usable without JavaScript, including old input after validation errors.
+- Distinguish blank, invalid, unmatched and unconfigured income. Zero is classified normally. A gap such as seeded RM3169.50 returns an explicit no-match message rather than a stale B40 value. Admin changes appear on page refresh; the feature does not push settings into already-open pages.
+- Admin category create/update/delete now run in a transaction with batched student-profile reclassification. The existing household income is used; derived categories become null when no range matches. Batch updates guard against income changes after reading a profile. Recommendation caches are invalidated after the transaction; historical logs are not rewritten.
+- Monetary inputs now allow at most two decimal places and the database-supported maximum. Admin maximum income must be at least the minimum. Current range gaps and overlaps are not automatically rewritten. Where ranges overlap, matching and display consistently choose lowest minimum then ID.
+- Ran a one-time synchronization of the real application's 3 profiles: **0 required changes**, confirming existing saved categories were already consistent. The actual category ranges and all 23 scholarships were unchanged. Illustrative RM3999.99/RM7999.99 ranges were used only in a separate synthetic preview database.
+
+**Implementation:** app/Models/IncomeCategory.php and StudentProfile.php; Admin IncomeCategoryController; Student ProfileController; student/profile/edit.blade.php; resources/js/income-category-preview.js and app.js; package.json test:income; feature and JavaScript regressions. No schema migration or matching-version change.
+
+**Where to update the FYP report**
+
+| Area | Required update |
+| --- | --- |
+| Functional requirements | Admin income settings propagate to saved student categories; helper/reference ranges use current settings and live typing feedback. |
+| Interface design/user guide | Replace Profile screenshot; show the two-line helper, current reference cards, zero/blank/no-match messages and refresh behaviour after admin edits. |
+| Architecture/implementation | Shared range/classification methods, server fallback plus Alpine preview, transactional batched reclassification and cache invalidation. |
+| Validation | Two-decimal monetary precision, database maximum, maximum >= minimum, explicit gaps and deterministic overlap handling. Threshold values remain administrator choices. |
+| Testing/evaluation | Verify admin save propagation, add/rename/delete, saved-label changes, zero, decimal gaps, retained input and parity between typing, saves and matching. No ERD change. |
+
+Updated PRD.md, ARCHITECTURE.md, DESIGN.md, README.md, MANUAL_TEST_CASES.md IC-SYNC cases and .ai-handoff.md.
+
+**Verification:** Full MySQL suite **460 passed / 2,171 assertions**. SQLite suite **455 passed / 2,153 assertions**, with 5 MySQL-only skips. All **5 new JavaScript tests** passed. Production Vite build, changed-PHP Pint and whitespace checks passed. Browser checks on actual authenticated routes in an isolated MySQL database verified admin range edits, reclassification without a student save, updated student cards, live B40→M40, zero/blank/invalid feedback, successful profile save and reload. No real administrator thresholds or student information were changed by preview testing. No mobile viewport check was performed this turn.
+
+**Screenshot:** storage/app/private/income-category-preview.png (illustrative preview ranges, not live application thresholds). No commit or push was made.
+
+## IMP-031 — Verify the shared 20-demo seed for another device
+
+**Date:** 2026-11-07
+**Status:** Verified and documented
+
+- Confirmed the requested seed change is already implemented by IMP-029: DatabaseSeeder calls ScholarshipCatalogSeeder, and both scholarship/rule seeders read the checked-in `database/data/demo-scholarships.json`, version `scholarmatch-rich-demo-20-v1`. A fresh database receives the same 20 awards, 20 rules and 52 qualification routes on each device. No duplicate device-specific dataset was introduced.
+- Strengthened the existing repeated-fresh-seeding regression to check the exact shared catalogue keys and 52-route total. Existing tests also cover upserts, stable scholarship IDs/bookmarks, manual-award preservation and targeted retired-catalogue replacement.
+- Added docs/ANOTHER_DEVICE_SETUP.md and linked it from README.md and the catalogue guide. Documented commit/push/pull, local MySQL/.env setup, fresh `migrate --seed`, and the backed-up `scholarships:replace-catalog` path for a device still containing the old 70 demos. Existing installations keep their APP_KEY/accounts/income settings; the catalogue-only command avoids rerunning account/default-income seeders. Rebuild assets on the other device because generated assets are not shared through Git.
+- Clarified that Git shares the fictional seed file, not live database rows: the original device retains its 3 manual awards plus the 20 demos (23 total), while a fresh device has 20 demos. Manual awards require a separate data transfer if needed elsewhere.
+
+**FYP documentation:** Add the reproducible dataset/setup procedure to implementation and deployment, and the repeat-seeding/exact-key/route-count checks to testing. No new schema, eligibility rule, catalogue contents or user-interface change. The existing live application database was not reseeded or reset.
+
+**Verification:** Catalogue and rich-demo suites passed on isolated MySQL and SQLite: **56 tests / 471 assertions on each**. These cover fresh/repeated seeding, configured rule examples, duplicates, preserved manual data and replacement behaviour. Formatting and whitespace checks passed. No commit or push was made.
+
+## IMP-032 — Explain the proposed Azure hosting with an infographic
+
+**Date:** 2026-11-07
+**Status:** Educational artifact completed; hosting is proposed, not deployed.
+
+- Created docs/diagrams/azure-hosting-concept.png with the built-in image-generation tool, plus its saved prompt. The beginner-friendly visual separates code publication (laptop → GitHub → configured GitHub Actions → App Service), visitor requests (browser ↔ Linux Laravel App Service ↔ Azure MySQL Flexible Server), and the separate one-time database transfer.
+- Shows the current 23-award database as 20 fictional demos plus 3 manual awards. Clarifies that Laragon stays local, GitHub does not copy live database records, Azure services run independently of the laptop, and student credit/balance/expiry/prices need checking before resource selection. Includes a Concept Only badge.
+- Added docs/AZURE_HOSTING_CONCEPT.md with the explanation, official Microsoft sources and artifact/prompt links; linked it from README.md. No cloud resources, credentials, workflow or application settings were created or changed. Existing application/data are unchanged.
+
+**FYP documentation:** Use the image in proposed deployment architecture/system infrastructure, with code deployment and database migration as separate flows. Label it as a proposed design until Azure deployment and endpoint/database checks are completed. The image is an educational illustration, not deployment evidence. No eligibility-algorithm or ERD changes.
+
+**Verification:** Checked the proposed Linux PHP App Service/MySQL arrangement, configurable GitHub Actions deployment and student-credit explanation against current Microsoft documentation. Visually inspected generated labels, arrows, data counts, grouping and concept status; saved the selected image and prompt in the workspace. Documentation/asset-only change; application tests were not rerun. No commit or push was made.
+
+## IMP-033 — Combine income and editable fields of study in Matching Settings
+
+**Date:** 2026-11-07
+**Status:** Implemented and verified
+
+- Renamed the admin page/navigation/dashboard action to Matching Settings. Income Categories stays first; Fields of Study sits directly below, without tabs. The old income-category index URL remains compatible and existing income actions are preserved.
+- Added a shared study_fields registry and Add Field/Edit controls. Administrators can rename fields or deactivate them. Active fields are offered for new assignments; inactive existing student/scholarship selections remain valid. No permanent delete action is exposed. Validation errors reopen the editor with submitted values retained.
+- Connected academic forms/readiness, scholarship rules, sample preview, recommendation field filters and validation to this registry. Filters and preview may inspect known inactive fields. Renames transactionally update academic records, legacy profile fields and single/multiple-field rule labels; recommendation caches are invalidated. Historical logs retain their snapshots.
+- Added the registry migration with the existing 21 default choices and backfill of any used custom labels. Applied locally after the full SQL backup at storage/app/private/backups/before-matching-settings-fields-20261107.sql. Raw-row hashes/counts confirmed that all existing business records were unchanged by migration. Field references remain string labels; no new field-ID foreign keys were introduced.
+- Added StudyFieldSeeder with stable seed_name aliases. Reseeding preserves administrator renames/status, and bundled demo rules follow renamed defaults. Custom field settings are database records; another device needs migration plus data transfer/configuration to share customizations.
+- Extended the verified SQLite-to-MySQL transfer to preserve field IDs, names, aliases and status. An otherwise empty target may contain untouched migration defaults, which are replaced inside the import transaction. Edited/custom destination fields are refused. Archived source backups remain intact; a working source must have matching migrations before a new transfer snapshot.
+
+**FYP documentation:** Update functional requirements/admin use cases for shared Matching Settings; UI screenshots and design for the stacked sections/editor; database dictionary/ERD for study_fields (id, unique name, nullable unique seed_name, is_active, timestamps), with existing string-based references; implementation for rename transactions, cache invalidation and inactive retention; deployment for migrations/shared defaults; testing for MF-01–MF-08. Updated PRD.md and ARCHITECTURE.md to version 4.2, DESIGN.md, README.md, MANUAL_TEST_CASES.md, .ai-handoff.md and setup guides. Full behaviour: docs/MATCHING_SETTINGS.md.
+
+**Verification:** Full isolated MySQL suite: **474 passed / 2,249 assertions**. SQLite: **467 passed / 2,223 assertions**, with **seven MySQL-only skips**. Production Vite build, changed-PHP Pint and whitespace checks passed. Browser checks in a separate MySQL database verified section order, add/rename/deactivate, duplicate validation and shared student choices/readiness. Preview testing did not alter live field names or status; all 21 live defaults remain active. No mobile viewport check was performed. Screenshot: storage/app/private/matching-settings-preview.png. No commit, push or Azure deployment was made.
+
+## IMP-034 — Update the Matching Settings icon
+
+**Date:** 2026-11-07
+**Status:** Implemented
+
+Replaced the old money symbol with a three-slider settings icon in the desktop admin sidebar and dashboard Matching Settings shortcut. The icon represents the page's combined income and study-field configuration. Preserved existing size, colours and navigation; decorative icons are hidden from screen readers because the adjacent text labels the link.
+
+**FYP documentation:** Refresh the admin navigation/dashboard screenshots and UI design description to show the settings icon. No database or eligibility-rule changes.
+
+**Verification:** Both changed Blade templates compiled and passed PHP syntax parsing; both SVGs passed XML/shape validation. Whitespace checks passed. This small icon-only change did not require a full test-suite rerun. No commit or push was made.
+
+## IMP-035 — Remove dashboard System Information
+
+**Date:** 2026-11-07
+**Status:** Implemented
+
+Removed the System Information card from the admin dashboard, including Laravel version, PHP version, database name and environment. The dashboard retains its statistics, quick actions and recent recommendation activity.
+
+**FYP documentation:** Refresh the admin dashboard screenshot and UI description to omit this card. No database or recommendation-logic changes.
+
+**Verification:** Updated Blade template compiled and passed PHP syntax parsing; whitespace checks passed. No full test-suite rerun was needed for this section removal. No commit or push was made.
+
+## IMP-036 — Start the guided Azure hosting process
+
+**Date:** 2026-11-07
+**Status:** Guidance prepared; student credit verified from Education Hub; resource selection and deployment remain pending.
+
+Added docs/AZURE_DEPLOYMENT_GUIDE.md and linked it from README.md. Checked current Microsoft guidance for Azure for Students credit/balance, Linux PHP App Service, MySQL Flexible Server and GitHub Actions. Reviewed the actual project's PHP requirement, build scripts, database/TLS settings, proxy configuration and local mail setup.
+
+The guide separates subscription/cost selection, resource creation, repository preparation, production settings, a backed-up MySQL-to-MySQL transfer and deployed verification. It preserves manual awards and existing student/settings records and identifies pending work for public-root Nginx configuration, HTTPS/proxy handling, deployment artifacts/workflow and email. It explicitly avoids the local composer setup script and database reseeding during an existing-data move.
+
+Follow-up: after an active subscription but no active sponsorship message, Education Hub confirmed USD100 available and 25 days until expiry on 2 December 2026. The user subsequently reports renewal until December 2027; exact expiry day and the post-renewal balance have not been inspected. Added Education Hub/account troubleshooting and the next Web App form choices to the guide. Region, resource cost and provisioning remain pending; no cause of the separate sponsorship message is assumed and no cloud resources have been created.
+
+**FYP documentation:** Add the verified hosting procedure to implementation/deployment once completed. Record selected resources, region, final architecture/costs, deployment outcome, data-transfer evidence and live test screenshots. The existing infographic and this guide remain proposed architecture/procedure; they are not deployment evidence.
+
+**Verification:** Source/configuration review and current official documentation checks only. No application code, database, environment credentials, GitHub workflow or Azure resources were changed. No application-test rerun was needed for guidance-only documentation. No commit or push was made.
