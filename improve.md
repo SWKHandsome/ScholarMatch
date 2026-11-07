@@ -913,3 +913,25 @@ Follow-up: after an active subscription but no active sponsorship message, Educa
 **FYP documentation:** Record the merged-dependency regression run in testing/evaluation, and dependency auditing/patch maintenance in deployment and maintenance. No feature, eligibility algorithm or schema changes were made by this review. Private evidence logs are under storage/logs/merge-review-*; source data was preserved. No commit, push or PR merge was performed.
 
 **Sources:** [Symfony HTTP Foundation advisory and patched versions](https://github.com/symfony/symfony/security/advisories/GHSA-5mx8-mwrp-5693), [Symfony MIME advisory and patched versions](https://symfony.com/blog/cve-2026-45070-email-header-injection-via-non-token-characters-in-mime-parameter-names). The complete seven-advisory audit is saved privately at storage/logs/merge-review-composer-audit.json.
+
+## IMP-038 — Apply Symfony security patches before release
+
+**Date:** 2026-11-07
+**Status:** Implemented and verified; resolves the dependency findings in IMP-037.
+
+Updated only four package entries in composer.lock on Refining:
+
+| Component | Previous | Patched |
+| --- | --- | --- |
+| symfony/http-foundation | 7.4.20 | 7.4.23 |
+| symfony/http-kernel | 7.4.20 | 7.4.23 |
+| symfony/routing | 7.4.20 | 7.4.23 |
+| symfony/mime | 7.4.19 | 7.4.22 |
+
+Used explicit temporary package-version constraints with Composer's minimal-change dependency update. No packages were added or removed, composer.json constraints stayed unchanged, and no application code, schema or eligibility rules changed. Composer installation completed, optimized autoload files/package discovery regenerated, and all installed versions match the updated lockfile. Another device receives these exact versions by pulling the commit and running composer install.
+
+The first install attempt found that Laragon's CLI ZIP extension was disabled. Installation was completed using the already-present extension enabled for that command only (php -d extension=zip); no global php.ini or system setting was modified.
+
+**Verification:** Composer validation and PHP 8.3 platform checks passed. The locked dependency audit now reports **0 advisories and 0 abandoned packages**, resolving all seven previously reported advisories. Full isolated MySQL suite: **474 passed / 2,249 assertions**. SQLite: **467 passed / 2,223 assertions**, with **7 MySQL-only skips**. All **27 JavaScript tests** and the production Vite build passed. All 10 live business tables retain identical before/after row counts and hashes. Whitespace checks passed. No browser checks were rerun for this dependency-only patch. Private logs: storage/logs/symfony-patches-*.
+
+**FYP documentation:** Update the testing and maintenance sections with the security audit, four patch versions and successful regression results. The functional design/ERD are unchanged. This clears the dependency issue identified in IMP-037; Azure configuration and deployed verification remain pending under IMP-036. No commit, push or PR merge was performed.
