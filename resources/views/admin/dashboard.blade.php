@@ -73,13 +73,13 @@
                         <p class="text-sm text-on-surface-variant">Create new scholarship with rules</p>
                     </div>
                 </a>
-                <a href="{{ route('admin.income-categories.index') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
+                <a href="{{ route('admin.matching-settings') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
                     <div class="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0l1-1m-1 1l-1-1"></path></svg>
+                        <svg class="w-5 h-5 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h4m4 0h10M3 12h10m4 0h4M3 18h4m4 0h10"></path><circle cx="9" cy="6" r="2" stroke-width="2"></circle><circle cx="15" cy="12" r="2" stroke-width="2"></circle><circle cx="9" cy="18" r="2" stroke-width="2"></circle></svg>
                     </div>
                     <div>
-                        <p class="font-medium text-on-surface">Manage Income Categories</p>
-                        <p class="text-sm text-on-surface-variant">Update B40/M40/T20 thresholds</p>
+                        <p class="font-medium text-on-surface">Matching Settings</p>
+                        <p class="text-sm text-on-surface-variant">Manage income ranges and fields of study</p>
                     </div>
                 </a>
                 <a href="{{ route('admin.recommendation-logs.index') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
@@ -88,7 +88,7 @@
                     </div>
                     <div>
                         <p class="font-medium text-on-surface">View Recommendation Logs</p>
-                        <p class="text-sm text-on-surface-variant">Monitor student matches and scores</p>
+                        <p class="text-sm text-on-surface-variant">Review eligibility decisions and explanations</p>
                     </div>
                 </a>
                 <a href="{{ route('admin.scholarships.index') }}" class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-container-low transition-colors">
@@ -129,11 +129,11 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-3">
-                                <span class="badge
-                                    {{ $log->status === 'Eligible' ? 'badge-eligible' : ($log->status === 'Partially Eligible' ? 'badge-partial' : 'badge-not-suitable') }}">
-                                    {{ $log->status }}
-                                </span>
-                                <span class="text-sm font-medium text-on-surface">{{ $log->score }}</span>
+                                @if($log->isCurrentEvaluation())
+                                    @include('components.decision-badge', ['status' => $log->status, 'requiresVerification' => $log->requires_verification, 'specialRequirements' => $log->special_requirements])
+                                @else
+                                    <span class="badge badge-info">Previous Evaluation</span>
+                                @endif
                                 <span class="text-xs text-on-surface-variant">{{ $log->created_at->diffForHumans() }}</span>
                             </div>
                         </div>
@@ -145,27 +145,5 @@
         </div>
     </div>
 
-    <!-- System Info -->
-    <div class="card p-6">
-        <h2 class="text-lg font-semibold text-on-surface mb-4">System Information</h2>
-        <dl class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            <div>
-                <dt class="text-on-surface-variant">Laravel Version</dt>
-                <dd class="font-medium text-on-surface">{{ app()->version() }}</dd>
-            </div>
-            <div>
-                <dt class="text-on-surface-variant">PHP Version</dt>
-                <dd class="font-medium text-on-surface">{{ PHP_VERSION }}</dd>
-            </div>
-            <div>
-                <dt class="text-on-surface-variant">Database</dt>
-                <dd class="font-medium text-on-surface">{{ config('database.default') }} ({{ DB::connection()->getDatabaseName() }})</dd>
-            </div>
-            <div>
-                <dt class="text-on-surface-variant">Environment</dt>
-                <dd class="font-medium text-on-surface">{{ config('app.env') }}</dd>
-            </div>
-        </dl>
-    </div>
 </div>
 @endsection

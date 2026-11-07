@@ -1,221 +1,123 @@
 <?php
 
 use App\Models\AcademicResult;
-use App\Models\StudentProfile;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Services\ScholarshipRecommendationService;
+use Illuminate\Support\Facades\DB;
 
-uses(RefreshDatabase::class);
+function academicPayload(array $overrides = []): array
+{
+    return array_merge([
+        'education_level' => 'Undergraduate', 'study_status' => 'studying', 'year_of_study' => 2,
+        'funding_study_level' => 'Undergraduate', 'cgpa' => 3.50, 'result_status' => 'official',
+        'institution_type' => 'Public University', 'field_of_study' => 'Engineering',
+    ], $overrides);
+}
 
-beforeEach(function () {
-    seedIncomeCategories();
+test('academic form explains official results study status and funding level', function () {
+    $this->actingAs(User::factory()->create(['role' => 'student']))
+        ->get(route('student.academic-result.edit'))->assertOk()
+        ->assertSee('Latest Study Level')->assertSee('Study Status')
+        ->assertSee('Current Year of Study')->assertSee('Study Level Seeking Funding')
+        ->assertSee('official results')->assertDontSee('Preliminary');
 });
 
-test('student can view academic result edit page', function () {
-    $user = makeStudent();
-
-    $response = $this->actingAs($user)->get(route('student.academic-result.edit'));
-
-    $response->assertOk();
-    $response->assertSee('Academic Result');
-    $response->assertSee('SPM');
-    $response->assertSee('STPM');
-    $response->assertSee('Foundation');
-    $response->assertSee('Matriculation');
-    $response->assertSee('Diploma');
-    $response->assertSee('Undergraduate');
-});
-
-test('student can create SPM academic result with As and credits', function () {
-    $user = makeStudent();
-
-    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
-        'education_level' => 'SPM',
-        'spm_as' => 8,
-        'spm_credits' => 6,
-        'cgpa' => null,
-        'result_status' => 'official',
-    ]);
-
-    $response->assertRedirect(route('student.dashboard'));
-    $response->assertSessionHas('success');
-
-    $result = AcademicResult::where('user_id', $user->id)->first();
-    expect($result)->not->toBeNull();
-    expect($result->education_level)->toBe('SPM');
-    expect($result->spm_as)->toBe(8);
-    expect($result->spm_credits)->toBe(6);
-    expect($result->cgpa)->toBeNull();
-    expect($result->result_status)->toBe('official');
-});
-
-test('student can create undergraduate academic result with CGPA', function () {
-    $user = makeStudent();
-
-    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
-        'education_level' => 'Undergraduate',
-        'spm_as' => null,
-        'spm_credits' => null,
-        'cgpa' => 3.75,
-        'result_status' => 'official',
-    ]);
-
-    $response->assertRedirect(route('student.dashboard'));
-    $response->assertSessionHas('success');
-
-    $result = AcademicResult::where('user_id', $user->id)->first();
-    expect($result)->not->toBeNull();
-    expect($result->education_level)->toBe('Undergraduate');
-    expect((float) $result->cgpa)->toBe(3.75);
-    expect($result->spm_as)->toBeNull();
-    expect($result->spm_credits)->toBeNull();
-});
-
-test('student can create academic result with pending status', function () {
-    $user = makeStudent();
-
-    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
-        'education_level' => 'Foundation',
-        'spm_as' => null,
-        'spm_credits' => null,
-        'cgpa' => 3.80,
-        'result_status' => 'pending',
-    ]);
-
-    $response->assertRedirect(route('student.dashboard'));
-    $response->assertSessionHas('success');
-
-    $result = AcademicResult::where('user_id', $user->id)->first();
-    expect($result->result_status)->toBe('pending');
-});
-
-test('student can update existing academic result', function () {
-    $user = makeStudent();
-
-    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
-        'education_level' => 'Undergraduate',
-        'spm_as' => null,
-        'spm_credits' => null,
-        'cgpa' => 3.50,
-        'result_status' => 'official',
-    ]);
-
-    $response->assertRedirect(route('student.dashboard'));
-    $response->assertSessionHas('success');
-
+test('currently studying students can save their latest official CGPA', function () {
+    $user = User::factory()->create(['role' => 'student']);
+    $this->actingAs($user)->patch(route('student.academic-result.update'), academicPayload())
+        ->assertSessionHasNoErrors()->assertRedirect(route('student.profile.edit'));
     $result = $user->fresh()->academicResult;
-    expect($result->education_level)->toBe('Undergraduate');
-    expect((float) $result->cgpa)->toBe(3.50);
-    expect($result->spm_as)->toBeNull();
+    expect($result->year_of_study)->toBe(2)->and($result->isReadyForRecommendations())->toBeTrue();
 });
 
-test('academic result validation requires education level', function () {
+test('completed CGPA study clears the previous year and irrelevant SPM results', function () {
     $user = makeStudent();
-
-    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
-        'education_level' => '',
-        'spm_as' => 8,
-        'spm_credits' => 6,
-        'result_status' => 'official',
-    ]);
-
-    $response->assertSessionHasErrors('education_level');
+    $this->actingAs($user)->patch(route('student.academic-result.update'), academicPayload([
+        'study_status' => 'completed', 'year_of_study' => 3, 'spm_as' => 8, 'spm_credits' => 9,
+    ]))->assertSessionHasNoErrors();
+    $result = $user->fresh()->academicResult;
+    expect($result->year_of_study)->toBeNull()->and($result->spm_as)->toBeNull()->and($result->spm_credits)->toBeNull();
 });
 
-test('SPM requires SPM As or credits', function () {
+test('SPM graduates can save official counts and choose a different funding level', function () {
+    $user = User::factory()->create(['role' => 'student']);
+    $this->actingAs($user)->patch(route('student.academic-result.update'), academicPayload([
+        'education_level' => 'SPM', 'study_status' => 'completed',
+        'grade_counts' => ['A' => 8, 'C' => 1], 'funding_study_level' => 'Foundation',
+    ]))->assertSessionHasNoErrors();
+    $result = $user->fresh()->academicResult;
+    expect($result->cgpa)->toBeNull()->and($result->year_of_study)->toBeNull();
+    expect($result->isReadyForRecommendations())->toBeTrue();
+});
+
+test('invalid academic submissions cannot save', function ($changes, $field) {
+    $user = User::factory()->create(['role' => 'student']);
+    $this->actingAs($user)->patch(route('student.academic-result.update'), academicPayload($changes))
+        ->assertSessionHasErrors($field);
+    expect($user->fresh()->academicResult)->toBeNull();
+})->with([
+    'pending' => [['result_status' => 'pending'], 'result_status'],
+    'missing result' => [['cgpa' => null], 'cgpa'],
+    'high CGPA' => [['cgpa' => 4.01], 'cgpa'],
+    'negative CGPA' => [['cgpa' => -0.01], 'cgpa'],
+    'missing year' => [['year_of_study' => null], 'year_of_study'],
+    'invalid year' => [['year_of_study' => 0], 'year_of_study'],
+    'missing status' => [['study_status' => null], 'study_status'],
+    'missing target' => [['funding_study_level' => null], 'funding_study_level'],
+    'missing institution' => [['institution_type' => null], 'institution_type'],
+    'invalid institution' => [['institution_type' => 'Unknown'], 'institution_type'],
+    'missing field' => [['field_of_study' => null], 'field_of_study'],
+    'invalid field' => [['field_of_study' => 'Unlisted Field'], 'field_of_study'],
+    'invalid source' => [['education_level' => 'Unknown'], 'education_level'],
+    'SPM studying' => [['education_level' => 'SPM', 'spm_as' => 8, 'spm_credits' => 9], 'study_status'],
+    'SPM missing counts' => [['education_level' => 'SPM', 'study_status' => 'completed'], 'grade_counts'],
+    'SPM unsupported grade' => [['education_level' => 'SPM', 'study_status' => 'completed', 'grade_counts' => ['Z' => 1]], 'grade_counts'],
+    'SPM too many subjects' => [['education_level' => 'SPM', 'study_status' => 'completed', 'grade_counts' => ['A' => 13]], 'grade_counts'],
+]);
+
+test('real zero CGPA is stored as an official result rather than missing information', function () {
+    $user = User::factory()->create(['role' => 'student']);
+    $this->actingAs($user)->patch(route('student.academic-result.update'), academicPayload(['cgpa' => 0]))
+        ->assertSessionHasNoErrors();
+    expect($user->fresh()->academicResult->cgpa)->toBe('0.00');
+});
+
+test('students update one academic record', function () {
     $user = makeStudent();
-
-    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
-        'education_level' => 'SPM',
-        'spm_as' => null,
-        'spm_credits' => null,
-        'cgpa' => null,
-        'result_status' => 'official',
-    ]);
-
-    $response->assertSessionHasErrors();
+    $this->actingAs($user)->patch(route('student.academic-result.update'), academicPayload(['cgpa' => 3.90]))
+        ->assertSessionHasNoErrors();
+    expect(AcademicResult::where('user_id', $user->id)->count())->toBe(1);
 });
 
-test('non-SPM requires CGPA when status is official', function () {
+test('programme details save with academic results and immediately change recommendation matching', function () {
+    seedIncomeCategories();
     $user = makeStudent();
-
-    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
-        'education_level' => 'Undergraduate',
-        'spm_as' => null,
-        'spm_credits' => null,
-        'cgpa' => null,
-        'result_status' => 'official',
-    ]);
-
-    $response->assertSessionHasErrors('cgpa');
+    makeScholarship();
+    $service = app(ScholarshipRecommendationService::class);
+    expect($service->getRecommendations($user)['recommendations'][0]['status'])->toBe('Eligible');
+    $this->actingAs($user)->patch(route('student.academic-result.update'), academicPayload([
+        'institution_type' => 'Private University', 'field_of_study' => 'Business',
+    ]))->assertSessionHasNoErrors();
+    $academic = $user->fresh()->academicResult;
+    expect($academic->institution_type)->toBe('Private University')->and($academic->field_of_study)->toBe('Business');
+    $rec = $service->getRecommendations($user->fresh())['recommendations'][0];
+    expect($rec['status'])->toBe('Not Eligible')->and($rec['failed_requirements'])->toContain('institution_type', 'field_of_study');
 });
 
-test('non-SPM allows missing CGPA when status is pending', function () {
+test('legacy programme details prefill only a new academic record without inventing results', function () {
     $user = makeStudent();
-
-    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
-        'education_level' => 'Undergraduate',
-        'spm_as' => null,
-        'spm_credits' => null,
-        'cgpa' => null,
-        'result_status' => 'pending',
+    $user->academicResult()->delete();
+    DB::table('student_profiles')->where('user_id', $user->id)->update([
+        'institution_type' => 'Private University', 'field_of_study' => 'Business',
     ]);
-
-    $response->assertRedirect(route('student.dashboard'));
-    $response->assertSessionHas('success');
-
-    $result = AcademicResult::where('user_id', $user->id)->first();
-    expect($result->result_status)->toBe('pending');
+    $this->actingAs($user->fresh())->get(route('student.academic-result.edit'))->assertOk()->assertViewHas('academicResult', function ($academic) {
+        return ! $academic->exists && $academic->education_level === null && $academic->cgpa === null
+            && $academic->institution_type === 'Private University' && $academic->field_of_study === 'Business';
+    });
+    expect($user->fresh()->academicResult)->toBeNull();
 });
 
-test('CGPA must be between 0 and 4', function () {
-    $user = makeStudent();
-
-    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
-        'education_level' => 'Undergraduate',
-        'cgpa' => 5.0,
-        'result_status' => 'official',
-    ]);
-
-    $response->assertSessionHasErrors('cgpa');
-});
-
-test('SPM As must be between 0 and 12', function () {
-    $user = makeStudent();
-
-    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
-        'education_level' => 'SPM',
-        'spm_as' => 13,
-        'spm_credits' => 6,
-        'result_status' => 'official',
-    ]);
-
-    $response->assertSessionHasErrors('spm_as');
-});
-
-test('SPM credits must be between 0 and 12', function () {
-    $user = makeStudent();
-
-    $response = $this->actingAs($user)->patch(route('student.academic-result.update'), [
-        'education_level' => 'SPM',
-        'spm_as' => 8,
-        'spm_credits' => 13,
-        'result_status' => 'official',
-    ]);
-
-    $response->assertSessionHasErrors('spm_credits');
-});
-
-test('academic result requires student role', function () {
-    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
-
-    $response = $this->actingAs($admin)->get(route('student.academic-result.edit'));
-
-    $response->assertForbidden();
-});
-
-test('academic result redirects guest to login', function () {
-    $response = $this->get(route('student.academic-result.edit'));
-
-    $response->assertRedirect(route('login'));
+test('academic result routes retain access control', function () {
+    $this->get(route('student.academic-result.edit'))->assertRedirect(route('login'));
+    $this->actingAs(makeAdmin())->get(route('student.academic-result.edit'))->assertForbidden();
 });

@@ -42,10 +42,10 @@
                                     <span class="badge badge-info">{{ $saved->scholarship->award_type }}</span>
                                 </td>
                                 <td class="px-4 py-4">
-                                    <span class="{{ \Carbon\Carbon::parse($saved->scholarship->deadline)->isPast() ? 'text-error' : 'text-on-surface' }}">
-                                        {{ \Carbon\Carbon::parse($saved->scholarship->deadline)->format('M d, Y') }}
+                                    <span class="{{ $saved->scholarship->isExpired() ? 'text-error' : 'text-on-surface' }}">
+                                        {{ $saved->scholarship->deadlineLabel() }}
                                     </span>
-                                    @if(\Carbon\Carbon::parse($saved->scholarship->deadline)->isPast())
+                                    @if($saved->scholarship->isExpired())
                                         <span class="ml-2 badge badge-error">Expired</span>
                                     @endif
                                 </td>
@@ -54,7 +54,7 @@
                                         @if($saved->scholarship->application_link)
                                             <a href="{{ $saved->scholarship->application_link }}" target="_blank" rel="noopener noreferrer"
                                                 class="btn btn-primary text-sm px-3 py-1.5">
-                                                Apply
+                                                {{ $saved->scholarship->isDemo() || ($saved->scholarship->deadline && ! $saved->scholarship->isExpired() && $saved->scholarship->is_active) ? 'Apply' : 'Check Provider' }}
                                             </a>
                                         @endif
                                         <form action="{{ route('student.saved-scholarships.destroy', $saved->scholarship) }}" method="POST" class="inline">

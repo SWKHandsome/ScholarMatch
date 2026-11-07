@@ -70,7 +70,7 @@
                 <div>
                     <p class="text-sm text-on-surface-variant">Recommendations</p>
                     @if($profileComplete && $academicComplete)
-                        <p class="text-2xl font-bold text-on-surface mt-1">{{ count($recentRecommendations) }} found</p>
+                        <p class="text-2xl font-bold text-on-surface mt-1">{{ $eligibleCount }} eligible</p>
                     @else
                         <p class="text-2xl font-bold text-on-surface mt-1">—</p>
                     @endif
@@ -91,7 +91,7 @@
     @if($profileComplete && $academicComplete && !empty($recentRecommendations))
     <div class="card">
         <div class="p-5 border-b border-outline-variant flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-on-surface">Top Recommendations</h2>
+            <h2 class="text-lg font-semibold text-on-surface">Recent Recommendations</h2>
             <a href="{{ route('student.recommendations') }}" class="text-sm text-primary hover:underline">View All</a>
         </div>
         <div class="divide-y divide-outline-variant/50">

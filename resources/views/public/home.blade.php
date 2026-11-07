@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
 @section('content')
-<div class="min-h-screen bg-background">
+<div class="bg-background">
     <!-- Hero Section -->
     <section class="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-secondary/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32">
@@ -12,7 +12,7 @@
                 </h1>
                 <p class="mt-6 text-lg sm:text-xl text-on-surface-variant max-w-2xl mx-auto">
                     ScholarMatch helps Malaysian students discover scholarships based on academic results and socioeconomic background.
-                    Get explainable eligibility results — Eligible, Partially Eligible, or Not Suitable — with clear reasons for each match.
+                    See whether you are Eligible or Not Eligible, with clear reasons and ! for special conditions that need checking.
                 </p>
                 <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                     <a href="{{ route('register') }}"
@@ -62,7 +62,7 @@
                     </div>
                     <h3 class="text-xl font-semibold text-on-surface mb-2">Create Your Profile</h3>
                     <p class="text-on-surface-variant">
-                        Enter your nationality, state, household income, dependents, institution type, and field of study.
+                        Enter your nationality, state, household income and dependents.
                         We auto-classify your income category (B40/M40/T20).
                     </p>
                 </div>
@@ -74,8 +74,8 @@
                     </div>
                     <h3 class="text-xl font-semibold text-on-surface mb-2">Add Academic Results</h3>
                     <p class="text-on-surface-variant">
-                        Input your SPM As/credits or CGPA based on your education level (SPM, STPM, Foundation, Matriculation, Diploma, Undergraduate).
-                        Mark results as Official or Pending.
+                        Enter official grade counts, CGPA or STAM pangkat, your study status and current year when studying.
+                        Select the study level, institution type and field of the programme you want funded.
                     </p>
                 </div>
 
@@ -86,7 +86,7 @@
                     </div>
                     <h3 class="text-xl font-semibold text-on-surface mb-2">View Matches</h3>
                     <p class="text-on-surface-variant">
-                        Get instant recommendations with scores (0-100), status badges, and detailed explanations for every scholarship.
+                        Check every applicable requirement using your official results, with clear eligibility decisions and explanations.
                         Save favorites for later review.
                     </p>
                 </div>
@@ -106,35 +106,35 @@
 
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="card p-6">
-                    <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 mx-auto">
                         <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-on-surface mb-2">Hard Filter First</h3>
-                    <p class="text-on-surface-variant text-sm">Strict eligibility rules (nationality, income, study level, deadline) filter out unsuitable scholarships before scoring.</p>
+                    <h3 class="text-lg font-semibold text-on-surface mb-2 text-center">Requirement Checks</h3>
+                    <p class="text-on-surface-variant text-sm text-justify">Check each applicable nationality, income, academic, study level, field and institution requirement with clear outcomes.</p>
                 </div>
 
                 <div class="card p-6">
-                    <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 mx-auto">
                         <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-on-surface mb-2">Soft Scoring & Ranking</h3>
-                    <p class="text-on-surface-variant text-sm">Academic (40), Field (25), Institution (20), Income (15) = 100 total. Transparent weighted scoring.</p>
+                    <h3 class="text-lg font-semibold text-on-surface mb-2 text-center">Special Conditions</h3>
+                    <p class="text-on-surface-variant text-sm text-justify">Eligible results show ! when the administrator has added special conditions. Expand the warning to see what to verify with the provider.</p>
                 </div>
 
                 <div class="card p-6">
-                    <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 mx-auto">
                         <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-on-surface mb-2">Explainable Results</h3>
-                    <p class="text-on-surface-variant text-sm">Every recommendation shows exactly why you qualify or don't — no black box algorithms.</p>
+                    <h3 class="text-lg font-semibold text-on-surface mb-2 text-center">Explainable Results</h3>
+                    <p class="text-on-surface-variant text-sm text-justify">Every recommendation shows exactly why you qualify or don't — no black box algorithms.</p>
                 </div>
 
                 <div class="card p-6">
-                    <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                    <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 mx-auto">
                         <svg class="w-6 h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     </div>
-                    <h3 class="text-lg font-semibold text-on-surface mb-2">Admin Configurable</h3>
-                    <p class="text-on-surface-variant text-sm">Scholarship rules, income thresholds, and seed data managed via admin panel — no code changes needed.</p>
+                    <h3 class="text-lg font-semibold text-on-surface mb-2 text-center">Admin Configurable</h3>
+                    <p class="text-on-surface-variant text-sm text-justify">Scholarship rules, income thresholds, and seed data managed via admin panel — no code changes needed.</p>
                 </div>
             </div>
         </div>

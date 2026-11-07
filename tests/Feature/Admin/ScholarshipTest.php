@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\IncomeCategory;
 use App\Models\Scholarship;
 use App\Models\User;
+use App\Services\ScholarshipRecommendationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -20,6 +20,30 @@ test('admin can view scholarships index', function () {
     $response->assertOk();
     $response->assertSee('Scholarships');
     $response->assertSee('Add Scholarship');
+});
+
+test('admin can search scholarships by name or provider', function () {
+    $admin = makeAdmin();
+    Scholarship::factory()->create([
+        'name' => 'Engineering Excellence Award',
+        'provider' => 'Future Scholars Foundation',
+    ]);
+    Scholarship::factory()->create([
+        'name' => 'Business Achievement Grant',
+        'provider' => 'Different Provider',
+    ]);
+
+    $this->actingAs($admin)
+        ->get(route('admin.scholarships.index', ['search' => 'Engineering']))
+        ->assertOk()
+        ->assertSee('Engineering Excellence Award')
+        ->assertDontSee('Business Achievement Grant');
+
+    $this->actingAs($admin)
+        ->get(route('admin.scholarships.index', ['search' => 'Future Scholars']))
+        ->assertOk()
+        ->assertSee('Engineering Excellence Award')
+        ->assertDontSee('Business Achievement Grant');
 });
 
 test('admin can view create scholarship page', function () {
@@ -88,6 +112,23 @@ test('admin can update scholarship', function () {
     expect($scholarship->provider)->toBe('Updated Provider');
 });
 
+test('admin can save and clear special requirements and refresh the student warning', function () {
+    $student = makeStudent();
+    $scholarship = makeScholarship();
+    $service = app(ScholarshipRecommendationService::class);
+    seedIncomeCategories();
+    expect($service->getRecommendations($student)['recommendations'][0]['requires_verification'])->toBeFalse();
+    $payload = $scholarship->only(['name', 'provider', 'description', 'award_type', 'application_link', 'is_active']);
+    $payload['deadline'] = $scholarship->deadline->toDateString();
+    $this->actingAs(makeAdmin())->put(route('admin.scholarships.update', $scholarship), array_merge($payload, [
+        'special_requirements' => 'Interview with the provider.',
+    ]))->assertSessionHasNoErrors();
+    expect($service->getRecommendations($student)['recommendations'][0]['requires_verification'])->toBeTrue();
+    $this->put(route('admin.scholarships.update', $scholarship), array_merge($payload, ['special_requirements' => '']))
+        ->assertSessionHasNoErrors();
+    expect($service->getRecommendations($student)['recommendations'][0]['requires_verification'])->toBeFalse();
+});
+
 test('admin can delete scholarship', function () {
     $admin = makeAdmin();
     $scholarship = Scholarship::factory()->create(['name' => 'To Delete']);
@@ -100,7 +141,7 @@ test('admin can delete scholarship', function () {
     expect(Scholarship::where('id', $scholarship->id)->exists())->toBeFalse();
 });
 
-test('scholarship validation requires all fields', function () {
+test('scholarship validation requires identifying fields', function () {
     $admin = makeAdmin();
 
     $response = $this->actingAs($admin)->post(route('admin.scholarships.store'), [
@@ -115,7 +156,6 @@ test('scholarship validation requires all fields', function () {
         'name',
         'provider',
         'award_type',
-        'deadline',
         'application_link',
     ]);
 });

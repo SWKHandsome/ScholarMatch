@@ -5,15 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'ScholarMatch') }} - Student</title>
+    <x-site-icon />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-background">
     <div class="flex min-h-screen">
         <!-- Sidebar -->
         <aside class="hidden lg:flex lg:flex-col lg:w-64 lg:flex-shrink-0 bg-white border-r border-outline-variant">
-            <div class="flex h-16 items-center justify-center border-b border-outline-variant">
-                <a href="{{ route('student.dashboard') }}" class="text-xl font-bold text-primary">
-                    ScholarMatch
+            <div class="flex h-16 items-center border-b border-outline-variant px-5">
+                <a href="{{ route('student.dashboard') }}" class="rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+                    <x-brand-logo compact />
                 </a>
             </div>
             <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
@@ -66,7 +67,9 @@
         <!-- Mobile sidebar -->
         <aside class="lg:hidden fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-outline-variant transform -translate-x-full transition-transform duration-300" id="mobile-sidebar">
             <div class="flex h-16 items-center justify-between border-b border-outline-variant px-4">
-                <span class="text-xl font-bold text-primary">ScholarMatch</span>
+                <a href="{{ route('student.dashboard') }}" class="rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                    <x-brand-logo compact />
+                </a>
                 <button onclick="closeSidebar()" class="p-2 rounded-md hover:bg-surface-container-low" aria-label="Close sidebar">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
@@ -107,14 +110,14 @@
             <div class="p-4 lg:p-6">
                 @if (session('success'))
                     <div class="mb-4 p-4 rounded-lg bg-success/10 text-success border border-success/20 flex items-center justify-between">
-                        <span>{{ session('success')
+                        <span>{{ session('success') }}</span>
                         <button onclick="this.parentElement.remove()" class="p-1 hover:bg-success/20 rounded">×</button>
                     </div>
                 @endif
 
                 @if (session('error'))
                     <div class="mb-4 p-4 rounded-lg bg-error/10 text-error border border-error/20 flex items-center justify-between">
-                        session('error')
+                        <span>{{ session('error') }}</span>
                         <button onclick="this.parentElement.remove()" class="p-1 hover:bg-error/20 rounded">×</button>
                     </div>
                 @endif

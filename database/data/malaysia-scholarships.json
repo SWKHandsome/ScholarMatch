@@ -1,0 +1,1428 @@
+{
+  "version": "malaysia-local-open-2026-10-20",
+  "checked_on": "2026-10-20",
+  "scope": "50 sourced scholarships and tuition awards for pre-university, diploma or bachelor's/honours study in Malaysia. Fixed, admission-linked and calculated relative dates are distinguished from rolling applications and automatic/intake-based awards. No overseas-only, postgraduate or expired fixed-date round is included. Intake-specific availability must be confirmed with the provider.",
+  "scholarships": [
+    {
+      "catalog_key": "taylors-merit",
+      "name": "Taylor's University Merit Scholarship",
+      "provider": "Taylor's University",
+      "description": "Academic award: 50% or 70% tuition reduction.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-01-24",
+      "application_link": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_url": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "February 2027 round; later intakes differ.",
+      "special_requirements": "Taylor's admission, qualifying results and selection apply. Malaysian or eligible TEG international entrants.",
+      "is_active": true,
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed"
+          },
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 3.75
+          },
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.8
+          },
+          {
+            "education_level": "Matriculation",
+            "study_status": "completed",
+            "min_cgpa": 3.8
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.8
+          }
+        ]
+      },
+      "deadline_type": "fixed",
+      "study_country": "Malaysia"
+    },
+    {
+      "catalog_key": "taylors-talent",
+      "name": "Taylor's University Talent Scholarship",
+      "provider": "Taylor's University",
+      "description": "Performing-arts award: 50% or 70% tuition reduction.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-01-24",
+      "application_link": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_url": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "February 2027 round; later intakes differ.",
+      "special_requirements": "Qualifying Taylor's entrants need national-level artistic participation, performance assessment and interview.",
+      "is_active": true,
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed"
+          },
+          {
+            "education_level": "STPM",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.3
+          },
+          {
+            "education_level": "Matriculation",
+            "study_status": "completed",
+            "min_cgpa": 3.3
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.3
+          }
+        ]
+      },
+      "deadline_type": "fixed",
+      "study_country": "Malaysia"
+    },
+    {
+      "catalog_key": "taylors-sports",
+      "name": "Taylor's University Sports Scholarship",
+      "provider": "Taylor's University",
+      "description": "Tuition support for selected athletes.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-06-06",
+      "application_link": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_url": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Published combined 2027 intake round.",
+      "special_requirements": "Taylor's admission, sporting evidence, academic conditions and selection apply.",
+      "is_active": true,
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      },
+      "deadline_type": "fixed",
+      "study_country": "Malaysia"
+    },
+    {
+      "catalog_key": "taylors-community",
+      "name": "Taylor's University Community Scholarship",
+      "provider": "Taylor's University",
+      "description": "Scholarship for financially disadvantaged entrants.",
+      "award_type": "Full Scholarship",
+      "deadline": "2027-07-04",
+      "application_link": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_url": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Published combined 2027 intake round.",
+      "special_requirements": "Malaysian Taylor's entrants; income below RM5,000 and qualifying results. Interview required.",
+      "is_active": true,
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": null,
+        "required_institution_type": "Private University",
+        "qualification_routes": [],
+        "max_household_income": 4999.99
+      },
+      "deadline_type": "fixed",
+      "study_country": "Malaysia"
+    },
+    {
+      "catalog_key": "taylors-ppe",
+      "name": "Taylor's University PPE Exclusive Scholarship",
+      "provider": "Taylor's University",
+      "description": "PPE degree award: 50% or 100% tuition reduction.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-04-11",
+      "application_link": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_url": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "February/April 2027 round; September differs.",
+      "special_requirements": "Only Taylor's Philosophy, Politics and Economics degree; results, written assessment and interview apply.",
+      "is_active": true,
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      },
+      "deadline_type": "fixed",
+      "study_country": "Malaysia"
+    },
+    {
+      "catalog_key": "taylors-excellence",
+      "name": "Taylor's University Excellence Award",
+      "provider": "Taylor's University",
+      "description": "Academic tuition award for eligible entrants to Taylor's University programmes.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-02-08",
+      "deadline_type": "fixed",
+      "application_link": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_url": "https://university.taylors.edu.my/en/study/scholarships-and-financial-aid/undergraduate-scholarships.html",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Recorded round: Degree, February 2027. Other programmes and intakes have different dates.",
+      "special_requirements": "Taylor's offer and qualifying examination results are required. Award bands depend on qualification and programme; use the official 2027 table. This entry covers degree study in Malaysia.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "taylors-college-merit",
+      "name": "Taylor's College Merit Scholarship",
+      "provider": "Taylor's College",
+      "description": "Academic tuition support, with full, 70% and 50% awards.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-01-24",
+      "deadline_type": "fixed",
+      "application_link": "https://college.taylors.edu.my/en/study/scholarships-and-financial-aid/scholarships.html",
+      "source_url": "https://college.taylors.edu.my/en/study/scholarships-and-financial-aid/scholarships.html",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "February 2027 Foundation round. Diploma and other pre-university routes have different dates.",
+      "special_requirements": "SPM minimum 45 weighted points; A+, A and A- carry different weights. Do not substitute a simple count of As. Selection includes psychometric assessment and interview. This record covers Foundation study at Taylor's College in Malaysia; other qualifications require the provider's assessment.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Foundation",
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed"
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "taylors-college-talent",
+      "name": "Taylor's College Talent Scholarship",
+      "provider": "Taylor's College",
+      "description": "Tuition support recognising artistic and performance achievement.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-01-24",
+      "deadline_type": "fixed",
+      "application_link": "https://college.taylors.edu.my/en/study/scholarships-and-financial-aid/scholarships.html",
+      "source_url": "https://college.taylors.edu.my/en/study/scholarships-and-financial-aid/scholarships.html",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "February 2027 Foundation round. Diploma and other pre-university routes have different dates.",
+      "special_requirements": "National-level artistic participation, SPM minimum 30 weighted points, live performance and interview. This record covers Foundation study at Taylor's College in Malaysia; other qualifications require the provider's assessment.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Foundation",
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed"
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "taylors-college-sports",
+      "name": "Taylor's College Sports Scholarship",
+      "provider": "Taylor's College",
+      "description": "Tuition support for selected national-level sporting talent.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-06-06",
+      "deadline_type": "fixed",
+      "application_link": "https://college.taylors.edu.my/en/study/scholarships-and-financial-aid/scholarships.html",
+      "source_url": "https://college.taylors.edu.my/en/study/scholarships-and-financial-aid/scholarships.html",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Published combined 2027 intake round. This record covers the Foundation route.",
+      "special_requirements": "National-level participation in an accepted sport, course entry requirements, supporting achievement records and selection. This record covers Foundation study at Taylor's College in Malaysia; other qualifications require the provider's assessment.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Foundation",
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed"
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "taylors-college-community",
+      "name": "Taylor's College Community Scholarship",
+      "provider": "Taylor's College",
+      "description": "Tuition support for eligible students with financial need.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-07-04",
+      "deadline_type": "fixed",
+      "application_link": "https://college.taylors.edu.my/en/study/scholarships-and-financial-aid/scholarships.html",
+      "source_url": "https://college.taylors.edu.my/en/study/scholarships-and-financial-aid/scholarships.html",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Published combined 2027 intake round. This record covers the Foundation route.",
+      "special_requirements": "Malaysian citizenship, documented financial circumstances, academic entry conditions and interview; refer to the 2027 Community terms. This record covers Foundation study at Taylor's College in Malaysia; other qualifications require the provider's assessment.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Foundation",
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed"
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "mmu-president",
+      "name": "MMU President's Scholarship",
+      "provider": "Multimedia University",
+      "description": "Programme-fee waiver of 100% for selected foundation or degree entrants.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2026-11-08",
+      "application_link": "https://www.mmu.edu.my/mmu-scholarship/",
+      "source_url": "https://www.mmu.edu.my/wp-content/uploads/2026/02/Feb-2026-Scholarship_Financial-Aids-Pre-U_-Undergraduate-Malaysian-Students.pdf",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The official listing gives 8 November 2026 as closing date.",
+      "special_requirements": "Malaysian MMU entrants; Law excluded. Exact A/A+ subject grades, route-specific results and renewal conditions apply. B40 status is prioritised, not mandatory.",
+      "is_active": true,
+      "evidence_urls": [
+        "https://www.mmu.edu.my/financial-assistance/"
+      ],
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": null,
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      },
+      "deadline_type": "fixed",
+      "study_country": "Malaysia"
+    },
+    {
+      "catalog_key": "mmu-merit",
+      "name": "MMU Merit Scholarship",
+      "provider": "Multimedia University",
+      "description": "Degree programme-fee support based on entry qualifications.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2026-11-08",
+      "application_link": "https://www.mmu.edu.my/mmu-scholarship/",
+      "source_url": "https://www.mmu.edu.my/wp-content/uploads/2026/02/Feb-2026-Scholarship_Financial-Aids-Pre-U_-Undergraduate-Malaysian-Students.pdf",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The official listing gives 8 November 2026 as closing date.",
+      "special_requirements": "Malaysian MMU degree students; Law excluded. Internal and external pathway thresholds differ; continuing GPA requirements apply.",
+      "is_active": true,
+      "evidence_urls": [
+        "https://www.mmu.edu.my/financial-assistance/"
+      ],
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      },
+      "deadline_type": "fixed",
+      "study_country": "Malaysia"
+    },
+    {
+      "catalog_key": "mmu-talent",
+      "name": "MMU Talent Scholarship",
+      "provider": "Multimedia University",
+      "description": "Programme and hostel fee support for recognised talents.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2026-11-08",
+      "application_link": "https://www.mmu.edu.my/mmu-scholarship/",
+      "source_url": "https://www.mmu.edu.my/wp-content/uploads/2026/02/Feb-2026-Scholarship_Financial-Aids-Pre-U_-Undergraduate-Malaysian-Students.pdf",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The official listing gives 8 November 2026 as closing date.",
+      "special_requirements": "Malaysian MMU students need verified achievements, university representation and annual review.",
+      "is_active": true,
+      "evidence_urls": [
+        "https://www.mmu.edu.my/financial-assistance/"
+      ],
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": null,
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      },
+      "deadline_type": "fixed",
+      "study_country": "Malaysia"
+    },
+    {
+      "catalog_key": "monash-equity",
+      "name": "Monash Equity Scholarship",
+      "provider": "Monash University Malaysia",
+      "description": "Need-assessed tuition support, with allowances available under the comprehensive option.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-01-11",
+      "application_link": "https://www.monash.edu.my/student-services/financial-assistance/equity-scholarships",
+      "source_url": "https://www.monash.edu.my/student-services/financial-assistance/equity-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Applications opened 13 October 2026. This date is for February 2027 entry; later 2027 intakes have separate deadlines.",
+      "special_requirements": "New entrants who are Malaysian citizens or permanent residents only. Financial evidence, course admission and interview apply. Medicine, Pharmacy, two business double degrees and specified engineering courses are excluded; check the full list.",
+      "is_active": true,
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      },
+      "deadline_type": "fixed",
+      "study_country": "Malaysia"
+    },
+    {
+      "catalog_key": "mmu-siblings",
+      "name": "MMU Siblings Discount",
+      "provider": "Multimedia University",
+      "description": "Loyalty tuition fee reduction under MMU's published financial assistance scheme.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-02-09",
+      "deadline_type": "fixed",
+      "application_link": "https://www.mmu.edu.my/mmu-scholarship/",
+      "source_url": "https://www.mmu.edu.my/mmu-scholarship/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "MMU's official financial assistance register marks this award open with a 9 February 2027 deadline. This is a tuition discount, rather than a competitive merit scholarship; the provider sets the applicable amount.",
+      "special_requirements": "New entrants with a sibling currently at MMU or a sibling who is an MMU alumnus. Relationship evidence and programme conditions apply.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.mmu.edu.my/financial-assistance/"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "mmu-alumni",
+      "name": "MMU Alumni Discount",
+      "provider": "Multimedia University",
+      "description": "Loyalty tuition fee reduction under MMU's published financial assistance scheme.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-02-09",
+      "deadline_type": "fixed",
+      "application_link": "https://www.mmu.edu.my/mmu-scholarship/",
+      "source_url": "https://www.mmu.edu.my/mmu-scholarship/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "MMU's official financial assistance register marks this award open with a 9 February 2027 deadline. This is a tuition discount, rather than a competitive merit scholarship; the provider sets the applicable amount.",
+      "special_requirements": "Eligible MMU alumni or their children entering a bachelor's degree at MMU. Prior MMU study or relationship evidence is essential. Postgraduate routes are excluded from this record.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.mmu.edu.my/financial-assistance/"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "monash-pharmacy-equity",
+      "name": "Monash Pharmacy Equity Scholarship",
+      "provider": "Monash University Malaysia",
+      "description": "Needs-assessed pharmacy tuition support, with a comprehensive funding option.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-01-11",
+      "deadline_type": "fixed",
+      "application_link": "https://www.monash.edu.my/student-services/financial-assistance/equity-scholarships",
+      "source_url": "https://www.monash.edu.my/student-services/financial-assistance/equity-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Applications opened 13 October 2026. Deadline is for the February 2027 pharmacy intake.",
+      "special_requirements": "New Malaysian citizens or Malaysian permanent residents; admission to Bachelor of Pharmacy (Honours), financial evidence, academic achievement, activities and interview. Other sponsorship is restricted.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [],
+        "required_fields_of_study": [
+          "Pharmacy"
+        ]
+      }
+    },
+    {
+      "catalog_key": "ucsi-principal-award",
+      "name": "UCSI Principal's Award",
+      "provider": "UCSI University Trust",
+      "description": "Tuition fee award through the school principal recommendation route.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2026-11-30",
+      "deadline_type": "fixed",
+      "application_link": "https://apps.ucsiuniversity.edu.my/principal-award/",
+      "source_url": "https://apps.ucsiuniversity.edu.my/principal-award/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "January 2027 registration; applicants must be in Form 5 or O-level in 2026. Actual results are due within seven days of release.",
+      "special_requirements": "Malaysian applicants, school recommendation and programme entry conditions apply. Music requires an audition; selected full-duration awards require interview. Published coverage includes pre-university and first-year diploma/degree.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": null,
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "any"
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "sunway-cis-eca",
+      "name": "Sunway University CIS-ECA Scholarship 2027",
+      "provider": "Sunway University",
+      "description": "Tuition support recognising Chinese Independent School students' extracurricular contributions.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-02-28",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarship.sunway.edu.my/scholarship/cis-eca",
+      "source_url": "https://scholarship.sunway.edu.my/scholarship/cis-eca",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "For UEC 2026 candidates entering the January, March or April 2027 intakes. This record covers the local undergraduate/diploma pathways.",
+      "special_requirements": "UEC 2026, programme entry results, school activities and supporting recommendation are required. UEC is not captured by the current academic form, so this condition requires provider verification. Professional accounting routes are outside this record.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "apu-uec-senior-three",
+      "name": "APU UEC Senior 3 Results Scholarship",
+      "provider": "Asia Pacific University of Technology & Innovation",
+      "description": "Academic tuition discounts of up to 50% using UEC Senior 3 results.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2026-12-10",
+      "deadline_type": "fixed",
+      "application_link": "https://www.apu.edu.my/index.php/uec-scholarships",
+      "source_url": "https://www.apu.edu.my/index.php/uec-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Register by 10 December 2026 for the March 2027 intake. This is the Senior 3 results route, not an invented extension of APU's closed 2026 merit round.",
+      "special_requirements": "Senior 3 average bands begin at 65%; higher bands receive higher discounts. UEC qualification, programme admission and renewal terms require checking with APU; the current academic form does not capture UEC.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "ecoworld-2026",
+      "name": "EcoWorld Scholarship Programme 2026",
+      "provider": "Eco World Foundation",
+      "description": "Financial support for selected full-time degree students at approved Malaysian universities.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2026-10-31",
+      "deadline_type": "fixed",
+      "application_link": "https://aasd.um.edu.my/financial-aid-for-undergraduate",
+      "source_url": "https://aasd.um.edu.my/financial-aid-for-undergraduate",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Universiti Malaya's official undergraduate funding notice, updated 14 October 2026, lists 31 October 2026 as the deadline.",
+      "special_requirements": "Approved university and course, academic standing and financial circumstances are assessed. Obtain the provider's current application guidelines and complete supporting documents.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://ecoworldfoundation.com/"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "mmc-group-2026",
+      "name": "MMC Group Scholarship Programme 2026",
+      "provider": "MMC Corporation Berhad",
+      "description": "Scholarship opportunity for Universiti Malaya undergraduates in engineering and computer science.",
+      "award_type": "Partial Scholarship",
+      "deadline": "2026-10-30",
+      "deadline_type": "fixed",
+      "application_link": "https://aasd.um.edu.my/financial-aid-for-undergraduate",
+      "source_url": "https://aasd.um.edu.my/financial-aid-for-undergraduate",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "UM's official notice updated 14 October 2026 confirms the 30 October 2026 deadline and links to the application portal.",
+      "special_requirements": "This listed opportunity is for Universiti Malaya undergraduates in the stated fields. Selection, academic conditions and supporting documents must be checked in the current application guidelines.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://mmcscholarship.ai.studio/"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Public University",
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying"
+          }
+        ],
+        "required_fields_of_study": [
+          "Engineering",
+          "Computer Science"
+        ]
+      }
+    },
+    {
+      "catalog_key": "pmg-scholarship",
+      "name": "PMG Scholarship",
+      "provider": "PMG Healthcare Group",
+      "description": "Funding of up to RM50,000 for eligible pharmacy or radiography students, with a career pathway.",
+      "award_type": "Partial Scholarship",
+      "deadline": null,
+      "deadline_type": "rolling",
+      "application_link": "https://pmg2u.com/pmg-scholarship/",
+      "source_url": "https://pmg2u.com/pmg-scholarship/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Rolling applications: the provider's FAQ explicitly states there are no deadlines.",
+      "special_requirements": "Malaysian citizens; full-time pharmacy or radiography at a recognised Malaysian institution, CGPA at least 3.00, interview and sponsorship conditions. Read the employment obligations before accepting.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://aasd.um.edu.my/financial-aid-for-undergraduate"
+      ],
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": null,
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "any",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying",
+            "min_cgpa": 3
+          }
+        ],
+        "required_fields_of_study": [
+          "Pharmacy",
+          "Health Sciences"
+        ]
+      }
+    },
+    {
+      "catalog_key": "sunway-special-igcse-2027",
+      "name": "Sunway Special Scholarship 2027 (June IGCSE Route)",
+      "provider": "Sunway Education Group",
+      "description": "Trial-result scholarship for the eligible June 2027 IGCSE/O-level cohort.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-05-29",
+      "deadline_type": "fixed",
+      "application_link": "https://scholarship.sunway.edu.my/scholarship/sunway-special-scholarship",
+      "source_url": "https://scholarship.sunway.edu.my/scholarship/sunway-special-scholarship",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Deadline: 29 May 2027, 5 p.m., only for O-level/IGCSE/Ontario Grade 11 final examinations in June 2027. The SPM 2026 and November 2026 examination routes closed on 5 October 2026 and are excluded.",
+      "special_requirements": "The stated June 2027 examination cohort, trial/mock results, programme admission and full-time registration are essential. This record covers pre-university/diploma options; professional accounting is outside scope. The current form cannot verify IGCSE or Ontario results.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "inti-merit",
+      "name": "INTI Merit Scholarship",
+      "provider": "INTI International University & Colleges",
+      "description": "Academic fee waivers with bands depending on programme and qualification.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "intake",
+      "application_link": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_url": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Intake-based deadline: Two weeks before class commencement. The live INTI enquiry/programme pages offer 2027 intakes; obtain the exact campus and course date before applying. No single calendar deadline is published.",
+      "special_requirements": "SPM, STPM, UEC and other accepted qualifications have separate award tables. Diploma SPM awards start at 3 As; Foundation generally starts at 5 As; STPM degree awards start at CGPA 3.00. Verify the applicable programme band.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://newinti.edu.my/request-information/",
+        "https://newinti.edu.my/programme/bachelor-of-technology-honours-data-science/"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "inti-sports",
+      "name": "INTI Sports Excellence Scholarship",
+      "provider": "INTI International University & Colleges",
+      "description": "Up to full tuition support for national athletes and up to 50% for state athletes.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "intake",
+      "application_link": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_url": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Intake-based deadline: Two weeks before class commencement. The live INTI enquiry/programme pages offer 2027 intakes; obtain the exact campus and course date before applying. No single calendar deadline is published.",
+      "special_requirements": "Local students, state/national sporting representation, programme admission and interview; miscellaneous fees are excluded.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://newinti.edu.my/request-information/",
+        "https://newinti.edu.my/programme/bachelor-of-technology-honours-data-science/"
+      ],
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": null,
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "inti-tertiary",
+      "name": "INTI Tertiary Scholarship",
+      "provider": "INTI International University & Colleges",
+      "description": "Tuition support for eligible Foundation/Diploma graduates from other institutions.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "intake",
+      "application_link": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_url": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Intake-based deadline: Two weeks before class commencement. The live INTI enquiry/programme pages offer 2027 intakes; obtain the exact campus and course date before applying. No single calendar deadline is published.",
+      "special_requirements": "External Foundation/Diploma qualification, academic and non-academic assessment and interview. Applies to specified INTI/3+0/4+0 degrees, excluding overseas degree transfer routes. Award and renewal bands vary.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://newinti.edu.my/request-information/",
+        "https://newinti.edu.my/programme/bachelor-of-technology-honours-data-science/"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "inti-chairman",
+      "name": "INTI Chairman Award",
+      "provider": "INTI International University & Colleges",
+      "description": "10% tuition fee waiver for eligible Bumiputera Malaysian entrants.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "intake",
+      "application_link": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_url": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Intake-based deadline: Intake date. The live INTI enquiry/programme pages offer 2027 intakes; obtain the exact campus and course date before applying. No single calendar deadline is published.",
+      "special_requirements": "Bumiputera Malaysian citizenship, programme entry requirements and a participating West Malaysia campus. English and short courses are excluded.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://newinti.edu.my/request-information/",
+        "https://newinti.edu.my/programme/bachelor-of-technology-honours-data-science/"
+      ],
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": null,
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "inti-family",
+      "name": "INTI Family Loyalty Award",
+      "provider": "INTI International University & Colleges",
+      "description": "One-off RM500 tuition fee waiver for eligible family members.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "intake",
+      "application_link": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_url": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Intake-based deadline: Intake date. The live INTI enquiry/programme pages offer 2027 intakes; obtain the exact campus and course date before applying. No single calendar deadline is published.",
+      "special_requirements": "A parent, spouse or sibling must be a current INTI student or alumnus. Relationship evidence and programme admission apply.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://newinti.edu.my/request-information/",
+        "https://newinti.edu.my/programme/bachelor-of-technology-honours-data-science/"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "inti-teacher",
+      "name": "INTI Secondary School Teacher Recognition Award",
+      "provider": "INTI International University & Colleges",
+      "description": "Tuition reductions for eligible children of secondary school teaching staff.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "intake",
+      "application_link": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_url": "https://newinti.edu.my/why-inti/student-support-services/scholarships-financial-assistance/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Intake-based deadline: Intake date. The live INTI enquiry/programme pages offer 2027 intakes; obtain the exact campus and course date before applying. No single calendar deadline is published.",
+      "special_requirements": "A parent must currently teach in a qualifying secondary school. Undergraduate reduction is 15%; eligible foundation/diploma and other listed programmes receive 20%.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://newinti.edu.my/request-information/",
+        "https://newinti.edu.my/programme/bachelor-of-technology-honours-data-science/"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "monash-high-achiever",
+      "name": "Monash High Achiever Award (New Students)",
+      "provider": "Monash University Malaysia",
+      "description": "RM10,000 annual tuition fee award for selected high-achieving new degree students.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-02-19",
+      "deadline_type": "admission",
+      "application_link": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/merit-scholarships",
+      "source_url": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/merit-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Automatic scholarship assessment with admission. The scholarship uses the course application deadline; 19 February 2027 is the published Malaysian regular deadline for the first 2027 intake.",
+      "special_requirements": "Outstanding accepted Year 12/pre-university results, full offer, full study load and maintenance conditions. Prior tertiary study/advanced standing are excluded. Medicine and Pharmacy are excluded; use Monash's qualification equivalence table.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.monash.edu.my/study/apply/intake-periods"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "monash-high-achiever-continuing",
+      "name": "Monash High Achiever Award (Continuing Students)",
+      "provider": "Monash University Malaysia",
+      "description": "RM10,000 annual tuition award through semester nomination for high-achieving Monash students.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "automatic",
+      "application_link": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/merit-scholarships",
+      "source_url": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/merit-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Automatic nomination every semester; there is no separate scholarship application deadline.",
+      "special_requirements": "Current Monash Malaysia undergraduate, two continuous semesters/48 credit points, average at least 80%, top 1% of school and full study load. Medicine and Pharmacy are excluded. Percentage marks are not converted to CGPA.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying"
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "monash-female-engineering",
+      "name": "Monash Female in Engineering Scholarship",
+      "provider": "Monash University Malaysia",
+      "description": "RM6,000 first-year tuition award for selected women entering engineering.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-02-19",
+      "deadline_type": "admission",
+      "application_link": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/merit-scholarships",
+      "source_url": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/merit-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Automatic assessment with course admission; the regular Malaysian first-intake deadline is 19 February 2027. Places are limited by intake.",
+      "special_requirements": "New female entrants to Bachelor of Engineering (Honours), outstanding accepted school-leaving results and full-time study. Gender, exact qualification equivalence and maintenance requirements need manual verification.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.monash.edu.my/study/apply/intake-periods"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [],
+        "required_fields_of_study": [
+          "Engineering"
+        ]
+      }
+    },
+    {
+      "catalog_key": "monash-graduate-research-pathway",
+      "name": "Monash Graduate Research Pathway Scholarship (Honours Route)",
+      "provider": "Monash University Malaysia",
+      "description": "Up to full tuition waiver for eligible students entering an honours degree.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2026-11-27",
+      "deadline_type": "admission",
+      "application_link": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/merit-scholarships",
+      "source_url": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/merit-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "This record covers the Bachelor of Arts (Honours) first 2027 intake: the School of Arts and Social Sciences publishes 27 November 2026, noon MYT. Other schools have different course deadlines. Postgraduate diploma funding is excluded.",
+      "special_requirements": "A relevant completed bachelor's degree and distinction average are required. For the listed Arts honours route, an overall and relevant third-year average of 75% normally applies; 70–75% applicants may be interviewed. Do not convert percentage marks to CGPA.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.monash.edu.my/sass/current/undergraduate/honours-application-information"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Undergraduate",
+            "study_status": "completed"
+          }
+        ],
+        "required_fields_of_study": [
+          "Communication & Media",
+          "Social Sciences",
+          "Arts & Design"
+        ]
+      }
+    },
+    {
+      "catalog_key": "monash-actuarial-bursary",
+      "name": "Monash Bachelor in Actuarial Analytics Bursary",
+      "provider": "Monash University Malaysia",
+      "description": "10% tuition reduction for the normal course duration.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-02-19",
+      "deadline_type": "admission",
+      "application_link": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/bursaries",
+      "source_url": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/bursaries",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Automatic with admission; the provider explicitly includes intakes through Semester 2, 2027. Recorded deadline is the Malaysian regular first-intake course deadline, 19 February 2027.",
+      "special_requirements": "A full unconditional offer for the exact named programme is essential. Internal course transfers are excluded; study load, progress and other sponsorship conditions apply. Honours-entry programmes require the school's entry assessment; any earlier school-specific deadline takes precedence.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.monash.edu.my/study/apply/intake-periods"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [],
+        "required_fields_of_study": [
+          "Mathematics & Statistics"
+        ]
+      }
+    },
+    {
+      "catalog_key": "monash-biomedical-bursary",
+      "name": "Monash Bachelor of Biomedical Engineering (Honours) Bursary",
+      "provider": "Monash University Malaysia",
+      "description": "10% tuition reduction for the first two years.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-02-19",
+      "deadline_type": "admission",
+      "application_link": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/bursaries",
+      "source_url": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/bursaries",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Automatic with admission; the provider explicitly includes intakes through Semester 2, 2027. Recorded deadline is the Malaysian regular first-intake course deadline, 19 February 2027.",
+      "special_requirements": "A full unconditional offer for the exact named programme is essential. Internal course transfers are excluded; study load, progress and other sponsorship conditions apply. Honours-entry programmes require the school's entry assessment; any earlier school-specific deadline takes precedence.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.monash.edu.my/study/apply/intake-periods"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [],
+        "required_fields_of_study": [
+          "Engineering"
+        ]
+      }
+    },
+    {
+      "catalog_key": "monash-ai-bursary",
+      "name": "Monash Bachelor of Computer Science in Artificial Intelligence Bursary",
+      "provider": "Monash University Malaysia",
+      "description": "10% tuition reduction for the normal course duration.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-02-19",
+      "deadline_type": "admission",
+      "application_link": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/bursaries",
+      "source_url": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/bursaries",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Automatic with admission; the provider explicitly includes intakes through October 2027. Recorded deadline is the Malaysian regular first-intake course deadline, 19 February 2027.",
+      "special_requirements": "A full unconditional offer for the exact named programme is essential. Internal course transfers are excluded; study load, progress and other sponsorship conditions apply. Honours-entry programmes require the school's entry assessment; any earlier school-specific deadline takes precedence.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.monash.edu.my/study/apply/intake-periods"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [],
+        "required_fields_of_study": [
+          "Computer Science"
+        ]
+      }
+    },
+    {
+      "catalog_key": "monash-sports",
+      "name": "Monash Sports Scholarship",
+      "provider": "Monash University Malaysia",
+      "description": "RM5,000 tuition fee waiver per semester for selected national athletes.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2026-11-30",
+      "deadline_type": "fixed",
+      "application_link": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/sport-scholarship",
+      "source_url": "https://www.monash.edu.my/student-services/financial-assistance/undergraduate-scholarships-and-bursaries/sport-scholarship",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The published October 2026 intake round closes on 30 November 2026.",
+      "special_requirements": "Malaysian national athlete with verification from the National Sports Council, commencing or continuing full-time undergraduate study at Monash Malaysia. Separate honours-entry degrees and concurrent sponsorship are excluded.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": "Malaysian",
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "southampton-top",
+      "name": "Southampton Malaysia Top Achiever Scholarship",
+      "provider": "University of Southampton Malaysia",
+      "description": "60% first-year and 20% second/third-year tuition support for eligible local 3+0 programmes.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-10-18",
+      "deadline_type": "admission",
+      "application_link": "https://www.southamptonmalaysia.edu.my/scholarships-financial-aid/undergraduate-scholarships",
+      "source_url": "https://www.southamptonmalaysia.edu.my/scholarships-financial-aid/undergraduate-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The university confirms 2027 applications are open. This record uses the published Malaysian undergraduate September 2027 admission deadline. There is no separate scholarship closing date on the award page.",
+      "special_requirements": "Business/economics/actuarial STPM AAA-; Computer Science STPM AAAA-. A-level/UEC alternatives differ. This record covers programmes completed in Malaysia; Engineering 2+2 and overseas study are excluded. Exact subject grades and offer conditions require provider confirmation.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.southamptonmalaysia.edu.my/apply-now/application"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed"
+          }
+        ],
+        "required_fields_of_study": [
+          "Business",
+          "Accounting & Finance",
+          "Computer Science",
+          "Mathematics & Statistics"
+        ]
+      }
+    },
+    {
+      "catalog_key": "southampton-exceptional",
+      "name": "Southampton Malaysia Exceptional Achiever Scholarship",
+      "provider": "University of Southampton Malaysia",
+      "description": "RM25,000 tuition support for eligible local Business, economics, actuarial and Computer Science programmes.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-10-18",
+      "deadline_type": "admission",
+      "application_link": "https://www.southamptonmalaysia.edu.my/scholarships-financial-aid/undergraduate-scholarships",
+      "source_url": "https://www.southamptonmalaysia.edu.my/scholarships-financial-aid/undergraduate-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The university confirms 2027 applications are open. This record uses the published Malaysian undergraduate September 2027 admission deadline. There is no separate scholarship closing date on the award page.",
+      "special_requirements": "Business/economics/actuarial STPM AA-A-; Computer Science STPM AAA. A-level/UEC alternatives differ. This record covers programmes completed in Malaysia; Engineering 2+2 and overseas study are excluded. Exact subject grades and offer conditions require provider confirmation.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.southamptonmalaysia.edu.my/apply-now/application"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed"
+          }
+        ],
+        "required_fields_of_study": [
+          "Business",
+          "Accounting & Finance",
+          "Computer Science",
+          "Mathematics & Statistics"
+        ]
+      }
+    },
+    {
+      "catalog_key": "southampton-high",
+      "name": "Southampton Malaysia High Achiever Scholarship",
+      "provider": "University of Southampton Malaysia",
+      "description": "RM10,000 tuition support for eligible local Business, economics, actuarial and Computer Science programmes.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-10-18",
+      "deadline_type": "admission",
+      "application_link": "https://www.southamptonmalaysia.edu.my/scholarships-financial-aid/undergraduate-scholarships",
+      "source_url": "https://www.southamptonmalaysia.edu.my/scholarships-financial-aid/undergraduate-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The university confirms 2027 applications are open. This record uses the published Malaysian undergraduate September 2027 admission deadline. There is no separate scholarship closing date on the award page.",
+      "special_requirements": "Business/economics/actuarial STPM A-A-A-; Computer Science STPM AAA-. A-level/UEC alternatives differ. This record covers programmes completed in Malaysia; Engineering 2+2 and overseas study are excluded. Exact subject grades and offer conditions require provider confirmation.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.southamptonmalaysia.edu.my/apply-now/application"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "STPM",
+            "study_status": "completed"
+          }
+        ],
+        "required_fields_of_study": [
+          "Business",
+          "Accounting & Finance",
+          "Computer Science",
+          "Mathematics & Statistics"
+        ]
+      }
+    },
+    {
+      "catalog_key": "southampton-progression",
+      "name": "Southampton Malaysia Academic Excellence Progression Scholarship",
+      "provider": "University of Southampton Malaysia",
+      "description": "Up to full tuition waiver for selected high-achieving UoSM Foundation students progressing to a degree.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "automatic",
+      "application_link": "https://www.southamptonmalaysia.edu.my/scholarships-financial-aid/undergraduate-scholarships",
+      "source_url": "https://www.southamptonmalaysia.edu.my/scholarships-financial-aid/undergraduate-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Progression award, assessed on UoSM Foundation results. No separate closing date is published. The university is accepting applications for its 2027 local programmes.",
+      "special_requirements": "UoSM Foundation average at least 80%; selection and full terms apply. This record covers progression to degree programmes completed in Malaysia. Other institutions' Foundation results and overseas Engineering 2+2 are outside this entry.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.southamptonmalaysia.edu.my/apply-now/application"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed"
+          }
+        ],
+        "required_fields_of_study": [
+          "Business",
+          "Accounting & Finance",
+          "Computer Science",
+          "Mathematics & Statistics"
+        ]
+      }
+    },
+    {
+      "catalog_key": "heriot-foundation-excellence",
+      "name": "Heriot-Watt Malaysia Foundation Excellence Award",
+      "provider": "Heriot-Watt University Malaysia",
+      "description": "Annual degree tuition award of RM15,000 or RM9,000 based on eligible Heriot-Watt Foundation performance.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "automatic",
+      "application_link": "https://www.hw.ac.uk/malaysia/study/fees-and-funding/scholarships/heriot-watt-university-scholarships",
+      "source_url": "https://www.hw.ac.uk/malaysia/study/fees-and-funding/scholarships/heriot-watt-university-scholarships",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Automatic progression award. The published scheme explicitly covers Foundation cohorts entering January and May 2027; the university accepts admissions all year. No separate scholarship application deadline is published.",
+      "special_requirements": "Heriot-Watt Malaysia Foundation results: 70% average for RM15,000; 60% for RM9,000. Annual maintenance and progression conditions apply. Percentages must not be treated as a 4-point CGPA.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://www.hw.ac.uk/malaysia/study/apply"
+      ],
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed"
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "sunway-ace",
+      "name": "Sunway ACE Scholarship",
+      "provider": "Sunway Education Group",
+      "description": "Tuition support for eligible Sunway pathway students progressing to a Sunway degree.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": "2027-03-08",
+      "application_link": "https://scholarship.sunway.edu.my/scholarship/sunway-ace-scholarship",
+      "source_url": "https://scholarship.sunway.edu.my/scholarship/sunway-ace-scholarship",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "Provider rule: within two weeks after programme commencement OR actual results release, as applicable. For the published 22 February 2027 general degree intake, the commencement-based date is 8 March 2027 (calculated, not separately announced). The results-release route and programme-specific dates may differ.",
+      "special_requirements": "Prior study at an eligible Sunway institution is essential. Foundation/diploma entry begins at CGPA 3.50, with different medicine thresholds and award bands. Other qualifications and renewal rules differ.",
+      "is_active": true,
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.5
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.5
+          }
+        ]
+      },
+      "deadline_type": "relative",
+      "study_country": "Malaysia",
+      "evidence_urls": [
+        "https://sunwayuniversity.edu.my/campus-life/academic-calendar"
+      ]
+    },
+    {
+      "catalog_key": "nottingham-deans-excellence",
+      "name": "Dean's Excellence Scholarship",
+      "provider": "University of Nottingham Malaysia",
+      "description": "Tuition reduction of 25% at academic-year progression.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "application_link": "https://www.nottingham.edu.my/Study/Fees-and-Scholarships/Scholarships/Foundation-undergraduate-scholarships.aspx",
+      "source_url": "https://www.nottingham.edu.my/Study/Fees-and-Scholarships/Scholarships/Foundation-undergraduate-scholarships.aspx",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "No application deadline: the provider assesses students at academic progression.",
+      "special_requirements": "Current Nottingham students only. Faculty-specific percentage results apply; these are not converted to CGPA here. Concurrent sponsorship is restricted.",
+      "is_active": true,
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "any"
+          },
+          {
+            "education_level": "Undergraduate",
+            "study_status": "studying"
+          }
+        ]
+      },
+      "deadline_type": "automatic",
+      "study_country": "Malaysia"
+    },
+    {
+      "catalog_key": "klust-excellence",
+      "name": "KLUST Star Teenagers Student Excellence Tuition Waiver / Scholarship",
+      "provider": "Kuala Lumpur University of Science and Technology",
+      "description": "Tuition waivers of RM9,000 for Foundation, RM15,000 for Diploma or RM30,000 for Degree.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "intake",
+      "application_link": "https://klust.edu.my/admissions/scholarships-and-loans/2026-your-future-starts-here-scholarships-promotions/",
+      "source_url": "https://klust.edu.my/admissions/scholarships-and-loans/2026-your-future-starts-here-scholarships-promotions/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The official 2026 scheme explicitly lists the upcoming November/December 2026 intakes. It publishes no single calendar deadline: arrange the applicable intake and scholarship processing date with KLUST.",
+      "special_requirements": "SPM 7 As, STPM 3 Bs or the listed alternative results; maintain CGPA 3.00 and 80% attendance. Exact subject grades are assessed by KLUST.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "klust-free-foundation",
+      "name": "KLUST Star Teenagers Free Foundation Tuition Waiver / Scholarship",
+      "provider": "Kuala Lumpur University of Science and Technology",
+      "description": "Full tuition waiver for a one-year Foundation programme.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "intake",
+      "application_link": "https://klust.edu.my/admissions/scholarships-and-loans/2026-your-future-starts-here-scholarships-promotions/",
+      "source_url": "https://klust.edu.my/admissions/scholarships-and-loans/2026-your-future-starts-here-scholarships-promotions/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The official 2026 scheme explicitly lists the upcoming November/December 2026 intakes. It publishes no single calendar deadline: arrange the applicable intake and scholarship processing date with KLUST.",
+      "special_requirements": "Meet entry requirements for KLUST Foundation in Arts or Foundation in Science; confirm non-tuition fees and award terms.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Foundation",
+        "required_institution_type": null,
+        "qualification_routes": [
+          {
+            "education_level": "SPM",
+            "study_status": "completed"
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "klust-principal",
+      "name": "KLUST Principal Recommended Star Teenagers Tuition Waiver / Scholarship",
+      "provider": "Kuala Lumpur University of Science and Technology",
+      "description": "Tuition support of RM15,000 for Diploma or RM30,000 for Degree.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "intake",
+      "application_link": "https://klust.edu.my/admissions/scholarships-and-loans/2026-your-future-starts-here-scholarships-promotions/",
+      "source_url": "https://klust.edu.my/admissions/scholarships-and-loans/2026-your-future-starts-here-scholarships-promotions/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The official 2026 scheme explicitly lists the upcoming November/December 2026 intakes. It publishes no single calendar deadline: arrange the applicable intake and scholarship processing date with KLUST.",
+      "special_requirements": "School principal or vice-principal recommendation and admission to a participating Diploma/Degree. Maintain CGPA 2.75, 80% attendance and minimum credits.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": null,
+        "required_institution_type": null,
+        "qualification_routes": []
+      }
+    },
+    {
+      "catalog_key": "klust-progression-waiver",
+      "name": "KLUST Progressing Student Tuition Waiver (Foundation / Diploma to Degree)",
+      "provider": "Kuala Lumpur University of Science and Technology",
+      "description": "50% degree tuition waiver for eligible Foundation/Diploma graduates.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "intake",
+      "application_link": "https://klust.edu.my/admissions/scholarships-and-loans/2026-your-future-starts-here-scholarships-promotions/",
+      "source_url": "https://klust.edu.my/admissions/scholarships-and-loans/2026-your-future-starts-here-scholarships-promotions/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The official 2026 scheme explicitly lists the upcoming November/December 2026 intakes. It publishes no single calendar deadline: arrange the applicable intake and scholarship processing date with KLUST.",
+      "special_requirements": "Foundation/Diploma from KLUST or another institution, graduation CGPA 3.50–4.00. Continued reduction requires semester CGPA 3.75, 80% attendance and minimum credits.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3.5
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3.5
+          }
+        ]
+      }
+    },
+    {
+      "catalog_key": "klust-progression-discount",
+      "name": "KLUST Progressing Student Discount (Foundation / Diploma to Degree)",
+      "provider": "Kuala Lumpur University of Science and Technology",
+      "description": "RM5,000 degree tuition waiver for eligible Foundation/Diploma graduates.",
+      "award_type": "Tuition Fee Waiver",
+      "deadline": null,
+      "deadline_type": "intake",
+      "application_link": "https://klust.edu.my/admissions/scholarships-and-loans/2026-your-future-starts-here-scholarships-promotions/",
+      "source_url": "https://klust.edu.my/admissions/scholarships-and-loans/2026-your-future-starts-here-scholarships-promotions/",
+      "source_checked_at": "2026-10-20",
+      "application_notes": "The official 2026 scheme explicitly lists the upcoming November/December 2026 intakes. It publishes no single calendar deadline: arrange the applicable intake and scholarship processing date with KLUST.",
+      "special_requirements": "Graduation CGPA must fall in the published 3.00–3.49 band; students above that band should check the separate 50% progression waiver. Confirm conditions with KLUST.",
+      "is_active": true,
+      "study_country": "Malaysia",
+      "rules": {
+        "required_nationality": null,
+        "required_study_level": "Undergraduate",
+        "required_institution_type": "Private University",
+        "qualification_routes": [
+          {
+            "education_level": "Foundation",
+            "study_status": "completed",
+            "min_cgpa": 3
+          },
+          {
+            "education_level": "Diploma",
+            "study_status": "completed",
+            "min_cgpa": 3
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'ScholarMatch') }} - Admin</title>
+    <x-site-icon />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-background">
@@ -29,11 +30,11 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                     Scholarships
                 </a>
-                <a href="{{ route('admin.income-categories.index') }}"
+                <a href="{{ route('admin.matching-settings') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
-                        {{ request()->routeIs('admin.income-categories.*') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0l1-1m-1 1l-1-1"></path></svg>
-                    Income Categories
+                        {{ request()->routeIs('admin.matching-settings', 'admin.income-categories.*', 'admin.study-fields.*') ? 'bg-primary/10 text-primary' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6h4m4 0h10M3 12h10m4 0h4M3 18h4m4 0h10"></path><circle cx="9" cy="6" r="2" stroke-width="2"></circle><circle cx="15" cy="12" r="2" stroke-width="2"></circle><circle cx="9" cy="18" r="2" stroke-width="2"></circle></svg>
+                    Matching Settings
                 </a>
                 <a href="{{ route('admin.recommendation-logs.index') }}"
                     class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors
@@ -68,7 +69,7 @@
             <nav class="p-4 space-y-1 overflow-y-auto">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface">Dashboard</a>
                 <a href="{{ route('admin.scholarships.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface">Scholarships</a>
-                <a href="{{ route('admin.income-categories.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface">Income Categories</a>
+                <a href="{{ route('admin.matching-settings') }}" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface">Matching Settings</a>
                 <a href="{{ route('admin.recommendation-logs.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface">Recommendation Logs</a>
                 <hr class="my-2 border-outline-variant">
                 <form method="POST" action="{{ route('logout') }}">
@@ -128,5 +129,6 @@
         }
         document.getElementById('sidebar-backdrop')?.addEventListener('click', closeSidebar);
     </script>
+    @stack('scripts')
 </body>
 </html>

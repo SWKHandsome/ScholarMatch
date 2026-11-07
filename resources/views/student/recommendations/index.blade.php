@@ -1,160 +1,108 @@
 @extends('layouts.student', ['pageTitle' => 'Recommendations'])
-
 @section('content')
 <div class="max-w-7xl mx-auto">
-    <div class="mb-8">
-        <h1 class="text-2xl font-bold text-on-surface">Scholarship Recommendations</h1>
-        <p class="text-on-surface-variant mt-1">Your personalized matches based on academic and socioeconomic criteria.</p>
-    </div>
-
+    <h1 class="text-2xl font-bold">Scholarship Recommendations</h1>
+    <p class="mt-2 mb-6 text-on-surface-variant">Eligibility based on your official results and the scholarship's applicable requirements.</p>
+    @if(session('warning'))<p class="card p-4 mb-5 text-warning">{{ session('warning') }}</p>@endif
     @if($error)
-        <div class="card p-6 bg-warning/5 border-warning/20 mb-8">
-            <div class="flex items-center gap-3">
-                <svg class="w-6 h-6 text-warning flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                <p class="text-warning">{{ $error }}</p>
-            </div>
+        <div class="card p-6 mb-6" role="alert">
+            <p class="mb-4">{{ $error }}</p>
+            <a class="btn btn-outline" href="{{ route('student.profile.edit') }}">Complete Profile</a>
+            <a class="btn btn-primary" href="{{ route('student.academic-result.edit') }}">Update Academic Information</a>
         </div>
-    @endif
-
-    @if(!empty($recommendations))
-        <!-- Summary Stats -->
-        <div class="grid sm:grid-cols-3 gap-4 mb-6">
-            <div class="card p-4 border-l-4 border-success">
-                <p class="text-sm text-on-surface-variant">Eligible</p>
-                <p class="text-2xl font-bold text-success mt-1">{{ collect($recommendations)->where('status', 'Eligible')->count() }}</p>
-            </div>
-            <div class="card p-4 border-l-4 border-warning">
-                <p class="text-sm text-on-surface-variant">Partially Eligible</p>
-                <p class="text-2xl font-bold text-warning mt-1">{{ collect($recommendations)->where('status', 'Partially Eligible')->count() }}</p>
-            </div>
-            <div class="card p-4 border-l-4 border-error">
-                <p class="text-sm text-on-surface-variant">Not Suitable</p>
-                <p class="text-2xl font-bold text-error mt-1">{{ collect($recommendations)->where('status', 'Not Suitable')->count() }}</p>
-            </div>
-        </div>
-
-        <!-- Status Tabs -->
-        <div class="card overflow-hidden">
-            <div class="border-b border-outline-variant">
-                <nav class="flex -mb-px overflow-x-auto" aria-label="Recommendation status tabs">
-                    <button class="tab-btn px-4 py-3 text-sm font-medium text-primary border-b-2 border-primary whitespace-nowrap" data-tab="eligible">
-                        Eligible <span class="ml-1 px-2 py-0.5 text-xs bg-primary/10 rounded-full">{{ collect($recommendations)->where('status', 'Eligible')->count() }}</span>
-                    </button>
-                    <button class="tab-btn px-4 py-3 text-sm font-medium text-on-surface-variant border-b-2 border-transparent hover:text-on-surface hover:border-outline-variant whitespace-nowrap" data-tab="partial">
-                        Partially Eligible <span class="ml-1 px-2 py-0.5 text-xs bg-warning/10 rounded-full">{{ collect($recommendations)->where('status', 'Partially Eligible')->count() }}</span>
-                    </button>
-                    <button class="tab-btn px-4 py-3 text-sm font-medium text-on-surface-variant border-b-2 border-transparent hover:text-on-surface hover:border-outline-variant whitespace-nowrap" data-tab="not-suitable">
-                        Not Suitable <span class="ml-1 px-2 py-0.5 text-xs bg-error/10 rounded-full">{{ collect($recommendations)->where('status', 'Not Suitable')->count() }}</span>
-                    </button>
-                </nav>
-            </div>
-
-            <!-- Tab Panels -->
-            <div class="p-4">
-                <!-- Eligible -->
-                <div id="tab-eligible" class="tab-panel">
-                    @php $eligible = collect($recommendations)->where('status', 'Eligible')->values()->all() @endphp
-                    @if(!empty($eligible))
-                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            @foreach($eligible as $rec)
-                                @include('components.scholarship-card', ['recommendation' => $rec])
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-center text-on-surface-variant py-8">No eligible scholarships</p>
-                    @endif
-                </div>
-
-                <!-- Partially Eligible -->
-                <div id="tab-partial" class="tab-panel hidden">
-                    @php $partial = collect($recommendations)->where('status', 'Partially Eligible')->values()->all() @endphp
-                    @if(!empty($partial))
-                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            @foreach($partial as $rec)
-                                @include('components.scholarship-card', ['recommendation' => $rec])
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-center text-on-surface-variant py-8">No partially eligible scholarships</p>
-                    @endif
-                </div>
-
-                <!-- Not Suitable -->
-                <div id="tab-not-suitable" class="tab-panel hidden">
-                    @php $notSuitable = collect($recommendations)->where('status', 'Not Suitable')->values()->all() @endphp
-                    @if(!empty($notSuitable))
-                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            @foreach($notSuitable as $rec)
-                                @include('components.scholarship-card', ['recommendation' => $rec])
-                            @endforeach
-                        </div>
-                    @else
-                        <p class="text-center text-on-surface-variant py-8">All scholarships are at least partially suitable!</p>
-                    @endif
-                </div>
-            </div>
-        </div>
-
+    @elseif($totalRecommendations === 0)
+        <p class="card p-8 text-center">No open scholarships are available for evaluation yet. Check back as scholarships are added.</p>
     @else
-        <div class="card p-10 text-center">
-            <svg class="w-16 h-16 mx-auto text-on-surface-variant/50 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-            <h3 class="text-lg font-medium text-on-surface mb-1">No Recommendations Yet</h3>
-            <p class="text-on-surface-variant mb-6">Complete your profile and academic result to see personalized scholarship matches.</p>
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <a href="{{ route('student.profile.edit') }}" class="btn btn-primary">Complete Profile</a>
-                <a href="{{ route('student.academic-result.edit') }}" class="btn btn-outline">Add Academic Result</a>
+        <div class="grid items-start gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
+            <aside class="card p-5" aria-labelledby="recommendation-filters-heading">
+                <h2 class="text-lg font-semibold" id="recommendation-filters-heading">Filter Scholarships</h2>
+                <form method="GET" action="{{ route('student.recommendations') }}" class="mt-4 space-y-4">
+                    <input type="hidden" name="decision" value="{{ $decision }}">
+                    <div>
+                        <label class="label" for="search">Search</label>
+                        <input class="input" type="search" id="search" name="search" value="{{ $filters['search'] }}" maxlength="255" placeholder="Name or provider">
+                    </div>
+                    <div>
+                        <label class="label" for="award_type">Award Type</label>
+                        <select class="input" id="award_type" name="award_type">
+                            <option value="">All award types</option>
+                            @foreach($awardTypes as $type)
+                                <option value="{{ $type }}" @selected($filters['award_type'] === $type)>{{ $type }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label" for="study_level">Study Level Funded</label>
+                        <select class="input" id="study_level" name="study_level">
+                            <option value="">All study levels</option>
+                            @foreach($educationLevels as $level)
+                                <option value="{{ $level }}" @selected($filters['study_level'] === $level)>{{ \App\Support\AcademicQualifications::label($level) }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label" for="field_of_study">Field of Study</label>
+                        <select class="input" id="field_of_study" name="field_of_study">
+                            <option value="">All fields</option>
+                            @foreach(\App\Models\StudyField::names() as $field)
+                                <option value="{{ $field }}" @selected($filters['field_of_study'] === $field)>{{ $field }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="label" for="institution_type">Institution Type</label>
+                        <select class="input" id="institution_type" name="institution_type">
+                            <option value="">All institution types</option>
+                            @foreach(config('scholarship.institution_types') as $type)
+                                <option value="{{ $type }}" @selected($filters['institution_type'] === $type)>{{ $type }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <p class="text-xs text-on-surface-variant">Includes scholarships open to any level, field or institution. Filters do not change your eligibility.</p>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="btn btn-primary text-sm" type="submit">Apply Filters</button>
+                        <a class="btn btn-outline text-sm" href="{{ route('student.recommendations', ['decision' => $decision]) }}">Reset</a>
+                    </div>
+                </form>
+            </aside>
+            <div class="min-w-0 scroll-mt-24" id="recommendation-results">
+                <nav class="grid grid-cols-2 gap-3 mb-5" aria-label="Eligibility decisions">
+                    @foreach(['Eligible', 'Not Eligible'] as $status)
+                        <a href="{{ route('student.recommendations', array_merge(array_filter($filters, fn ($value) => $value !== ''), ['decision' => $status])) }}"
+                            @if($decision === $status) aria-current="page" @endif
+                            @class(['card p-4', 'ring-2 ring-primary' => $decision === $status])>
+                            <span class="font-semibold">{{ $status }}</span>
+                            <span class="block text-2xl font-bold mt-1">{{ $decisionCounts->get($status, 0) }}</span>
+                        </a>
+                    @endforeach
+                </nav>
+                @if($recommendations->isEmpty())
+                    <div class="card p-8 text-center">
+                        <p>No {{ strtolower($decision) }} scholarships match these filters.</p>
+                        <p class="mt-2 text-sm text-on-surface-variant">Try adjusting the filters or checking the other eligibility group.</p>
+                    </div>
+                @else
+                    <p class="mb-4 text-sm text-on-surface-variant" role="status">Showing {{ $recommendations->firstItem() }}–{{ $recommendations->lastItem() }} of {{ $recommendations->total() }} {{ strtolower($decision) }} scholarships · Page {{ $recommendations->currentPage() }} of {{ $recommendations->lastPage() }}</p>
+                    <div class="space-y-5">
+                        @foreach($recommendations as $rec)
+                            @include('components.scholarship-card', ['recommendation' => $rec])
+                        @endforeach
+                    </div>
+                    @if($recommendations->hasPages())
+                        <div class="mt-6">{{ $recommendations->onEachSide(1)->links() }}</div>
+                    @endif
+                @endif
             </div>
         </div>
     @endif
-
-    <!-- Legend -->
-    <div class="mt-8 card p-4">
-        <h4 class="font-medium text-on-surface mb-3">Understanding Your Results</h4>
-        <div class="grid sm:grid-cols-3 gap-4 text-sm">
-            <div class="flex items-center gap-2 p-3 bg-success/5 rounded-lg">
-                <span class="badge badge-eligible">Eligible</span>
-                <span class="text-on-surface-variant">Passes all hard rules, score 80–100</span>
-            </div>
-            <div class="flex items-center gap-2 p-3 bg-warning/5 rounded-lg">
-                <span class="badge badge-partial">Partially Eligible</span>
-                <span class="text-on-surface-variant">Passes hard rules, score 50–79</span>
-            </div>
-            <div class="flex items-center gap-2 p-3 bg-error/5 rounded-lg">
-                <span class="badge badge-not-suitable">Not Suitable</span>
-                <span class="text-on-surface-variant">Fails hard rule or score 0–49</span>
-            </div>
-        </div>
-        <p class="mt-3 text-xs text-on-surface-variant">
-            <strong>Hard rules</strict> are strict pass/fail requirements (nationality, income category, study level, deadline).
-            <strong>Soft rules</strong> contribute to your score for ranking. Click "View Explanation" on any card for details.
-        </p>
+    @if(($unconfiguredCount ?? 0) > 0)
+        <p class="mt-5 text-sm text-on-surface-variant">Some scholarships are awaiting requirement configuration and cannot be evaluated yet.</p>
+    @endif
+    <div class="card p-5 mt-8 text-sm space-y-2">
+        <p><strong>Eligible:</strong> All applicable automatic requirements are met.</p>
+        <p><strong>Eligible !:</strong> Automatic requirements are met; expand ! to read special conditions that need checking with the provider.</p>
+        <p><strong>Not Eligible:</strong> At least one applicable requirement is not met. Open the explanation to see why.</p>
+        <p class="text-on-surface-variant">Scholarships appear by recorded deadline, followed by those whose dates need confirmation. Check current availability with the provider, who makes the final award decision.</p>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabPanels = document.querySelectorAll('.tab-panel');
-
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tab = btn.dataset.tab;
-
-            // Update buttons
-            tabBtns.forEach(b => {
-                b.classList.remove('text-primary', 'border-primary');
-                b.classList.add('text-on-surface-variant', 'border-transparent');
-            });
-            btn.classList.remove('text-on-surface-variant', 'border-transparent');
-            btn.classList.add('text-primary', 'border-primary');
-
-            // Update panels
-            tabPanels.forEach(panel => {
-                panel.classList.add('hidden');
-            });
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-        });
-    });
-});
-</script>
 @endsection

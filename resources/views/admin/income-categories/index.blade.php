@@ -1,10 +1,14 @@
-@extends('layouts.admin', ['pageTitle' => 'Income Categories'])
+@extends('layouts.admin', ['pageTitle' => 'Matching Settings'])
 
 @section('content')
 <div class="max-w-4xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-on-surface">Matching Settings</h1>
+        <p class="mt-1 text-on-surface-variant">Manage income ranges and fields of study for scholarship matching.</p>
+    </div>
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-on-surface">Income Categories</h1>
+            <h2 class="text-xl font-semibold text-on-surface">Income Categories</h2>
             <p class="text-on-surface-variant mt-1">Manage B40/M40/T20 household income thresholds for scholarship matching</p>
         </div>
         <button type="button" class="btn btn-primary" onclick="openCreateModal()">
@@ -80,6 +84,8 @@
 
                     </div>
     @endif
+
+    @include('admin.income-categories._study-fields')
 </div>
 
 <!-- Create Modal -->

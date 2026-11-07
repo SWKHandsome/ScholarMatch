@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ScholarshipController as AdminScholarshipController;
 use App\Http\Controllers\Admin\ScholarshipRuleController as AdminScholarshipRuleController;
 use App\Http\Controllers\Admin\IncomeCategoryController as AdminIncomeCategoryController;
+use App\Http\Controllers\Admin\StudyFieldController;
 use App\Http\Controllers\Admin\RecommendationLogController as AdminRecommendationLogController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,16 +18,12 @@ Route::get('/', function () {
     return view('public.home');
 })->name('home');
 
-Route::get('/about', function () {
-    return view('public.about');
-})->name('about');
-
 Route::get('/dashboard', function () {
     $user = auth()->user();
     if ($user->isAdmin()) {
         return redirect()->route('admin.dashboard');
     }
-    return redirect()->route('student.dashboard');
+    return redirect()->route(\App\Support\StudentOnboarding::nextRoute($user) ?? 'student.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -54,10 +51,14 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/rule-preview', \App\Http\Controllers\Admin\RulePreviewController::class)->name('rule-preview');
 
     Route::resource('scholarships', AdminScholarshipController::class);
     Route::resource('scholarships.rules', AdminScholarshipRuleController::class)->except(['show', 'destroy']);
     Route::resource('income-categories', AdminIncomeCategoryController::class)->except(['create', 'edit', 'show']);
+    Route::get('matching-settings', [AdminIncomeCategoryController::class, 'index'])->name('matching-settings');
+    Route::post('matching-settings/fields', [StudyFieldController::class, 'store'])->name('study-fields.store');
+    Route::patch('matching-settings/fields/{studyField}', [StudyFieldController::class, 'update'])->name('study-fields.update');
     Route::get('recommendation-logs', [AdminRecommendationLogController::class, 'index'])->name('recommendation-logs.index');
 Route::get('recommendation-logs/{recommendationLog}', [AdminRecommendationLogController::class, 'show'])->name('recommendation-logs.show');
 });

@@ -1,0 +1,44 @@
+Use case: infographic-diagram.
+Create one polished, accurate educational infographic for a Malaysian final-year-project student learning web hosting. Asset: a shareable explanation of the proposed Azure hosting for their existing Laravel + MySQL scholarship app, ScholarMatch. This is a concept, not an already-deployed architecture.
+Use a spacious landscape canvas, approximately 1800 by 1500, with a white background, dark navy text, azure blue for the hosted app, teal for databases, and subtle purple for the deployment workflow. Crisp flat vector-style illustrations, generous whitespace, large extremely readable English sans-serif text. Restrained professional classroom-poster design, not a marketing advertisement. Use simple laptop, GitHub repository, workflow gears, web browser, cloud-server and database-cylinder icons. Accurate arrow direction and clear section numbers. All text must be spelled correctly. Use the exact text below, and no invented claims, prices, extra services or watermarks.
+
+TITLE: "SCHOLARMATCH ON AZURE"
+SUBTITLE: "How your proposed hosting setup works"
+
+Three wide horizontal sections, each a different view of the same setup. Repeated named Azure components refer to the same service, not extra servers.
+
+SECTION 1 header: "1. PUBLISH YOUR CODE"
+Four clearly separated cards in order left to right, connected by purple arrows:
+"Your laptop" / "Edit and test with Laragon"
+arrow label "git push"
+"GitHub" / "Source code + demo seed file"
+arrow label "Configured workflow"
+"GitHub Actions" / "Build and deploy"
+arrow label "Publish"
+"Azure App Service" / "Runs Laravel / PHP on Linux"
+Small line below: "Automatic deployment works after the workflow is configured."
+
+SECTION 2 header: "2. A VISITOR USES YOUR WEBSITE"
+Three clear cards left to right with blue double-headed arrows:
+"Students and admins" / "Open your HTTPS website"
+arrow label "Request / response"
+"Azure App Service" / "Laravel runs login, pages and eligibility checks"
+arrow label "Read / write"
+"Azure Database for MySQL" / "Flexible Server" / "Stores accounts, results, scholarships and saves"
+Enclose the two Azure cards in a subtle light-blue grouping labelled "Azure resource group".
+Small line below: "App settings hold the database connection and APP_KEY."
+The visitor connects only to App Service; do not draw any browser-to-database connection.
+Small reassuring callout: "Azure runs the hosted app independently of your laptop."
+
+SECTION 3 header: "3. MOVE YOUR EXISTING DATA"
+Left teal card "Local MySQL in Laragon" / "Your current 23 scholarships"
+Dashed teal arrow labelled "One-time backup and restore"
+Right teal card "Azure MySQL" / "20 demos + 3 manual awards"
+Small line below: "GitHub does not copy your live database. Code deployment and data transfer are separate."
+
+BOTTOM STRIP with small credit/card and clock icons, two short lines:
+"Azure for Students: credit helps pay for Azure resources."
+"Check remaining credit, expiry and service prices before deployment."
+BOTTOM RIGHT discreet status badge: "CONCEPT ONLY"
+
+Constraints: GitHub stores code and seed definitions, not the user's database or .env. GitHub Actions deployment is configurable, not already enabled. App Service uses Linux PHP and accesses a separate MySQL Flexible Server. Laragon stays on the developer's computer. Do not imply an Azure VM is necessary or that this setup is permanently free. Do not include Redis, Azure SQL, Kubernetes, Blob Storage, Key Vault, a custom domain purchase or any unnecessary service. Clear readable diagram first; keep labels concise and preserve all the listed content.
