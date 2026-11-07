@@ -896,3 +896,20 @@ Follow-up: after an active subscription but no active sponsorship message, Educa
 **FYP documentation:** Add the verified hosting procedure to implementation/deployment once completed. Record selected resources, region, final architecture/costs, deployment outcome, data-transfer evidence and live test screenshots. The existing infographic and this guide remain proposed architecture/procedure; they are not deployment evidence.
 
 **Verification:** Source/configuration review and current official documentation checks only. No application code, database, environment credentials, GitHub workflow or Azure resources were changed. No application-test rerun was needed for guidance-only documentation. No commit or push was made.
+
+## IMP-037 — Verify main-to-Refining merge before release
+
+**Date:** 2026-11-07
+**Status:** Merge and functional checks passed; dependency security updates remain recommended before release.
+
+- Reviewed merge c3469b4 (parents 30be36a and 67734e4). The known origin/main history is contained in Refining, with 12 commits unique to Refining and none missing from that main reference. Working tree was clean at review start, with no unresolved merge entries or conflict markers. This inspection used the local fetched references; no remote branch or PR was changed.
+- The merge changed only composer.lock relative to its Refining parent. Composer validation and PHP 8.3 installation/platform checks passed. Installed dependencies match the merged lock; optimized autoload generation and Laravel package discovery completed successfully.
+- Full isolated MySQL suite: **474 passed / 2,249 assertions**. SQLite: **467 passed / 2,223 assertions**, with **7 MySQL-only skips**. JavaScript: **18 academic + 4 rule-preview + 5 income-preview tests passed**. Production Vite build passed; assets remain app-DrHw17l2.css and app-D22EgJo-.js. No browser checks were rerun for this dependency/merge review.
+- Confirmed that all 10 live business tables retain their pre-test row counts and hashes. Tests used scholarmatch_test and in-memory SQLite, with separate compiled-view directories removed afterward. The actual application database was not reset or reseeded.
+- Composer's current locked-dependency audit reports **7 security advisories across 4 Symfony packages**, with no abandoned packages. Current versions: http-foundation/http-kernel/routing 7.4.20 and mime 7.4.19. A minimal-change update dry run resolves compatible targets: http-foundation/http-kernel/routing **7.4.23**, mime **7.4.22**, with no added/removed packages. The dry run did not modify the lockfile or install these patches. Advisory applicability depends on component usage and server configuration; the audit does not establish that ScholarMatch has been exploited.
+
+**Release recommendation:** The branch merge is valid and current functional checks pass. Open a Refining-to-main PR for review, and apply/retest the four dependency patch updates before merging for public deployment. Azure runtime/deployment preparation remains separate work under IMP-036.
+
+**FYP documentation:** Record the merged-dependency regression run in testing/evaluation, and dependency auditing/patch maintenance in deployment and maintenance. No feature, eligibility algorithm or schema changes were made by this review. Private evidence logs are under storage/logs/merge-review-*; source data was preserved. No commit, push or PR merge was performed.
+
+**Sources:** [Symfony HTTP Foundation advisory and patched versions](https://github.com/symfony/symfony/security/advisories/GHSA-5mx8-mwrp-5693), [Symfony MIME advisory and patched versions](https://symfony.com/blog/cve-2026-45070-email-header-injection-via-non-token-characters-in-mime-parameter-names). The complete seven-advisory audit is saved privately at storage/logs/merge-review-composer-audit.json.
