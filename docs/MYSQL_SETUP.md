@@ -11,6 +11,16 @@ MySQL is the default application database. Local development uses Laragon; the a
 5. New installations: `php artisan migrate --seed`. Existing-data transfers: follow the next section instead of seeding accounts.
 6. Build assets with `npm run build`; start the application with `php artisan serve`. The existing project location does not need to move into Laragon's `www` folder.
 
+If the server reports running on port 8000 but the browser times out, check for a previously started PHP server still holding that port. Stop the previous project server with Ctrl+C in its terminal and restart the intended command. Identify the project/process before stopping anything; do not stop MySQL or unrelated PHP applications. On this Windows device, an older Laragon PHP 8.3 ScholarMatch server held port 8000 without answering connections. Stopping its verified parent/child processes restored the original command on 8000; no firewall rule changes were needed.
+
+For temporary diagnosis, the same application can also run on another port:
+
+```powershell
+& ".\.codex\toolchain\php\php.exe" artisan serve --host=127.0.0.1 --port=8001
+```
+
+Open the address matching the chosen port and keep the server terminal running. Keep MySQL running in Laragon. Align the local .env APP_URL with that address, clearing cached configuration if enabled. The current local URL was restored to http://127.0.0.1:8000 after diagnosis. The toolchain path is local and Git-ignored; other devices may use their own PHP executable. A port change can isolate a connectivity problem; it does not identify the cause by itself.
+
 ## Transfer an existing SQLite installation
 
 Pause application writes while taking the final snapshot and switching connections. Preserve the original `.env`/APP_KEY and keep the SQLite file. Use a consistent SQLite `VACUUM INTO` backup rather than copying an actively written file.

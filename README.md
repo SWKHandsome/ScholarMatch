@@ -200,6 +200,7 @@ tests/                      # Pest unit and feature tests
 - [Matching Settings and Fields of Study](docs/MATCHING_SETTINGS.md)
 - [Design System](DESIGN.md)
 - [Manual Test Cases](MANUAL_TEST_CASES.md)
+- [Full System Regression Report — 8 November 2026](docs/FULL_SYSTEM_TEST_REPORT_2026_11_08.md)
 - [Academic Qualifications, Grade Formats and Matching Examples](docs/ACADEMIC_QUALIFICATIONS.md)
 - [Academic Requirement Types and STPM/UEC Calculations](docs/ACADEMIC_REQUIREMENT_TYPES.md)
 - [Completed STPM CGPA Calculation](docs/STPM_CGPA_CALCULATION.md)

@@ -1,0 +1,109 @@
+name: Build and deploy ScholarMatch
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_mysql, pdo_sqlite, zip
+          tools: composer:v2
+          coverage: none
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install locked dependencies
+        run: |
+          composer install --prefer-dist --no-interaction --no-progress
+          npm ci --ignore-scripts
+
+      - name: Check JavaScript and build production assets
+        run: |
+          npm run test:academic
+          npm run test:planning
+          npm run test:income
+          npm run build
+
+      # A clean checkout has no public/build; Blade-rendering tests need it first.
+      - name: Run backend tests in isolated SQLite memory
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+        run: APP_KEY="base64:$(openssl rand -base64 32)" php artisan test
+
+      - name: Install production-only PHP dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+
+      - name: Package application without local data or secrets
+        run: php deploy/azure/package.php --output="$RUNNER_TEMP/scholarmatch.zip"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: scholarmatch-release
+          path: ${{ runner.temp }}/scholarmatch.zip
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+
+  deploy:
+    # First pushes build/test only. Enable after OIDC and Azure startup are configured.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.AZURE_DEPLOY_ENABLED == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: scholarmatch-azure-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: scholarmatch-release
+          path: release
+
+      - name: Check Azure identity configuration
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        run: |
+          test -n "$AZURE_CLIENT_ID" || { echo 'Configure AZURE_CLIENT_ID first.'; exit 1; }
+          test -n "$AZURE_TENANT_ID" || { echo 'Configure AZURE_TENANT_ID first.'; exit 1; }
+          test -n "$AZURE_SUBSCRIPTION_ID" || { echo 'Configure AZURE_SUBSCRIPTION_ID first.'; exit 1; }
+
+      - name: Sign in to Azure with OpenID Connect
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy the prepared ZIP
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: scholarmatch-fyp-swk
+          package: release/scholarmatch.zip
+          startup-command: sh /home/site/wwwroot/deploy/azure/startup.sh

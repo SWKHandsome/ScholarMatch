@@ -2,12 +2,14 @@
 
 **Project:** FYP ScholarMatch — Scholarship Recommendation Platform for Malaysian Students
 **Stack:** Laravel 13 + PHP 8.3 + Pest + Tailwind CSS + Vite + MySQL (dev; SQLite isolated tests)
-**Last Updated:** 2026-11-07 (Asia/Singapore)
-**Test Suite Status:** MySQL: 474 passed / 2,249 assertions. SQLite: 467 passed / 2,223 assertions, with seven MySQL-only cases skipped. Production build and changed-PHP formatting passed. The unchanged JavaScript suites previously passed 18 academic, 4 admin-preview and 5 income-preview cases. See IMP-033 in improve.md.
+**Last Updated:** 2026-11-08 (Asia/Singapore)
+**Test Suite Status:** Full MySQL suite passed on PHP 8.3 and 8.5: 474 tests / 2,249 assertions per runtime. SQLite on PHP 8.5: 467 passed / 2,223 assertions, with seven MySQL-only cases skipped. All 27 JavaScript tests, production build, Composer validation/audit and syntax parsing passed. Desktop/mobile student/admin browser checks completed. See [the full regression report](docs/FULL_SYSTEM_TEST_REPORT_2026_11_08.md) and IMP-040 in improve.md for coverage and limitations.
 
 ---
 
 ## Setup
+
+Use a dedicated disposable test database and synthetic accounts for these steps. Do not run migration/seed/reset commands against an existing application database simply to test it. Browser tests should use a separate cookie name as well as a separate database so they cannot reuse real sessions.
 
 ```bash
 php artisan migrate --seed
@@ -29,10 +31,10 @@ npm run dev        # in separate terminal
 | # | Test Case | Steps | Expected |
 |---|-----------|-------|----------|
 | P1 | Home page loads | Visit `/` | Hero, How It Works, Features, CTA buttons visible |
-| P2 | About page | Click "About" or visit `/about` | Static info page loads |
+| P2 | Public navigation after About removal | Inspect Home navigation; visit `/about` | No About link; the retired route returns 404. |
 | P3 | Login page | Visit `/login` | Breeze login form |
 | P4 | Register page | Visit `/register` | Breeze registration form |
-| P5 | Guest → admin redirect | Visit `/admin` as guest | Redirect to `/login` |
+| P5 | Guest → admin redirect | Visit `/admin/dashboard` as guest | Redirect to `/login` |
 | P6 | Guest → student redirect | Visit `/student/dashboard` as guest | Redirect to `/login` |
 
 ---
@@ -46,7 +48,7 @@ npm run dev        # in separate terminal
 | A3 | Admin login | `/login` with admin creds | Redirect to `/admin/dashboard` |
 | A4 | Wrong password | `/login` with bad password | Error "These credentials do not match" |
 | A5 | Logout | Click "Log Out" dropdown | Redirect to `/`, session destroyed |
-| A6 | Email verification | Register new → check email (log) → click link | Verified badge, no resend prompt |
+| A6 | Optional email-verification routes | Exercise an unverified synthetic user and a valid/invalid signed verification link | Valid signed link verifies the address; invalid hash is rejected. Current User does not enforce mandatory verified-email login; do not expect automatic verification mail or a verified badge as a registration requirement. |
 | A7 | Password reset | `/forgot-password` → email → reset link → new password | Login with new password works |
 | A8 | Switch between account forms | Open Login, click Register on the left, then Login on the right | Full-width switch appears above each form; current page is blue and marked aria-current=page. Links open the correct form. |
 | A9 | Login password visibility | Enter a test password; click the eye twice | Password starts masked, becomes visible and is masked again. Labels/pressed state follow visibility; toggling does not submit or clear the form. |
@@ -58,6 +60,7 @@ npm run dev        # in separate terminal
 | A15 | Animated switch and history | Switch forms, use Back/Forward, refresh each URL and open a link normally in a new tab | Blue background slides for 250ms, selected form fades in for 150ms, URL/active state follow selection. Direct routes and native link navigation work. Reduced-motion settings disable panel/slider transitions. |
 | A16 | Current-state eye icons and focus | Toggle each eye by mouse, then reach it using Tab | Masked = crossed eye; visible = open eye. Mouse clicks show no blue outline; keyboard focus has a visible inset ring. Labels describe the next action. |
 | A17 | Inactive form and validation | Inspect keyboard/assistive navigation; submit invalid Login details; switch modes | Only the visible form is interactive/exposed. Login errors appear in Login, unique field IDs label the correct inputs, and switching masks revealed passwords. |
+| A18 | Login survives server restart | Sign in on an isolated database-backed session, stop/restart only artisan serve, then reload | A still-valid browser cookie/session remains authenticated. Explicit Logout ends it; restarting the process alone does not log everyone out. Normal lifetime is configured separately, and Remember me may extend authentication. |
 | SET-01 | First registration/login | Use a student without personal/academic information | Open Student Profile first, overriding old intended URLs; show two-step progress. |
 | SET-02 | Resume setup | Log in with a complete profile but missing/pending/incomplete academics | Open Academic Result directly; retain saved profile information. |
 | SET-03 | Save profile then academics | Submit valid personal information, then official academic results | Profile save continues to Academic Result; academic save reaches Dashboard once both are complete. If academics already exist, profile save can finish setup directly. |
@@ -79,7 +82,7 @@ npm run dev        # in separate terminal
 | S6 | Validation: empty fields | Submit empty form | All required field errors shown |
 | S7 | Validation: negative income | Income: -100 | Error "must be at least 0" |
 | S8 | Validation: negative dependents | Dependents: -1 | Error "must be at least 0" |
-| S9 | Role guard | Login admin → `/student/profile/edit` | 403 Forbidden |
+| S9 | Role guard | Login admin → `/student/profile` | 403 Forbidden |
 | S10 | Income input layout | Open Profile with income 3000.00 | Amount is fully readable with standard input padding; RM appears in the label, with no overlaid prefix |
 | S11 | Required-field markers | Open Profile, Academic Result and admin Add/Edit Scholarship | No separate “* Required field.” note; required labels retain stars and validation still applies |
 | S12 | Nationality choices and save | Open Profile, select Non-Malaysian and save | Only Malaysian and Non-Malaysian are selectable categories; the chosen value saves and reloads; individual-country/Other submissions fail validation |

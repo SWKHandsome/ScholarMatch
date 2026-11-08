@@ -1,6 +1,6 @@
 # ScholarMatch Azure deployment guide
 
-Prepared 7 November 2026. This is a guided deployment plan, not evidence that ScholarMatch is hosted. Subscription details, region availability and prices must be confirmed in the user's Azure account.
+Updated 8 November 2026. Azure resources and the MySQL data copy have been created through the user's portal/terminal session. Website deployment, Azure identity setup and live HTTPS verification are still pending. Local deployment files are implemented; local checks do not establish that the site is already hosted.
 
 ## 1. Check the existing student subscription
 
@@ -34,17 +34,33 @@ If no student benefit appears with the correct account/subscription, use Azure H
 
 Microsoft's PHP/MySQL tutorial uses a Basic Linux plan and offers a private database connection. Treat its tier as a starting point to price, not a promise of free hosting. Use a common supported region for app/database; Southeast Asia is a candidate only if the subscription offers the required resources there. Review database size/tier and all resources produced by a creation wizard. ScholarMatch already uses database-backed sessions/cache; Redis is not required for this initial deployment. [PHP/MySQL tutorial](https://learn.microsoft.com/en-us/azure/app-service/tutorial-php-mysql-app), [MySQL engine support](https://learn.microsoft.com/en-us/azure/mysql/flexible-server/overview).
 
-Next portal step: App Services → Create → Web App. On Basics, select the student subscription, a new rg-scholarmatch-fyp resource group, a unique app name, Code publishing, PHP 8.3 if available, Linux and an available nearby region. Inspect Basic B1 pricing as the initial app-plan candidate. Review the selected region/tier and displayed price before final resource creation; database/network pricing is additional. These are proposed form values, not already created resources.
+### Completed resource checkpoint — 8 November 2026
+
+- Southeast Asia was denied by the subscription's region policy. The allowed-location parameter listed Central India, Japan West, Korea Central, East Asia and Malaysia West.
+- Created rg-scholarmatch-fyp; Linux/PHP 8.3 Web App scholarmatch-fyp-swk and Basic B1 plan asp-scholarmatch-fyp in Malaysia West. Portal app-plan estimate: USD12.41/month.
+- Created MySQL Flexible Server scholarmatch-fyp-swk-server in Malaysia West, MySQL 8.4, Burstable B1ms (1 vCore, 2 GiB), 20 GiB storage, 360 pre-provisioned IOPS, 7-day local backups, storage autogrow on, HA/geo-redundancy off. Portal base estimate: USD18.82/month before eligible free allowances and additional usage. The green free-allowance labels are not independent verification of the remaining benefit.
+- Public database connectivity uses one client-IP rule plus 31 individually allowed Web App outbound IPv4 addresses. The user waited for the asynchronous firewall update to succeed. Access from all Azure services and unrestricted internet ranges remain off; TLS remains enforced. Review the allowlist after app-plan/address changes. Remove the temporary laptop rule when imports/administration no longer need it.
+- Created database scholarmatch, utf8mb4/utf8mb4_unicode_ci. A complete local MySQL dump was restored after a VERIFY_IDENTITY connection confirmed an empty destination and an encrypted TLS session.
+- User-supplied Azure query results matched current local counts: 18 tables; academics4, income3, migrations21, recommendation logs46, saved scholarships0, qualification routes66, rules24, scholarships24, profiles4, study fields21, users7. This verifies table/selected row counts, not a byte-for-byte comparison of every value. The private backup and CA files remain under storage/app/private and are excluded from the release.
+- User saved the 19 initial App Service setting names. Secret values were kept hidden. Their actual runtime values still need live validation.
 
 ## 3. Prepare the actual repository before enabling deployment
 
-These items remain deployment work; they have not been implemented by this guide:
+The following files now implement the local deployment preparation:
 
-- Review and push the intended source changes. Exclude .env, SQL backups, private storage exports and local toolchains from deployment artifacts.
-- Configure a Linux build using the lockfiles: production Composer dependencies and npm ci followed by npm run build. Ship vendor and public/build with the application. Do not use composer setup in production: it generates a key and runs seeded migrations.
-- Configure persistent Nginx startup behaviour to serve /home/site/wwwroot/public with Laravel front-controller routing. The repository root must not become the public document root. [PHP configuration](https://learn.microsoft.com/en-us/azure/app-service/configure-language-php).
-- Configure trusted proxy/HTTPS handling for the actual Azure ingress, then check generated links, redirects and secure session cookies.
-- Connect GitHub deployment to the selected app, preferably with OpenID Connect. Review the generated workflow: enabling Deployment Center can write a workflow to GitHub, and the generated PHP build still needs ScholarMatch's frontend build. [GitHub Actions deployment](https://learn.microsoft.com/en-us/azure/app-service/deploy-github-actions).
+| File | Behaviour |
+| --- | --- |
+| .github/workflows/azure-deploy.yml | Push/PR to main and manual runs install lockfiles, run SQLite backend/JS tests, build Vite, reinstall production-only Composer dependencies and upload the release ZIP. Deployment stays skipped until AZURE_DEPLOY_ENABLED=true; then only successful main builds can deploy with OIDC. |
+| deploy/azure/package.php | Creates a ZIP from allowed application directories, vendor and built assets. Refuses development dependencies, missing assets and output overwrites. Excludes .env files, local DB files/dumps, Git/toolchains, all existing storage contents, public/hot, public/storage and bootstrap caches. Adds empty runtime directories instead. |
+| deploy/azure/nginx.conf | Uses /home/site/wwwroot/public, Laravel front-controller routing, dotfile denial and PHP execution limited to index.php. |
+| deploy/azure/startup.sh | Creates runtime directories, caches the Azure configuration/routes/views, validates Nginx and reloads it. No key generation, database reset, restoration, seeding or automatic migration occurs on restart. |
+| config/trustedproxy.php and bootstrap/app.php | TRUSTED_PROXIES is blank/untrusted by default; Azure can opt in with *. Accepts forwarded client IP, scheme and port; deliberately ignores forwarded host and prefix. |
+
+The workflow uses PHP 8.3, Node24 and Linux runners. npm ci --ignore-scripts and npm run build produce assets; production Composer installation uses --no-dev and the existing lockfile. No live database credentials or APP_KEY are supplied to GitHub builds. Do not use composer setup for production: it generates a key and runs seeded migrations.
+
+Review and push the intended source changes yourself. The first push can complete the build while the deploy job is skipped. The assistant does not commit or push automatically.
+
+Sources: [Azure Nginx/startup configuration](https://learn.microsoft.com/en-us/azure/app-service/configure-language-php), [GitHub/OIDC deployment](https://learn.microsoft.com/en-us/azure/app-service/deploy-github-actions), [Laravel trusted proxies](https://laravel.com/docs/13.x/requests#configuring-trusted-proxies).
 
 ## 4. Configure production settings and transfer data
 
@@ -61,6 +77,8 @@ Supply private values through App Service environment settings rather than uploa
 | MYSQL_ATTR_SSL_CA | A valid trusted CA file path for the selected Azure MySQL TLS connection; verify it exists in the deployed runtime. |
 | SESSION_DRIVER / CACHE_STORE | database / database; their tables must exist after restoration/migrations. |
 | SESSION_SECURE_COOKIE | true, after HTTPS/proxy handling is correct. |
+| TRUSTED_PROXIES | * on this Azure App Service managed ingress only; leave blank on direct localhost. |
+| SCM_DO_BUILD_DURING_DEPLOYMENT | false; the workflow already builds vendor and public/build. |
 | Mail settings | A working mail service if password-reset delivery is required. The current local log mailer does not deliver emails. |
 
 Plan database access before restoration: a private server requires a restore client with access to its network. The laptop or a standard GitHub runner does not automatically have that access. Keep TLS enabled.
@@ -68,6 +86,29 @@ Plan database access before restoration: a private server requires a restore cli
 Back up the current local MySQL database during a write pause. Restore its complete schema/data/migration history into an empty dedicated Azure database, verify the content, then run only pending migrations with php artisan migrate --force. This preserves the manual scholarships, custom fields, income settings, student accounts and relationships. Do not seed or run migrate:fresh for this move. The earlier SQLite importer is not the tool for this MySQL-to-MySQL transfer. Capture fresh source counts at transfer time rather than assuming historical totals.
 
 After the environment and data are correct, clear stale development configuration, build production caches and start/restart the app. Future releases deploy code and pending migrations without restoring/reseeding the database. Define worker/scheduler hosting only if the deployed app actually needs background jobs.
+
+### Finish the portal settings
+
+1. Add TRUSTED_PROXIES=* and SCM_DO_BUILD_DURING_DEPLOYMENT=false to the Web App's existing App settings, Apply and wait for success. Keep APP_DEBUG=false, the existing APP_KEY, HTTPS APP_URL and SESSION_SECURE_COOKIE=true.
+2. Use MYSQL_ATTR_SSL_CA=/etc/ssl/certs/ca-certificates.crt; this is the platform CA bundle, not the laptop's Windows certificate path. Validate the connection in the actual runtime.
+3. Keep HTTPS Only enabled. Use normal extracted ZIP deployment; do not enable WEBSITE_RUN_FROM_PACKAGE because Laravel needs writable storage/bootstrap cache.
+4. The workflow supplies startup command sh /home/site/wwwroot/deploy/azure/startup.sh. If setting it manually, use Web App → Configuration → General settings / Stack settings (portal layouts vary). The script becomes available after uploading the release.
+5. Prefer a dedicated application MySQL user scoped to scholarmatch.* before opening the site to users. The current imported server administrator was used during setup. Supply application credentials only to App Service, never to the workflow or chat.
+
+### Configure GitHub login without a generated duplicate workflow
+
+The repository already has its own workflow. Use the manual OIDC path below; do not additionally enable Deployment Center's generated workflow, which would create another commit and competing deployment. This preparation has not created an Azure identity or changed GitHub settings.
+
+1. In Azure Portal, create a user-assigned Managed Identity in the same resource group/allowed region, for example id-scholarmatch-github.
+2. On this Web App → Access control (IAM), assign Website Contributor to that managed identity, scoped to this Web App only.
+3. On the identity → Federated credentials → Add credential, choose GitHub Actions deploying Azure resources. Enter the exact GitHub organization/owner and repository (SWKHandsome / ScholarMatch if unchanged), entity Branch, branch main. Audience is api://AzureADTokenExchange. This trusts the subject repo:SWKHandsome/ScholarMatch:ref:refs/heads/main; change owner/repo if your actual repository differs. Do not choose a GitHub environment subject for this workflow, which uses branch federation.
+4. In GitHub → repository Settings → Secrets and variables → Actions → Secrets, add AZURE_CLIENT_ID (the managed identity's client ID), AZURE_TENANT_ID (directory/tenant ID) and AZURE_SUBSCRIPTION_ID. These are identity identifiers, not a publish profile or database password. Never create a client secret for this OIDC path.
+5. Keep the repository variable AZURE_DEPLOY_ENABLED absent/false until the source build, App Service environment and identity/role/federation are ready.
+6. Then add the Actions repository variable AZURE_DEPLOY_ENABLED with value true. Run Build and deploy ScholarMatch manually from main (changing a variable alone does not start a run). Subsequent main pushes deploy automatically. Pull requests build only and have no Azure token permission.
+7. Inspect both build/deploy jobs. The deployment action sets the startup command and uploads only the prepared ZIP. Basic/publish-profile authentication stays disabled. If login fails, check branch subject, tenant, client ID and role scope; keep database credentials private.
+8. In App Service SSH, use php artisan migrate:status, then php artisan migrate --force only for genuinely pending migrations. This patch adds no schema changes. Do not restore again or run seeds/migrate:fresh; the 21-row migration history is already imported.
+
+Optional local packaging check (from an isolated production dependency installation, not the developer's dev vendor): php deploy/azure/package.php --output=/new/path/scholarmatch.zip. The PHP CLI needs its ZIP extension. Deployment failure should be diagnosed in GitHub Actions plus App Service startup/application logs; build success alone does not prove a live Azure release.
 
 ## 5. Verify and collect FYP evidence
 
