@@ -34,7 +34,7 @@
             </div>
         </div>
 
-        <div class="card p-5 border-l-4 border-info">
+        <a href="{{ route('admin.students.index') }}" class="card block p-5 border-l-4 border-info hover:shadow-md transition-shadow">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-on-surface-variant">Total Students</p>
@@ -44,7 +44,7 @@
                     <svg class="w-6 h-6 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 </div>
             </div>
-        </div>
+        </a>
 
         <div class="card p-5 border-l-4 border-warning">
             <div class="flex items-center justify-between">
@@ -121,7 +121,7 @@
                         <div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-low">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-sm">
-                                    {{ strtoupper($log->user->name[0]) }}
+                                    {{ mb_strtoupper(mb_substr($log->user->name, 0, 1)) }}
                                 </div>
                                 <div>
                                     <p class="font-medium text-on-surface text-sm">{{ $log->user->name }}</p>

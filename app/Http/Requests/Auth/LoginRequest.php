@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Support\AccountValidation;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,6 +13,16 @@ use Illuminate\Validation\ValidationException;
 
 class LoginRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        AccountValidation::normalize($this);
+    }
+
+    public function messages(): array
+    {
+        return AccountValidation::messages();
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -28,7 +39,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => AccountValidation::emailFormatRules(),
             'password' => ['required', 'string'],
         ];
     }

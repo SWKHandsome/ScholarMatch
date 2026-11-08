@@ -410,3 +410,24 @@ Use an isolated database for rename/deactivation checks.
 | MF-08 | Import an updated SQLite snapshot into migrated empty MySQL, then try a target with custom field settings | Untouched destination defaults may be replaced transactionally; edited/custom target settings are refused. IDs, labels and active status are preserved. |
 
 Browser verification covered MF-01–MF-06 using synthetic users on desktop, including a renamed existing student field and an inactive field hidden from new selections. Automated tests cover seed/import behaviour and permissions. Screenshot: storage/app/private/matching-settings-preview.png. No mobile viewport check was performed for this change.
+
+## Student account management and simple validation
+
+Use disposable synthetic accounts in an isolated database for credential/deletion checks.
+
+| ID | Action | Expected result |
+| --- | --- | --- |
+| ACCOUNT-01 | Register/edit with `王小明`, `O'Connor` or `Raj A/L Kumar` | Valid names pass; surrounding spaces are trimmed. |
+| ACCOUNT-02 | Enter `Select * From username`, `Student123`, punctuation only or over 100 characters | Inline/server validation rejects the name; no account change is saved. |
+| ACCOUNT-03 | Enter `friend@nihao` or `friend@gmail`, then try Gmail/Yahoo/college addresses | Incomplete domains fail; complete syntactically valid domains pass without a provider whitelist. |
+| ACCOUNT-04 | Use mixed-case/spaced email and an existing email | Email is trimmed/lowercased; duplicate creation/update is rejected. Existing password policy is unchanged. |
+| STUDENT-01 | Open Manage Students from navigation/dashboard, search name/email and open page 2 | Only student accounts appear; at most 10 per page; search is retained while paging. |
+| STUDENT-02 | Add a student | Name/email/password/confirmation are required; student role is forced; admin remains signed in; profile/academic setup remains for the student. |
+| STUDENT-03 | View a complete/incomplete student and edit their account | Completion badges match the saved information; profile/academic values are read-only; editor contains account fields only. |
+| STUDENT-04 | Save a name-only edit with both password fields blank | Existing password, profile, academic results and email verification remain. |
+| STUDENT-05 | Update email or confirmed password in a database-session test environment | Only that student's sessions/remembered login/reset tokens are invalidated; changed email loses its verification timestamp. |
+| STUDENT-06 | Submit crafted role/profile fields, target an admin, or visit routes as guest/student | No privilege/profile changes; admin targets return 404; guest redirects to login and student receives 403. |
+| STUDENT-07 | Cancel Delete, then confirm deletion of a disposable student | Cancel preserves records; confirmed deletion removes only that student's account/related records, sessions and reset token. Scholarships/other accounts remain. |
+| STUDENT-08 | Use list/form at 390px and switch Login/Register | Form fits, table scrolls internally, mobile menu exposes Manage Students and auth card height stays stable between modes. |
+
+Automated account/CRUD tests use SQLite memory. Browser review uses a separate synthetic SQLite preview, not the application database. Final full backend result: 514 passed / 2,504 assertions, seven MySQL-only skips; all 27 existing JavaScript tests passed. See improve.md IMP-043 for the limits of browser verification.

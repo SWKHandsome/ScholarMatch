@@ -101,7 +101,7 @@
                 <div class="flex items-center gap-4">
                     <span class="hidden sm:block text-sm text-on-surface-variant">{{ auth()->user()->name }}</span>
                     <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-sm">
-                        {{ strtoupper(auth()->user()->name[0]) }}
+                        {{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}
                     </div>
                 </div>
             </header>

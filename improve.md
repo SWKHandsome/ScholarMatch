@@ -1007,3 +1007,48 @@ After deployment, the user initially saw Azure's default page and then the Schol
 Read-only live HTTPS checks after startup returned200for/,/login,/registerand/up; login/register contained the authentication form. No credentials were submitted and no authenticated workflow was claimed as tested. Documented the recommended App settings WEBSITE_WARMUP_PATH=/up and WEBSITE_WARMUP_STATUSES=200 so Azure waits for Laravel to respond, rather than accepting the default probe's404. Their application and a subsequent restart test are pending user action. Kept APP_DEBUG=false. No application code, schema, source data or cloud setting was modified by the assistant in this diagnostic task.
 
 **FYP documentation:** Record the first successful CI/CD release, managed-identity authentication, actual Azure runtime and the distinction between deployment success, public-page readiness and authenticated acceptance tests. Include the startup timeline and proposed readiness check in deployment/troubleshooting. Student/admin login, records/recommendations, restart stability, application-scoped database credentials and delivered password-reset mail remain follow-up checks. Sources: user-provided container log, read-only public HTTPS results and [Azure warm-up settings](https://learn.microsoft.com/en-us/azure/app-service/reference-app-settings).
+
+## IMP-043 — Student account management and simple Name/Email validation
+
+**Date:** 2026-11-08
+**Status:** Implemented and checked locally; not committed, pushed or deployed by the assistant.
+
+Added **Manage Students** to desktop/mobile admin navigation and linked the dashboard Total Students card. The list includes student accounts only, name/email search, profile and academic completion badges, and 10 accounts per page. Admins can add, view, edit and delete students. The editor contains **account details only**: name, email and password/confirmation. Profile and academic information are displayed read-only. New accounts always receive the student role and complete their own setup after login; creating one does not change the administrator's login.
+
+Leaving both edit password fields blank preserves the current password. Changing email/password clears that student's database sessions, rotates the remember token and removes old/new-email reset tokens; changing email also clears its verification timestamp. Routes reject non-student targets and deny student/guest access. The controller accepts only approved fields, so crafted role, verification, household or academic values cannot be assigned. The deployed database session driver provides session invalidation.
+
+Delete requires a browser confirmation and permanently removes the account plus its profile, academic results, saved scholarships and recommendation logs. Existing foreign-key cascades perform related-record cleanup; sessions/reset tokens are explicitly removed in the transaction. Other accounts and scholarships remain. No migration, reseeding or recommendation algorithm change is required.
+
+Shared **AccountValidation** rules trim names and trim/lowercase emails. Names require at least one Unicode letter, allow letters/combining marks, spaces, apostrophes, hyphens, periods and slash, and have a 100-character limit. Examples: `王小明`, `O'Connor` and `Raj A/L Kumar` pass; `Student123`, `Select * From username` and punctuation-only names fail. Emails require valid syntax and a complete domain: `student@gmail.com`, `student@yahoo.com` and `student@college.edu.my` pass; `friend@nihao` and `friend@gmail` fail. A complete unfamiliar domain such as `nihao.com` is accepted. Duplicate emails are rejected when creating/editing accounts. There is no provider whitelist, DNS lookup, OTP or proof of mailbox ownership. Password policy stays unchanged.
+
+Registration, login email, account-profile editing and admin student forms share these rules. Browser required markers, helper text and inline feedback supplement authoritative server validation. Multibyte-safe avatar initials support accepted Unicode names. Existing records are not bulk-renamed; a legacy incomplete email needs correction through the admin editor before it can pass the stricter login format check.
+
+The friend's earlier Azure 500 did not recur on retest and was deferred at the user's request. These changes validate inputs; they do not establish that the entered SQL-like text executed as SQL or caused/fixed that error.
+
+**Verification:** Full isolated SQLite suite: **514 passed / 2,504 assertions**, with **7 MySQL-only skips**; 37 new cases cover validation, search/pagination, role restrictions, allowed account edits, credential cleanup and deletion cascades. All **27 existing JavaScript tests**, production build, PHP formatting and whitespace checks passed. The full suite preceded final presentation-only badge/table/indentation adjustments; the final asset build and browser review include those adjustments. No real local or Azure database was used by the tests.
+
+Isolated browser checks used synthetic accounts and a separate SQLite file: admin login, dashboard link, name search, 10/2 pagination across 12 students, read-only details, account-only editor, invalid/valid name/email feedback, email normalization, stable Login/Register card height, desktop and 390px layouts, and the mobile navigation link. The table scrolls horizontally on narrow screens with readable columns. Account creation/password changes/deletion were verified by backend tests, not submitted through the browser. Preview: `storage/app/private/student-management-preview.png` (private, Git-ignored).
+
+**FYP documentation — where to update:**
+
+- **Functional requirements / use cases:** add administrator Search, Create, View, Update and Delete Student Account; distinguish account edits from read-only student/academic information. PRD.md is updated to version 4.3.
+- **Design / architecture:** document StudentController, StudentAccountRequest, AccountValidation, shared input component, role checks and transactional cleanup. ARCHITECTURE.md is updated to version 4.3. The ERD/table structure is unchanged.
+- **UI / user manual:** capture Manage Students, Add/Edit Account, completion indicators and read-only Student Details. Explain optional password updates and permanent deletion.
+- **Validation / testing chapter:** add accepted/rejected name/email examples, duplicate emails, admin-only access, pagination, blank-password preservation and targeted deletion. Acceptance cases are appended to MANUAL_TEST_CASES.md.
+- **Limitations:** format validation does not verify identity or email ownership. The deferred Azure 500 is not claimed as resolved. Cloud acceptance checks remain necessary after the user commits/pushes this release.
+
+## IMP-044 — Hide default Name and Email guidance
+
+**Date:** 2026-11-08
+
+Removed the always-visible Name and Email format guidance and hover hints from the shared account input component. Registration, login, account-profile editing and admin student forms now show cleaner fields. Required asterisks and browser/server validation remain; format explanations appear as errors only when an entry is invalid. Updated accessibility references to point to the remaining error messages.
+
+**Verification:** Existing account-validation, registration and authentication tests passed: **34 tests / 137 assertions**, using isolated SQLite. No new tests were added for this presentation-only change.
+
+**FYP documentation:** Replace authentication/account-form screenshots in the UI or user-manual chapter. Validation rules, database structure and recommendation behaviour are unchanged.
+
+## IMP-045 — Reorder administrator navigation
+
+Moved **Manage Students** directly below **Scholarships** in both desktop and mobile admin menus. The order is Dashboard → Scholarships → Manage Students → Matching Settings → Recommendation Logs. Links and active-page highlighting remain unchanged. Verified both template menu orders and whitespace; no functional test rerun was needed for this presentation-only reorder.
+
+**FYP documentation:** Update admin-navigation screenshots in the UI/user-manual chapter.

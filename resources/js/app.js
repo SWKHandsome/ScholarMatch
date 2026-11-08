@@ -1,6 +1,7 @@
 
 
 import Alpine from 'alpinejs';
+import { initAccountValidation } from './account-validation';
 import { authCard } from './auth-card';
 import { incomeCategoryPreview } from './income-category-preview';
 import { rulePreview } from './rule-preview';
@@ -14,4 +15,5 @@ Alpine.data('rulePreview', rulePreview);
 Alpine.data('academicResultEditor', academicResultEditor);
 Alpine.data('qualificationEditor', qualificationEditor);
 
+initAccountValidation();
 Alpine.start();

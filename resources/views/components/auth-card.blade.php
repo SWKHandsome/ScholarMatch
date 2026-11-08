@@ -17,18 +17,17 @@
                     <div class="space-y-4">
                         @foreach($mode === 'login' ? ['email' => __('Email'), 'password' => __('Password')] : ['name' => __('Name'), 'email' => __('Email'), 'password' => __('Password'), 'password_confirmation' => __('Confirm Password')] as $field => $label)
                             @php($fieldId = $mode.'-'.$field)
-                            <div>
-                                <x-input-label :for="$fieldId" :value="$label" />
-                                @if(str_starts_with($field, 'password'))
+                            @if(!str_starts_with($field, 'password'))
+                                <x-account-input :field="$field" :id="$fieldId" :label="$label"
+                                    :value="$initial === $mode ? old($field) : ''" :show-errors="$initial === $mode"
+                                    :autofocus="$initial === $mode && $loop->first" />
+                            @else
+                                <div>
+                                    <x-input-label :for="$fieldId" :value="$label" />
                                     <x-password-input :id="$fieldId" :name="$field" required :autocomplete="$mode === 'login' ? 'current-password' : 'new-password'" />
-                                @else
-                                    <input id="{{ $fieldId }}" class="input mt-1" type="{{ $field === 'email' ? 'email' : 'text' }}" name="{{ $field }}"
-                                           value="{{ $initial === $mode ? old($field) : '' }}" required
-                                           autocomplete="{{ $field === 'email' ? 'username' : 'name' }}"
-                                           @if($initial === $mode && $loop->first) autofocus @endif>
-                                @endif
-                                @if($initial === $mode) <x-input-error :messages="$errors->get($field)" class="mt-2" /> @endif
-                            </div>
+                                    @if($initial === $mode) <x-input-error :messages="$errors->get($field)" class="mt-2" /> @endif
+                                </div>
+                            @endif
                         @endforeach
                         @if($mode === 'login')
                             <div class="flex flex-wrap items-center justify-between gap-3">

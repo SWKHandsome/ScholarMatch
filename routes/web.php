@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ScholarshipController as AdminScholarshipControll
 use App\Http\Controllers\Admin\ScholarshipRuleController as AdminScholarshipRuleController;
 use App\Http\Controllers\Admin\IncomeCategoryController as AdminIncomeCategoryController;
 use App\Http\Controllers\Admin\StudyFieldController;
+use App\Http\Controllers\Admin\StudentController;
 use App\Http\Controllers\Admin\RecommendationLogController as AdminRecommendationLogController;
 use Illuminate\Support\Facades\Route;
 
@@ -51,6 +52,7 @@ Route::middleware(['auth', 'role:student'])->prefix('student')->name('student.')
 
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::resource('students', StudentController::class);
     Route::post('/rule-preview', \App\Http\Controllers\Admin\RulePreviewController::class)->name('rule-preview');
 
     Route::resource('scholarships', AdminScholarshipController::class);

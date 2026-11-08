@@ -1,7 +1,7 @@
 # ScholarMatch — Architecture Document
 
-**Version:** 4.2 — Shared matching settings and editable fields of study
-**Updated:** 2026-11-07 (Asia/Singapore)
+**Version:** 4.3 — Student account administration and shared validation
+**Updated:** 2026-11-08 (Asia/Singapore)
 **Stack:** Laravel 13, PHP 8.3+, MySQL (application), SQLite (isolated tests), Blade, Tailwind CSS, Alpine.js, Vite and Pest
 
 ## 1. Architecture Overview
@@ -13,6 +13,10 @@ Browser → Routes → Role Middleware → Controllers → ScholarshipRecommenda
 ## 2. Architecture Pattern
 
 Controllers validate requests and coordinate views. Models provide relationships and academic-readiness checks. The service evaluates conditions and returns arrays suitable for caching. Shared Blade components render decision badges and requirement explanations.
+
+Administrator student operations use the existing auth/role middleware, StudentController and StudentAccountRequest. Resource targets are restricted to student users. The controller assigns only approved account fields, forces the student role on creation and uses transactions for credential updates/deletion. Profile/academic relationships are read-only in the administrator view. Existing foreign-key cascades remove related student records on deletion; explicit cleanup removes database sessions and reset tokens. The deployed database session driver is required for immediate session invalidation. No migration or eligibility algorithm change is needed.
+
+AccountValidation centralises normalized name/email rules for registration, LoginRequest, ProfileUpdateRequest and administrator forms. The account-input Blade component exports the same format patterns to native browser validation; account-validation.js adds inline feedback and normalization. Server validation remains authoritative. Names support Unicode, and avatar initials use multibyte-safe extraction. These checks do not prove email ownership and do not diagnose the previously reported, unreproduced Azure 500 error.
 
 ## 3. Core Modules
 

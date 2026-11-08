@@ -1,7 +1,7 @@
 # ScholarMatch — Product Requirements Document (PRD)
 
-**Version:** 4.2 — Shared matching settings and editable fields of study
-**Updated:** 2026-11-07 (Asia/Singapore)
+**Version:** 4.3 — Student account administration and simple account validation
+**Updated:** 2026-11-08 (Asia/Singapore)
 **Project:** Final Year Project for Malaysian scholarship discovery
 **Stack:** Laravel 13, PHP 8.3+, MySQL (application), SQLite (isolated tests), Blade, Tailwind CSS, Alpine.js and Vite
 
@@ -37,11 +37,15 @@ Students seeking funding and administrators maintaining scholarship data, requir
 
 Students can maintain a profile, enter their latest official results, select a funding level, read eligibility explanations and special requirements, and save scholarships. Administrators can manage scholarships, eligibility rules and income categories, and inspect the latest evaluation logs.
 
+Administrators can also search, create, view, edit and delete student accounts. Only account details are editable by administrators; student profiles and academic records are view-only.
+
 ## 6. Core Features
 
 ### 6.1 Authentication and Role Management
 
 Registration and login use Laravel Breeze. Student and administrator routes are protected by role middleware. Account-profile and password workflows remain available.
+
+Name is required, trimmed and limited to 100 characters. It must include a letter and allows Unicode letters/combining marks, spaces, apostrophes, hyphens, periods and slash. Email is trimmed, lowercased and checked for valid syntax with a complete domain, such as student@gmail.com or student@college.edu.my. Bare domains such as friend@nihao are rejected. Registration and account editing reject duplicate emails. These are format checks, not identity or mailbox verification; no provider whitelist, DNS lookup or OTP is required. Shared rules apply to registration, account editing and administrator forms; login uses the email format rule. Existing password rules are retained.
 
 New registrations open Student Profile. On login and the generic /dashboard landing route, students open their first incomplete section: Student Profile, then Academic Result, then Dashboard once both are complete. Incomplete students' previous intended URLs are cleared; completed users keep normal intended navigation and administrators retain their existing flow. Profile completeness uses the same required-field rules as saving; a genuine zero income/dependent count is complete. Academic completeness uses the existing official-result readiness check.
 
@@ -50,6 +54,14 @@ Saving either setup form continues to the first remaining incomplete section or 
 Login and Register cards provide a full-width Register | Login navigation switch, with the current page highlighted in blue. Forgot Password and Reset Password include Back to Login. Login, Register and Reset Password fields start masked and each password/confirmation field has an independent, keyboard-accessible show/hide control. Required inputs, validation errors and reset status messages remain available in the forms.
 
 Login/Register share a stable-height card that reserves space for both forms. Switching fades in the selected form and slides the blue indicator over 250ms without a full reload; the URL and browser history follow the selected mode. Direct URLs and normal link navigation remain available. Hidden fields are inert. Password icons show current visibility (crossed eye when masked, open eye when visible), with an eye-button focus indicator for keyboard use only.
+
+### 6.1.1 Administrator Student Management
+
+Manage Students lists student accounts only, with search by name/email, profile and academic completion indicators, and 10 accounts per page. It is accessible from desktop/mobile admin navigation and the dashboard student-count card.
+
+Administrators create an account using name, email, password and confirmation. The new user is always a student; the administrator stays logged in. The student completes their own profile and academic information after login. Editing permits name, email and an optional confirmed password; blank password fields preserve the existing password. Email/password changes invalidate the target student's database sessions, remembered login and reset tokens. Administrator accounts cannot be managed through these routes.
+
+Deletion requires confirmation and permanently removes the student account and its profile, academic results, saved scholarships and recommendation logs. Scholarship records and other accounts remain. No new database tables are introduced. See MANUAL_TEST_CASES.md for acceptance scenarios.
 
 ### 6.2 Student Profile Management
 
