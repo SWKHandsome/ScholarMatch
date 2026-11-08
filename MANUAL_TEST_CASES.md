@@ -431,3 +431,21 @@ Use disposable synthetic accounts in an isolated database for credential/deletio
 | STUDENT-08 | Use list/form at 390px and switch Login/Register | Form fits, table scrolls internally, mobile menu exposes Manage Students and auth card height stays stable between modes. |
 
 Automated account/CRUD tests use SQLite memory. Browser review uses a separate synthetic SQLite preview, not the application database. Final full backend result: 514 passed / 2,504 assertions, seven MySQL-only skips; all 27 existing JavaScript tests passed. See improve.md IMP-043 for the limits of browser verification.
+
+## Undecided programme preferences
+
+| ID | Action | Expected result |
+| --- | --- | --- |
+| UND-01 | Select Haven't decided for both Institution Type and Field of Study; save otherwise valid official results | Setup can finish; both selections remain when reopening the form. No migration or dummy field is needed. |
+| UND-02 | Choose an actual institution but leave field undecided, then reverse | Only the undecided restricted criterion is Not checked; the selected criterion is compared normally. |
+| UND-03 | Open a restricted scholarship when checked conditions all pass | Eligible badge remains; blue detail section lists each unchecked condition, actual required values and guidance. No new ! is added. |
+| UND-04 | Use undecided preferences with failing CGPA/income/nationality/other checks | Decision remains Not Eligible, with failures visible separately from unchecked criteria. |
+| UND-05 | Use an actual field/institution that fails, while the other choice is undecided | The decided mismatch still fails. |
+| UND-06 | Open a scholarship with no field/institution restriction | Its unrestricted criteria remain No restriction, not Not checked. |
+| UND-07 | Change undecided to a mismatching actual choice, then matching choice, then undecided | Saved recommendations and dashboard counts refresh each time; previous cached decisions are not reused incorrectly. |
+| UND-08 | Leave a programme input blank or remove official results | Validation/readiness still blocks completion; blank is distinct from Haven't decided. |
+| UND-09 | Inspect multiple supported fields, a special requirement, recommendation filters and admin logs | All supported alternatives stay visible; existing provider warning remains independent; filters use scholarship restrictions; logs preserve Not checked. |
+| UND-10 | Preview an undecided synthetic student in Admin; try adding undecided as an actual scholarship restriction/Matching Settings field | Preview reflects student behaviour, while invalid admin restriction/reserved field creation is rejected. |
+| UND-11 | Open details at desktop and 390px | Unchecked values are blue, clearly labelled, readable and distinct from Met/Not Met. |
+
+Automated tests and browser checks use isolated synthetic data. See improve.md IMP-047 for the exact verification scope; Azure acceptance follows the user's commit/push.

@@ -29,8 +29,8 @@
         <ul class="mt-3 space-y-2 text-sm">
             @foreach($recommendation['requirement_results'] as $check)
                 @if($check['outcome'] !== 'not_applicable')
-                    <li data-explanation-status="{{ $check['outcome'] === 'not_met' ? 'failed' : 'passed' }}" class="leading-relaxed {{ $check['outcome'] === 'not_met' ? 'text-rose-800' : 'text-emerald-800' }}">
-                        <span class="font-semibold">{{ $check['outcome'] === 'not_met' ? 'Not Met:' : 'Met:' }}</span> {{ $check['message'] }}
+                    <li data-explanation-status="{{ match ($check['outcome']) { 'not_met' => 'failed', 'not_checked' => 'not-checked', default => 'passed' } }}" class="leading-relaxed {{ match ($check['outcome']) { 'not_met' => 'text-rose-800', 'not_checked' => 'text-blue-800', default => 'text-emerald-800' } }}">
+                        @if($check['outcome'] !== 'not_checked')<span class="font-semibold">{{ $check['outcome'] === 'not_met' ? 'Not Met:' : 'Met:' }}</span>@endif {{ $check['message'] }}
                     </li>
                 @endif
             @endforeach

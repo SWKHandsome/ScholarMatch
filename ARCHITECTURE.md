@@ -1,6 +1,6 @@
 # ScholarMatch — Architecture Document
 
-**Version:** 4.3 — Student account administration and shared validation
+**Version:** 4.4 — Undecided programme choices and checked eligibility
 **Updated:** 2026-11-08 (Asia/Singapore)
 **Stack:** Laravel 13, PHP 8.3+, MySQL (application), SQLite (isolated tests), Blade, Tailwind CSS, Alpine.js, Vite and Pest
 
@@ -22,7 +22,7 @@ AccountValidation centralises normalized name/email rules for registration, Logi
 
 ### Shared evaluation and rule-testing services
 
-ScholarshipEligibilityEvaluator contains the existing single-award rule comparisons. ScholarshipRecommendationService retains official readiness/catalogue/cache/order responsibilities and calls that evaluator. AcademicResultInput contains the former academic-controller validation/normalisation; official saves and synthetic previews share it. These extractions retain decisions-v8-stpm-cgpa semantics and the existing schema.
+ScholarshipEligibilityEvaluator contains the existing single-award rule comparisons. ScholarshipRecommendationService retains official readiness/catalogue/cache/order responsibilities and calls that evaluator. AcademicResultInput contains the former academic-controller validation/normalisation; official saves and synthetic previews share it. These extractions retain decisions-v9-undecided-programme semantics and the existing schema.
 
 EligibilityGap adds display-only shortfall sentences to existing student comparisons. This is an explanation refinement; the recommendation decisions and required/student values are unchanged.
 
@@ -52,7 +52,7 @@ AcademicResult stores one latest record per user:
 - study_status: studying/completed.
 - year_of_study: current year for studying CGPA-based students.
 - funding_study_level: manually selected programme level seeking funding.
-- institution_type and field_of_study: required choices for the programme seeking funding; grouped with funding_study_level in the Academic Result form.
+- institution_type and field_of_study: required choices for the programme seeking funding; each accepts an explicit undecided answer. Grouped with funding_study_level in the Academic Result form.
 - grading_scale and grade_counts: the selected scale and grade-to-subject-count JSON map for SPM, IGCSE, O-Level, A-Level, Senior UEC and STPM.
 - spm_as and spm_credits: compatibility totals derived from SPM grade counts on new submissions; cgpa: official cumulative/final CGPA for the original CGPA qualifications.
 - stam_rank: STAM overall pangkat, ordered from Mumtaz to Rasib.
@@ -98,7 +98,7 @@ For each configured, open scholarship:
 1. Evaluate general conditions and every academic route independently. Require one complete passing route if routes exist.
 2. Record every outcome and explanation without stopping at the first failure.
 3. Return Not Eligible when a general condition fails or no route passes. Never combine partial matches from different routes.
-4. Otherwise return Eligible.
+4. Otherwise return Eligible: all checked conditions passed. A restricted field/institution comparison with an explicit undecided student answer records not_checked and cannot create a failure. An unrestricted criterion records not_applicable; other checks are unchanged.
 5. Set requires_verification only for an Eligible result with non-whitespace special text.
 
 | Data | Meaning |
@@ -108,6 +108,10 @@ For each configured, open scholarship:
 | special_requirements | Text to verify with the provider |
 | requirement_results | key, label, required, actual, outcome, message per condition; academic_route includes nested route comparisons |
 | failed_requirements | Keys of automatic conditions that fail |
+
+ProgrammeChoices defines the student-only sentinel __undecided__ and display label Haven't decided. It is stored in existing nullable string columns, rather than adding a fake StudyField row or changing scholarship criteria. AcademicResultInput and AcademicResult readiness accept it independently for institution and field while still rejecting blank/unsupported choices and incomplete official results. Matching Settings rejects the reserved name. No migration or real-data rewrite is required.
+
+StudentRequirementExplanation groups not_checked rows as unchecked. Blue labels/guidance appear in student detail/card explanations, administrator log tables and the unsaved sample preview. Unchecked conditions are never presented as met or unrestricted. Preview inputs can simulate undecided students, while rule inputs still accept specific restrictions only. Dashboard counts and recommendation filters retain the two existing decisions; explicit programme filters still examine scholarship restrictions. The evaluator version is bumped to decisions-v9-undecided-programme to avoid reusing earlier evaluations; saving selected programme choices changes the cache input and reevaluates results.
 | explanation | Plain text descriptions of the comparisons |
 
 There is no active score, weighting, normalization or percentage ranking.
@@ -144,7 +148,7 @@ erDiagram
     scholarships ||--o{ recommendation_logs : evaluated_for
 ```
 
-The route table has a cascading scholarship_rule_id foreign key, education_level and study_status strings, nullable integer SPM/year minima/maxima, nullable decimal(3,2) CGPA, and timestamps. Migration 2026_10_19_010000 backfills equivalent alternatives while retaining old columns. New saves use the child rows. Algorithm version decisions-v8-stpm-cgpa invalidates earlier cached decisions and identifies older logs as previous evaluations until refreshed.
+The route table has a cascading scholarship_rule_id foreign key, education_level and study_status strings, nullable integer SPM/year minima/maxima, nullable decimal(3,2) CGPA, and timestamps. Migration 2026_10_19_010000 backfills equivalent alternatives while retaining old columns. New saves use the child rows. Algorithm version decisions-v9-undecided-programme invalidates earlier cached decisions and identifies older logs as previous evaluations until refreshed.
 
 Migration 2026_10_31_000000_add_qualification_grade_counts extends the academic education-level enum and adds nullable grading_scale, grade_counts JSON and stam_rank to academic_results; it adds nullable grading_scale, grade_requirements JSON, min_stam_rank and uec_average JSON to scholarship_qualification_routes. Existing values and rows are preserved. Its rollback refuses to discard new-format records or rules. Migration 2026_10_31_010000_add_subject_point_requirements adds nullable stpm_average and uec_total JSON fields to route rows and guards rollback when data is present. Migration 2026_10_31_020000_add_stpm_cgpa_calculation adds nullable PA grade and default-false confirmation to academic_results without recalculating existing results, and guards against discarding those values on rollback. See docs/ACADEMIC_QUALIFICATIONS.md, docs/ACADEMIC_REQUIREMENT_TYPES.md and docs/STPM_CGPA_CALCULATION.md for formats, formulas and upgrade behaviour.
 
@@ -190,7 +194,7 @@ Seeders provide local demonstration users, income ranges and a deterministic 20-
 
 `ScholarshipCatalogSeeder` upserts the 20 current demo awards/rules without running account seeders. IDs and bookmarks on those scholarships are preserved; the demo rules are restored from the snapshot. Manual awards remain. The backed-up replacement command deletes only the 70 exact retired demo keys before seeding the new catalogue. Fresh installations have 20 awards; existing installations can include manual awards.
 
-Each record persists `deadline_type`: published, admission-linked, relative, rolling, intake-based, automatic or unconfirmed. The current catalogue uses synthetic 2099 dates or rolling/intake/automatic timing. Matching semantics and version decisions-v8-stpm-cgpa are unchanged. `DatabaseSnapshot` creates SQLite or MySQL data backups before targeted demo replacement; foreign keys cascade only records associated with removed awards. Catalogue caches are invalidated after seed/replacement.
+Each record persists `deadline_type`: published, admission-linked, relative, rolling, intake-based, automatic or unconfirmed. The current catalogue uses synthetic 2099 dates or rolling/intake/automatic timing. Matching semantics and version decisions-v9-undecided-programme are unchanged. `DatabaseSnapshot` creates SQLite or MySQL data backups before targeted demo replacement; foreign keys cascade only records associated with removed awards. Catalogue caches are invalidated after seed/replacement.
 
 For an existing database, apply php artisan migrate; do not use migrate:fresh. Existing students update their academic status and funding level before generating new decisions. Rebuild frontend assets after changing templates.
 

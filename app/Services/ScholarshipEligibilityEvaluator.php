@@ -6,6 +6,7 @@ use App\Models\AcademicResult;
 use App\Models\Scholarship;
 use App\Models\StudentProfile;
 use App\Support\AcademicQualifications;
+use App\Support\ProgrammeChoices;
 
 class ScholarshipEligibilityEvaluator
 {
@@ -13,10 +14,10 @@ class ScholarshipEligibilityEvaluator
     {
         $rule = $scholarship->rule;
         $checks = [];
-        $add = function (string $key, string $label, mixed $required, mixed $actual, bool $met, string $message, bool $applicable = true) use (&$checks) {
+        $add = function (string $key, string $label, mixed $required, mixed $actual, bool $met, string $message, bool $applicable = true, bool $checked = true) use (&$checks) {
             $checks[] = [
                 'key' => $key, 'label' => $label, 'required' => $required, 'actual' => $actual,
-                'outcome' => ! $applicable ? 'not_applicable' : ($met ? 'met' : 'not_met'),
+                'outcome' => ! $applicable ? 'not_applicable' : (! $checked ? 'not_checked' : ($met ? 'met' : 'not_met')),
                 'message' => $applicable ? $message : 'No '.$label.' requirement is specified.',
             ];
         };
@@ -39,13 +40,19 @@ class ScholarshipEligibilityEvaluator
             "Maximum household income: RM {$rule->max_household_income}; your income: RM {$profile->household_income}.",
             $rule->max_household_income !== null);
         $fields = $rule->supportedFieldsOfStudy();
-        $add('field_of_study', 'Field of study', $fields, $academic->field_of_study,
+        $fieldUndecided = $academic->field_of_study === ProgrammeChoices::UNDECIDED;
+        $institutionUndecided = $academic->institution_type === ProgrammeChoices::UNDECIDED;
+        $fieldGuidance = count($fields) === 1
+            ? 'Not checked — choose '.implode(', ', $fields).' to meet this condition.'
+            : 'Not checked — choose one of these fields to meet this condition: '.implode(', ', $fields).'.';
+        $add('field_of_study', 'Field of study', $fields, ProgrammeChoices::label($academic->field_of_study),
             in_array($academic->field_of_study, $fields, true),
-            'Supported fields: '.implode(', ', $fields)."; your field: {$academic->field_of_study}.", ! empty($fields));
-        $add('institution_type', 'Institution type', $rule->required_institution_type, $academic->institution_type,
+            $fieldUndecided ? $fieldGuidance : 'Supported fields: '.implode(', ', $fields)."; your field: {$academic->field_of_study}.", ! empty($fields), ! $fieldUndecided);
+        $add('institution_type', 'Institution type', $rule->required_institution_type, ProgrammeChoices::label($academic->institution_type),
             $academic->institution_type === $rule->required_institution_type,
-            "Required institution: {$rule->required_institution_type}; your institution: {$academic->institution_type}.",
-            (bool) $rule->required_institution_type);
+            $institutionUndecided ? "Not checked — choose {$rule->required_institution_type} to meet this condition."
+                : "Required institution: {$rule->required_institution_type}; your institution: {$academic->institution_type}.",
+            (bool) $rule->required_institution_type, ! $institutionUndecided);
 
         if ($scholarship->deadline !== null) {
             $add('deadline', 'Application deadline', $scholarship->deadline->toDateString(), today()->toDateString(),

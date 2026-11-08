@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 
 class ScholarshipRecommendationService
 {
-    public const ALGORITHM_VERSION = 'decisions-v8-stpm-cgpa';
+    public const ALGORITHM_VERSION = 'decisions-v9-undecided-programme';
 
     private const CATALOG_VERSION_CACHE_KEY = 'recommendation_catalog_version';
 
@@ -29,7 +29,7 @@ class ScholarshipRecommendationService
         }
         if (! $academic->isReadyForRecommendations()) {
             return [
-                'error' => 'Complete your academic information and programme seeking funding, including institution type and field of study, using official results. Exam-based qualifications need a final grade breakdown or STAM pangkat; CGPA-based qualifications need an official CGPA. STPM requires both official overall CGPA and subject grade counts.',
+                'error' => 'Complete your academic information and programme seeking funding using official results. Select an institution type and field of study, or choose Haven\'t decided for either. Exam-based qualifications need a final grade breakdown or STAM pangkat; CGPA-based qualifications need an official CGPA. STPM requires both official overall CGPA and subject grade counts.',
                 'recommendations' => [],
             ];
         }

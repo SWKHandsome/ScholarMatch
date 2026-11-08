@@ -54,8 +54,8 @@ class RulePreviewController extends Controller
 
         return response()->json([
             'passed' => $evaluation['status'] === 'Eligible',
-            'message' => $evaluation['status'] === 'Eligible' ? 'Passes automatic checks' : 'Does not pass all automatic checks',
-            'checks' => array_merge($display['failed'], $display['academic'], $display['general']),
+            'message' => $evaluation['status'] === 'Eligible' ? 'Passes checked automatic requirements' : 'Does not pass all checked automatic requirements',
+            'checks' => array_merge($display['failed'], $display['unchecked'], $display['academic'], $display['general']),
             'provider_checks' => $evaluation['special_requirements'],
             'sample_cgpa' => $academic->cgpa,
             'selected_route' => $display['selected']['label'] ?? 'No qualification restriction',

@@ -8,6 +8,7 @@ use App\Models\ScholarshipRule;
 use App\Models\StudentProfile;
 use App\Models\StudyField;
 use App\Services\ScholarshipRecommendationService;
+use App\Support\ProgrammeChoices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -53,6 +54,11 @@ class StudyFieldController extends Controller
         return $request->validateWithBag('studyField', [
             'name' => ['bail', 'required', 'string', 'max:255', Rule::unique('study_fields', 'name')->ignore($field?->id), function ($attribute, $value, $fail) use ($field) {
                 if (! is_string($value)) {
+                    return;
+                }
+                if (in_array(mb_strtolower(trim($value)), [ProgrammeChoices::UNDECIDED, mb_strtolower(ProgrammeChoices::UNDECIDED_LABEL)], true)) {
+                    $fail('This name is reserved for the student undecided option. Enter a specific field of study.');
+
                     return;
                 }
                 if (StudyField::whereKeyNot($field?->id ?? 0)->get()->contains(fn ($item) => mb_strtolower($item->name) === mb_strtolower($value))) {

@@ -2,6 +2,8 @@
 
 Current scope, 3 November 2026: the administrator can test draft rules against a synthetic student. Existing student comparison explanations receive only short numeric refinements. The future-CGPA simulator was removed under IMP-026.
 
+Update, 8 November 2026 (IMP-047): sample institution/field controls also accept Haven't decided, matching the student academic form. Restricted undecided preferences appear as blue Not checked comparisons in the preview and student details, rather than as failed/met/unrestricted. Overall decisions remain Eligible / Not Eligible, based on checked requirements. A specific field/institution can still be required by the scholarship; undecided is a sample-student option only. Preview and official matching share this behaviour through decisions-v9-undecided-programme.
+
 ## Small refinement to existing student explanations
 
 Scholarship Details already displayed the required value, student value and Met/Not Met result. The only addition is a calculated shortfall sentence beside a failed comparison. A CGPA of 3.20 against 3.50 shows a 0.30 gap. Grade-count conditions show how many additional qualifying subjects the individual condition needs. Income comparisons describe the recorded amount above a limit; the system does not recommend changing nationality, income or other personal facts.

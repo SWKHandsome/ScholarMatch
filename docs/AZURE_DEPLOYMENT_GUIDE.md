@@ -115,6 +115,16 @@ The repository already has its own workflow. Use the manual OIDC path below; do 
 
 Optional local packaging check (from an isolated production dependency installation, not the developer's dev vendor): php deploy/azure/package.php --output=/new/path/scholarmatch.zip. The PHP CLI needs its ZIP extension. Deployment failure should be diagnosed in GitHub Actions plus App Service startup/application logs; build success alone does not prove a live Azure release.
 
+## Post-deployment route errors
+
+For each update, confirm the newest main commit has both successful build and deploy jobs, then allow App Service startup to finish and check the live application. Ctrl+F5 refreshes browser resources; it does not rebuild Laravel's route cache or restart PHP.
+
+Observed on 8 November 2026 after ab0af7c: the updated admin dashboard referenced admin.students.index while a serving process could not resolve that route. Both errors in the supplied log preceded the new PHP runtime's readiness at 11:50:57 UTC. The route exists in the committed source and is included in the ZIP. A temporary mismatch between updated views and an old route collection/process is the supported explanation; the exact server cache was not inspected. The user clicked Web App Overview → Restart and confirmed recovery. Subsequent read-only /up and /login checks returned 200.
+
+If this specific error remains after deployment/startup finishes, restart the Web App once, wait for readiness and retry. If it persists or repeats, use App Service SSH to run `cd /home/site/wwwroot` and `php artisan route:list --name=admin.students`, and inspect fresh application logs and the deployed commit before making further changes. A missing route in that output warrants checking the deployed routes/web.php and cache; do not diagnose it as a database failure or reimport data. Laravel documents rebuilding route caches when routes change. [Laravel routing cache](https://laravel.com/framework/docs/13.x/routing#route-caching).
+
+The later log shows Azure probing /up during startup; its configured accepted-status values were not independently verified. The earlier warm-up guidance remains relevant but does not prove every authenticated route uses the correct release.
+
 ## 5. Verify and collect FYP evidence
 
 Check /up, HTTPS pages/assets, login/logout, onboarding, existing academic/profile records, recommendation decisions and counts, saved scholarships, admin rules/Matching Settings and password-reset email. Compare transferred rows/settings with the backup, inspect application/deployment logs and retest after an App Service restart. Confirm the site works while Laragon is stopped.

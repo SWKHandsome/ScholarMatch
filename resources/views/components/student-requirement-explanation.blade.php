@@ -7,7 +7,7 @@
 <div class="space-y-6">
     <div class="border-b border-outline-variant pb-5">
         <p class="text-lg font-semibold {{ $eligible ? 'text-emerald-800' : 'text-rose-800' }}">{{ $eligible ? '✓ Eligible' : '✕ Not Eligible' }}</p>
-        <p class="mt-1 text-sm text-on-surface-variant">{{ $eligible ? 'You meet the automatic requirements.' : 'Review the requirements below that are not met.' }}</p>
+        <p class="mt-1 text-sm text-on-surface-variant">{{ $eligible ? 'You meet all checked automatic requirements.' : 'Review the requirements below that are not met.' }}</p>
         @if($explanation['selected'])
             <p class="mt-3 text-sm"><span class="text-on-surface-variant">{{ $explanation['selected']['passed'] ? 'Your accepted qualification route:' : 'Qualification route to review:' }}</span> <strong>{{ $explanation['selected']['label'] }}</strong></p>
         @endif
@@ -16,11 +16,21 @@
     @if($explanation['failed'])
         <section class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2">
             <h3 class="pt-2 font-semibold text-rose-800">Not Eligible - Failed Requirements</h3>
-            <p class="mt-2 text-sm text-rose-800">Each gap below is a separate condition. Meeting one condition alone does not guarantee eligibility; all applicable conditions in one accepted route and the general requirements must pass.</p>
+            <p class="mt-2 text-sm text-rose-800">Each gap below is a separate condition. Meeting one condition alone does not guarantee eligibility; all conditions in one accepted route and the checked general requirements must pass.</p>
             @if(collect($explanation['failed'])->contains(fn ($check) => str_starts_with($check['key'], 'min_grade_count_')))
                 <p class="mt-2 text-sm text-rose-800">Grade-count shortfalls can overlap. A stronger subject can satisfy more than one threshold, so do not add these shortfalls together.</p>
             @endif
             @foreach($explanation['failed'] as $item)
+                @include('components.student-requirement-row')
+            @endforeach
+        </section>
+    @endif
+
+    @if($explanation['unchecked'])
+        <section class="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2">
+            <h3 class="pt-2 font-semibold text-blue-800">Programme requirements not checked</h3>
+            <p class="mt-2 text-sm text-blue-800">You have not decided these programme choices. These restrictions are not included in your current eligibility decision.</p>
+            @foreach($explanation['unchecked'] as $item)
                 @include('components.student-requirement-row')
             @endforeach
         </section>

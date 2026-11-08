@@ -13,12 +13,13 @@
                         $actualValue = is_string($actualValue) ? \App\Support\AcademicQualifications::label($actualValue) : $actualValue;
                     }
                 @endphp
-                <tr class="{{ $check['outcome'] === 'not_met' ? 'bg-rose-50' : ($check['outcome'] === 'met' ? 'bg-emerald-50' : 'text-on-surface-variant') }}" data-explanation-status="{{ $check['outcome'] === 'not_met' ? 'failed' : ($check['outcome'] === 'met' ? 'passed' : 'not-applicable') }}">
+                <tr class="{{ match ($check['outcome']) { 'not_met' => 'bg-rose-50', 'met' => 'bg-emerald-50', 'not_checked' => 'bg-blue-50 text-blue-800', default => 'text-on-surface-variant' } }}" data-explanation-status="{{ match ($check['outcome']) { 'not_met' => 'failed', 'met' => 'passed', 'not_checked' => 'not-checked', default => 'not-applicable' } }}">
                     <th scope="row" class="p-3 font-semibold">{{ $check['label'] }}</th>
                     <td class="p-3 {{ $check['outcome'] !== 'not_applicable' ? 'font-semibold' : '' }}">{{ is_array($requiredValue) ? (implode(', ', $requiredValue) ?: 'Not specified') : ($requiredValue ?? 'Not specified') }}</td>
                     <td class="p-3 {{ $check['outcome'] === 'not_met' ? 'font-semibold text-rose-800' : ($check['outcome'] === 'met' ? 'font-semibold text-emerald-800' : '') }}">{{ is_array($actualValue) ? implode(', ', $actualValue) : ($actualValue ?? '—') }}</td>
                     <td class="p-3">
                         @include('components.requirement-status', ['outcome' => $check['outcome']])
+                        @if($check['outcome'] === 'not_checked')<p class="mt-2 text-xs">{{ $check['message'] }}</p>@endif
                     </td>
                 </tr>
                 @if(!empty($check['routes']))

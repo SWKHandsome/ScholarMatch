@@ -1052,3 +1052,42 @@ Removed the always-visible Name and Email format guidance and hover hints from t
 Moved **Manage Students** directly below **Scholarships** in both desktop and mobile admin menus. The order is Dashboard → Scholarships → Manage Students → Matching Settings → Recommendation Logs. Links and active-page highlighting remain unchanged. Verified both template menu orders and whitespace; no functional test rerun was needed for this presentation-only reorder.
 
 **FYP documentation:** Update admin-navigation screenshots in the UI/user-manual chapter.
+
+## IMP-046 — Diagnose a temporary Azure route mismatch after deployment
+
+**Date:** 2026-11-08
+**Status:** User confirmed the admin page works after restarting the Azure Web App.
+
+Following release ab0af7c, the supplied Azure log recorded `Route [admin.students.index] not defined` while rendering the updated admin dashboard at 11:50:11 and 11:50:50 UTC. The checked-in routes/web.php includes that resource route, and the release packager includes the routes directory. The same log shows route caching completed at 11:50:49, Nginx reloaded at 11:50:57 and the new PHP process became ready at 11:50:57. Both recorded errors therefore occurred before the new runtime reported readiness. This is consistent with an old serving process or cached route collection seeing updated views during deployment; the exact cache/process responsible was not independently inspected.
+
+The user restarted App Service and confirmed the page works. Subsequent read-only public checks returned HTTP 200 for /up and /login. Authenticated admin recovery was verified by the user, not by assistant sign-in. Ctrl+F5 refreshes the browser; it does not restart server processes or rebuild Laravel caches. No application-code, database or cloud-setting change was made by the assistant for this incident, and no functional suite rerun was needed for the diagnostic documentation.
+
+Updated the deployment guide: check the latest main commit and both workflow jobs, allow startup to finish, verify the live page and restart once if this deployment mismatch persists. If it recurs after a completed restart, inspect deployed route-list output and fresh logs rather than repeatedly restarting or changing data.
+
+**FYP documentation:** Add this release/startup timeline and recovery procedure to hosting troubleshooting. Distinguish browser refresh, code deployment, Laravel caches and server restart. A successful build/upload is separate from successful authenticated acceptance testing.
+
+## IMP-047 — Allow undecided field and institution preferences
+
+**Date:** 2026-11-08
+**Status:** Implemented and verified locally; awaiting the user's commit/push and Azure acceptance check.
+
+Added **Haven't decided** to the student's **Field of Study** and **Institution Type** dropdowns under Programme Seeking Funding. These describe the programme the student hopes to fund. The choices are independent: a selected field can still be checked while institution type is undecided, and vice versa. Each input still requires an explicit answer; blank/invalid values remain incomplete. Official academic results, qualification/status/year where applicable and funding study level remain required. Either/both undecided preferences count as completed programme answers, so onboarding can finish.
+
+The overall decisions remain **Eligible / Not Eligible**, as requested. **Eligible now means all checked automatic requirements are met.** If a scholarship restricts a preference the student has not decided, that individual comparison records **not_checked** rather than met, not_met or not_applicable. The scholarship's actual restriction stays visible. Example: **Not checked — choose Engineering to meet this condition.** Multiple accepted fields are listed as alternatives. A definite failure in any other checked condition still returns Not Eligible. A scholarship with no field/institution restriction keeps its normal No restriction outcome.
+
+Student details show these comparisons in a separate blue **Programme requirements not checked** section, including required choice, student's Haven't decided answer and guidance. Card explanations, admin logs and the unsaved rule preview also distinguish Not checked from green Met/red Not Met. The summary says **You meet all checked automatic requirements**. Undecided choices do not add the provider-verification **!**; existing special requirements/date warnings retain their behaviour. Saving a later concrete choice reevaluates eligibility; changing it back restores the unchecked comparison where applicable. Scholarship filters still use the scholarship's actual restrictions.
+
+ProgrammeChoices centralises the student answer value `__undecided__` and its display label. It uses the existing academic_results string columns: **no database migration, reseeding or real-data rewrite is needed**. No fake study field is added to Matching Settings. Its reserved name cannot be created there, and admin scholarship requirement inputs still require a specific supported field/institution or their existing unrestricted option. Only synthetic student inputs in the admin preview additionally offer Haven't decided. Read-only admin student details show the friendly label. The evaluator version is now **decisions-v9-undecided-programme**, preventing old cache/log results from being treated as current evaluations. Existing rows are preserved; current evaluations are produced on normal recommendation visits.
+
+**Verification:** Full isolated SQLite suite **529 passed / 2,644 assertions**, with **7 unchanged MySQL-only skips**; all **27 JavaScript tests**, production build, PHP formatting and whitespace checks passed. The 15 new integration cases cover independent choices/setup, blank/official-result guards, unrelated and decided-choice failures, unrestricted criteria, multiple supported fields, provider-warning independence, saved-choice/cache changes, programme filters, current log display and admin restriction validation. New plus related academic/explanation/preview tests passed **57 tests / 332 assertions**.
+
+Browser verification used a separate SQLite file and fictional scholarships: logged in a synthetic student, changed both real choices to Haven't decided, saved successfully to Dashboard with setup complete and one Eligible result, checked the Eligible detail page's two blue unchecked conditions, confirmed a higher-CGPA award remains Not Eligible, and reopened the form with both choices retained. Desktop and 390px detail layouts were readable with no page overflow or browser-console errors. Screenshot: `storage/app/private/undecided-programme-preview.png` (private, Git-ignored). The temporary server was stopped. Local application MySQL data and Azure were not modified.
+
+**FYP documentation — where to update:**
+
+- **Scope / functional requirements:** students can explore scholarships before deciding a field or institution. Keep official results and funded study level mandatory. See PRD.md version 4.4.
+- **Decision table / matching flowchart:** define Eligible as all checked requirements met; branch on each explicit undecided preference, record Not checked and continue evaluating the other conditions. Separate this outcome from unrestricted and failed criteria. Do not describe this feature as a third decision or provider verification.
+- **System design / data dictionary:** describe the explicit undecided value in the existing academic string fields, shared ProgrammeChoices/evaluator/readiness rules and cache-version change. No ERD/table change is required. See ARCHITECTURE.md version 4.4.
+- **UI / user manual:** replace Programme Seeking Funding and scholarship-detail screenshots; explain how later selections refresh results. Include the blue conditions and unchanged Eligible badge.
+- **Testing / evaluation:** add the UND cases in MANUAL_TEST_CASES.md, independent/combined choices, an unrelated failing requirement, unrestricted awards and changes after saving. See docs/ACADEMIC_QUALIFICATIONS.md and docs/ELIGIBILITY_PLANNING.md for current behaviour.
+- **Limitations:** Eligible does not certify an unchecked programme restriction, provider conditions or the provider's final award decision. Include this explicitly when presenting evaluation results.

@@ -18,6 +18,7 @@ Built as a Final Year Project (FYP), ScholarMatch focuses on making scholarship 
 - Matching Settings groups income ranges and editable fields of study on one page, with linked renames and inactive-field preservation
 - Repeatable qualification boxes on Add/Edit Scholarship, with separate results, study status and year limits for each accepted route
 - Explainable **Eligible / Not Eligible** decisions, with **!** for administrator-entered special requirements
+- **Haven't decided** programme field/institution choices: restricted undecided criteria are shown as **Not checked**; Eligible means all checked automatic requirements pass
 - Recommendation filters for name/provider, award type, funded level, field and institution, with full-width cards and 10 results per page
 - Saved scholarships for students
 - Recommendation logs for administrators
@@ -68,7 +69,7 @@ Existing profiles and scholarships are preserved. Existing students must confirm
 
 For existing SQLite installations, follow [MySQL setup and transfer](docs/MYSQL_SETUP.md). The verified importer preserves IDs, password hashes and relationships, refuses a populated destination, and leaves SQLite unchanged. SQLite remains available for fast isolated tests.
 
-The qualification-route migration converts existing rules into equivalent child rows and retains the original columns. The grade-count migration adds result breakdowns and qualification-specific route settings while preserving records; the follow-up subject-point migration adds nullable STPM-average and UEC-total settings. Legacy SPM students must enter their grade breakdown; old As/credits are retained for reference. Legacy STPM students also need actual subject counts alongside their preserved official CGPA. Other valid CGPA records remain usable. Rebuild assets for the new editors. The STPM calculator migration adds a nullable PA grade and confirmation flag, preserving existing CGPA values and grades. Existing usable manual records stay valid until edited; completed STPM saves then use the new calculation. Earlier evaluations refresh under decisions-v8-stpm-cgpa. Legacy unsupported nationalities still need correction.
+The qualification-route migration converts existing rules into equivalent child rows and retains the original columns. The grade-count migration adds result breakdowns and qualification-specific route settings while preserving records; the follow-up subject-point migration adds nullable STPM-average and UEC-total settings. Legacy SPM students must enter their grade breakdown; old As/credits are retained for reference. Legacy STPM students also need actual subject counts alongside their preserved official CGPA. Other valid CGPA records remain usable. Rebuild assets for the new editors. The STPM calculator migration adds a nullable PA grade and confirmation flag, preserving existing CGPA values and grades. Existing usable manual records stay valid until edited; completed STPM saves then use the new calculation. Earlier evaluations refresh under decisions-v9-undecided-programme. Legacy unsupported nationalities still need correction.
 
 ## Technology stack
 

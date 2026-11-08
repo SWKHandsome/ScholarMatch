@@ -2,6 +2,7 @@
     $statusStyle = match ($outcome) {
         'met' => ['bg-emerald-100 text-emerald-800', '✓', 'Met'],
         'not_met' => ['bg-rose-100 text-rose-800', '✕', 'Not Met'],
+        'not_checked' => ['bg-blue-100 text-blue-800', '—', 'Not checked'],
         default => ['bg-surface-container text-on-surface-variant', '—', 'Not Applicable'],
     };
 @endphp

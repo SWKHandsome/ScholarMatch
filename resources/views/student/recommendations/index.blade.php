@@ -99,9 +99,9 @@
         <p class="mt-5 text-sm text-on-surface-variant">Some scholarships are awaiting requirement configuration and cannot be evaluated yet.</p>
     @endif
     <div class="card p-5 mt-8 text-sm space-y-2">
-        <p><strong>Eligible:</strong> All applicable automatic requirements are met.</p>
-        <p><strong>Eligible !:</strong> Automatic requirements are met; expand ! to read special conditions that need checking with the provider.</p>
-        <p><strong>Not Eligible:</strong> At least one applicable requirement is not met. Open the explanation to see why.</p>
+        <p><strong>Eligible:</strong> All checked automatic requirements are met. Undecided field or institution restrictions appear as Not checked in the explanation.</p>
+        <p><strong>Eligible !:</strong> Checked automatic requirements are met; expand ! to read special conditions that need checking with the provider.</p>
+        <p><strong>Not Eligible:</strong> At least one checked requirement is not met. Open the explanation to see why.</p>
         <p class="text-on-surface-variant">Scholarships appear by recorded deadline, followed by those whose dates need confirmation. Check current availability with the provider, who makes the final award decision.</p>
     </div>
 </div>

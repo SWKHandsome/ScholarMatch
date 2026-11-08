@@ -177,6 +177,7 @@
                     <label class="label" for="institution_type">Institution Type <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
                     <select class="input" id="institution_type" name="institution_type" required>
                         <option value="">Select Institution Type</option>
+                        <option value="{{ \App\Support\ProgrammeChoices::UNDECIDED }}" @selected(old('institution_type', $academicResult->institution_type) === \App\Support\ProgrammeChoices::UNDECIDED)>{{ \App\Support\ProgrammeChoices::UNDECIDED_LABEL }}</option>
                         @foreach(config('scholarship.institution_types') as $type)
                             <option value="{{ $type }}" @selected(old('institution_type', $academicResult->institution_type) === $type)>{{ $type }}</option>
                         @endforeach
@@ -186,6 +187,7 @@
                     <label class="label" for="field_of_study">Field of Study <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
                     <select class="input" id="field_of_study" name="field_of_study" required>
                         <option value="">Select Field of Study</option>
+                        <option value="{{ \App\Support\ProgrammeChoices::UNDECIDED }}" @selected(old('field_of_study', $academicResult->field_of_study) === \App\Support\ProgrammeChoices::UNDECIDED)>{{ \App\Support\ProgrammeChoices::UNDECIDED_LABEL }}</option>
                         @foreach(\App\Models\StudyField::selectableNames(array_filter([$academicResult->field_of_study])) as $field)
                             <option value="{{ $field }}" @selected(old('field_of_study', $academicResult->field_of_study) === $field)>{{ $field }}{{ in_array($field, $activeStudyFields, true) ? '' : ' (Inactive)' }}</option>
                         @endforeach

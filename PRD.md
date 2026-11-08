@@ -1,6 +1,6 @@
 # ScholarMatch — Product Requirements Document (PRD)
 
-**Version:** 4.3 — Student account administration and simple account validation
+**Version:** 4.4 — Undecided programme choices and checked eligibility
 **Updated:** 2026-11-08 (Asia/Singapore)
 **Project:** Final Year Project for Malaysian scholarship discovery
 **Stack:** Laravel 13, PHP 8.3+, MySQL (application), SQLite (isolated tests), Blade, Tailwind CSS, Alpine.js and Vite
@@ -11,11 +11,13 @@ ScholarMatch compares a student's official academic results and socioeconomic pr
 
 | Display | Meaning |
 | --- | --- |
-| Eligible | All applicable automatic requirements are met. |
-| Eligible ! | Automatic requirements are met, and the administrator has entered special requirements that the student must verify with the provider. |
-| Not Eligible | At least one applicable automatic requirement is not met. |
+| Eligible | All checked automatic requirements are met. Restricted field/institution conditions are not checked when the student explicitly chooses Haven't decided. |
+| Eligible ! | Checked automatic requirements are met, and provider conditions still need verification. |
+| Not Eligible | At least one checked automatic requirement is not met. |
 
 The exclamation warning identifies provider checks, including special requirements and unconfirmed application dates. It is not a separate decision category and does not certify that those conditions have been met.
+
+An undecided field/institution does not add an exclamation warning or a third decision label. The detail page explicitly lists the unchecked restrictions and the choices needed to satisfy them. Eligible is a match to the checked information, not confirmation of unchecked programme conditions or a provider's award decision.
 
 ## 2. Problem Statement
 
@@ -83,8 +85,8 @@ Store one latest academic record per student:
 | study_status | studying or completed |
 | year_of_study | Required for currently studying CGPA-based students; empty when completed |
 | funding_study_level | Student's manually selected programme level seeking funding |
-| institution_type | Required type of institution for the programme seeking funding |
-| field_of_study | Required field of the programme seeking funding |
+| institution_type | Intended institution type, or an explicit Haven't decided answer |
+| field_of_study | Intended field, or an explicit Haven't decided answer |
 | spm_as | Official number of A+, A and A− subjects |
 | spm_credits | Official number of subjects graded C or above, including A subjects |
 | grading_scale | Qualification-specific scale; IGCSE explicitly selects letters or 9–1 |
@@ -99,7 +101,9 @@ The form first selects Secondary, Pre-U/Diploma/Pathway or Undergraduate, then a
 
 SPM As/credits are derived from grade counts, so students no longer enter those aggregates separately. Counts must be whole non-negative numbers, have at least one subject and use the selected scale. IGCSE scales are not converted. Changing category, qualification, scale or status clears incompatible inputs. Forecast/expected results, AS-Level and unspecified qualifications are outside this version. Existing aggregate-only SPM records retain their totals but require an actual breakdown before recommendations. See docs/ACADEMIC_QUALIFICATIONS.md for scales, limits and examples, docs/ACADEMIC_REQUIREMENT_TYPES.md for the typed editor and docs/STPM_CGPA_CALCULATION.md for the completed-result workflow. Existing CGPA-only STPM records retain their CGPA but need actual subject counts before recommendations.
 
-Programme Seeking Funding groups funding_study_level, institution_type and field_of_study. These describe the target programme and may differ from the latest qualification supplying results. The shared institution/field options are validated server-side and are required before recommendations. The recommendation engine reads these values from academic_results.
+Programme Seeking Funding groups funding_study_level, institution_type and field_of_study. These describe the target programme and may differ from the latest qualification supplying results. Both institution and field require a selection, but each independently accepts Haven't decided. Explicit undecided answers complete setup; empty/invalid answers do not. Official results and a supported funding study level remain required. Values are validated server-side and read from academic_results.
+
+When a scholarship restricts a programme choice that is undecided, record not_checked, preserve its required values and explain the condition in blue on cards/details, logs and the synthetic admin preview. For example: Not checked — choose Engineering to meet this condition. An unrestricted criterion remains not_applicable. Decided choices are compared normally; unrelated academic, nationality, income and deadline failures still return Not Eligible. Saving later choices reevaluates matching. Haven't decided is not available as an administrator scholarship restriction or a field to manage in Matching Settings.
 
 ### 6.4 Scholarship Management
 
@@ -122,7 +126,7 @@ Add/Edit Scholarship and Add/Edit Rules share a repeatable qualification-box edi
 
 Each box uses Add Another Requirement and a Requirement Type selector. Types are qualification-specific: overall CGPA, grade counts, SPM As/credits, STAM rank, STPM minimum best-subject average, and UEC maximum average/total. Live previews explain each condition; cumulative grade conditions also show their minimum grade pattern. One grade-count requirement contains all grade thresholds as compact rows, with Add Grade Row and individual removal. Removing its final row removes only that grade group. CGPA and point requirements stay in separate groups. An added condition must be complete, and changing type clears its incompatible inputs. Grade conditions count subjects at a chosen grade or better. For AAB, require 2 at A or above AND 3 at B or above. Grade counts do not identify individual subjects: named-subject conditions belong in Special Requirements and require provider verification.
 
-All applicable conditions inside one box combine with AND. Boxes combine with OR: passing any complete box satisfies the academic route requirement. General nationality/funding/income/field/institution conditions still combine with AND. Multiple boxes may use the same qualification with different statuses, results or year ranges.
+All applicable conditions inside one box combine with AND. Boxes combine with OR: passing any complete box satisfies the academic route requirement. Checked general nationality/funding/income/field/institution conditions combine with AND; a restricted undecided field/institution is recorded as not_checked. Multiple boxes may use the same qualification with different statuses, results or year ranges.
 
 Example: an Undergraduate scholarship accepts Completed Diploma with CGPA >= 3.00 OR Currently Studying Undergraduate with CGPA >= 3.30 in Years 1–3. Failing one alternative does not reject a student who passes another. Conditions from separate boxes cannot be combined to invent a passing route.
 
@@ -144,7 +148,7 @@ There are no points, weights, percentage match scores or hard/soft rule settings
 
 ### 6.7 Recommendation Explanation
 
-Each requirement records its key, label, required value, student value, outcome (met, not_met or not_applicable), and explanation. Scholarship cards and detail pages show these results. Eligible ! includes an expandable, keyboard-accessible explanation of special conditions.
+Each requirement records its key, label, required value, student value, outcome (met, not_met, not_checked or not_applicable), and explanation. Scholarship cards and detail pages show these results. not_checked is a comparison outcome, not another overall decision. Detail pages group unchecked programme conditions separately from met, failed and unrestricted criteria. Eligible ! includes an expandable, keyboard-accessible explanation of special conditions.
 
 Student scholarship details present a short decision summary, the evaluator-selected qualification route, failed comparisons first, and grouped academic/other applicable checks. Qualification and study status share one comparison. Alternative routes and unrestricted criteria are collapsed by default. An amber provider section presents special conditions and uncertain dates; rolling/automatic application timing remains informational. Administrator logs retain their full comparison table. This is presentation only and does not change eligibility decisions or stored results.
 
@@ -195,7 +199,7 @@ Recommendations have Eligible and Not Eligible groups. Eligible ! is included in
 
 Migration 2026_10_19_000000_add_decision_based_recommendations adds the new fields while preserving existing records. Legacy rule-type and score columns remain inactive for compatibility. Existing students must confirm their study status and funding level rather than having those answers invented during migration.
 
-Migration 2026_10_19_010000_create_scholarship_qualification_routes_table adds the one-to-many route table and converts existing qualification/status/year/result settings without changing student or scholarship records. Route rows are deleted automatically when their parent rule/scholarship is deleted. Migration 2026_10_31_000000_add_qualification_grade_counts adds the nullable scale/count/rank and route-threshold fields, extends the academic qualification enum and preserves existing data. Old SPM aggregates require a real breakdown before matching; rollback guards against discarding new-format data. The current evaluator uses algorithm version decisions-v8-stpm-cgpa, so earlier cached decisions/logs refresh rather than being treated as current evaluations. Migration 2026_10_31_010000_add_subject_point_requirements adds nullable stpm_average and uec_total JSON fields without modifying existing rows, and guards against a lossy rollback. Migration 2026_10_31_020000_add_stpm_cgpa_calculation adds nullable stpm_pa_grade and default-false stpm_cgpa_confirmed while preserving prior CGPA and grades; no PA identity is invented. Existing usable manual records remain valid until edited; new completed STPM saves require the calculated/confirmed flow. Format definitions and examples are in docs/ACADEMIC_QUALIFICATIONS.md, docs/ACADEMIC_REQUIREMENT_TYPES.md and docs/STPM_CGPA_CALCULATION.md.
+Migration 2026_10_19_010000_create_scholarship_qualification_routes_table adds the one-to-many route table and converts existing qualification/status/year/result settings without changing student or scholarship records. Route rows are deleted automatically when their parent rule/scholarship is deleted. Migration 2026_10_31_000000_add_qualification_grade_counts adds the nullable scale/count/rank and route-threshold fields, extends the academic qualification enum and preserves existing data. Old SPM aggregates require a real breakdown before matching; rollback guards against discarding new-format data. The current evaluator uses algorithm version decisions-v9-undecided-programme, so earlier cached decisions/logs refresh rather than being treated as current evaluations. Migration 2026_10_31_010000_add_subject_point_requirements adds nullable stpm_average and uec_total JSON fields without modifying existing rows, and guards against a lossy rollback. Migration 2026_10_31_020000_add_stpm_cgpa_calculation adds nullable stpm_pa_grade and default-false stpm_cgpa_confirmed while preserving prior CGPA and grades; no PA identity is invented. Existing usable manual records remain valid until edited; new completed STPM saves require the calculated/confirmed flow. Format definitions and examples are in docs/ACADEMIC_QUALIFICATIONS.md, docs/ACADEMIC_REQUIREMENT_TYPES.md and docs/STPM_CGPA_CALCULATION.md.
 
 ## 9. Missing Data Handling
 
@@ -212,7 +216,7 @@ Seeders provide local demonstration users, configurable income ranges and 20 ric
 ## 11. Validation Rules
 
 - Latest level and funding level must be supported education levels.
-- Institution type and field are required academic programme inputs using shared supported choices.
+- Institution type and field each require a supported choice or the explicit Haven't decided answer; blank values remain incomplete.
 - Study status is studying/completed; SPM, IGCSE, O-Level, A-Level, UEC and STAM require completed. STPM retains either student status and requires both official CGPA and subject counts.
 - Current year is 1–10 for studying CGPA-based records.
 - Grade counts are whole non-negative numbers in the chosen scale, with at least one subject; supported totals are at most 12 for SPM, 5 for STPM and 20 for the other grade-count formats. SPM As/credits are derived.
@@ -247,7 +251,7 @@ Possible future work includes provider integrations, multiple student academic-h
 ## 16. Success Criteria
 
 - A definite applicable failure always produces Not Eligible.
-- All applicable automatic checks passing produces Eligible.
+- All checked automatic requirements passing produces Eligible, with undecided programme restrictions explicitly labelled Not checked.
 - Only admin-entered special requirements cause the ! warning.
 - Official results are required before recommendation generation.
 - SPM source qualification and target funding level are checked separately.

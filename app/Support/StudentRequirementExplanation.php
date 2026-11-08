@@ -54,6 +54,7 @@ class StudentRequirementExplanation
 
         return [
             'failed' => array_values(array_filter($rows, fn ($row) => $row['outcome'] === 'not_met')),
+            'unchecked' => array_values(array_filter($rows, fn ($row) => $row['outcome'] === 'not_checked')),
             'academic' => array_values(array_filter($rows, fn ($row) => $row['outcome'] === 'met' && in_array($row['key'], $academicKeys, true))),
             'general' => array_values(array_filter($rows, fn ($row) => $row['outcome'] === 'met' && ! in_array($row['key'], $academicKeys, true))),
             'inactive' => $inactive, 'selected' => $selected, 'alternatives' => array_values($routes),

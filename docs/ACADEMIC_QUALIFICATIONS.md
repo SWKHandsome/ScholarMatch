@@ -4,6 +4,10 @@ Implemented 31 October 2026 and extended with explicit requirement types. See [A
 
 ## Student selection and results
 
+As of 8 November 2026, Field of Study and Institution Type under Programme Seeking Funding each offer **Haven't decided**. Either or both answers complete those selections; blank answers still require correction. The latest qualification, official results and funded study level remain required. These are intended programme preferences, not facts inferred from the student's latest qualification.
+
+A restricted undecided preference produces **Not checked**, with the scholarship's actual requirement and guidance kept visible. All checked requirements passing still produces **Eligible**; a definite failure elsewhere produces **Not Eligible**. Unrestricted criteria stay **No restriction**, and undecided preferences do not trigger the special-condition !. Later programme choices are compared normally. The stored __undecided__ sentinel uses the existing academic string columns, so no migration or catalogue change is needed.
+
 Choose an education category, then its current/latest qualification. Category is derived from the qualification and is not a separate stored column.
 
 | Category | Stored qualifications | Result format |
@@ -58,7 +62,7 @@ AcademicResult adds nullable grading_scale (string), grade_counts (JSON grade-to
 
 Migration 2026_10_31_000000_add_qualification_grade_counts extends the qualification enum and adds these fields. It preserves all existing values and rows. It does not invent a grade distribution from old SPM As/credits. Existing SPM students see their preserved totals and must enter a real breakdown before matching. Valid non-STPM CGPA records continue working; existing CGPA-only STPM records retain their values and need their actual subject counts before matching. Rollback refuses to discard stored new-format results or rules; preserve/export them before rollback.
 
-AcademicQualifications supplies the shared PHP/JavaScript definitions. AcademicResultController validates and normalises submissions; ScholarshipRuleEditor validates/clears route-specific fields; AcademicRouteEvaluator computes the comparisons. Algorithm version decisions-v8-stpm-cgpa refreshes prior cached evaluations/logs. Legacy CGPA inference remains limited to the original five CGPA qualifications, so it does not accidentally accept new exam-based qualifications.
+AcademicQualifications supplies the shared PHP/JavaScript definitions. AcademicResultController validates and normalises submissions; ScholarshipRuleEditor validates/clears route-specific fields; AcademicRouteEvaluator computes the comparisons. Algorithm version decisions-v9-undecided-programme refreshes prior cached evaluations/logs. Legacy CGPA inference remains limited to the original five CGPA qualifications, so it does not accidentally accept new exam-based qualifications.
 
 ## Verification and FYP documentation
 
