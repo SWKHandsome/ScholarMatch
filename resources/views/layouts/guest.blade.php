@@ -15,8 +15,23 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
+    @php($showHomeReturn = request()->routeIs('login', 'register'))
+    <body @class(['font-sans text-gray-900 antialiased', 'min-h-screen flex flex-col bg-gray-100' => $showHomeReturn])>
+        @if($showHomeReturn)
+            <nav class="w-full px-4 pt-4 sm:px-6 sm:pt-6" aria-label="Return navigation">
+                <a href="{{ route('home') }}" class="btn btn-outline gap-2 bg-white text-sm">
+                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m12 19-7-7 7-7M5 12h14" />
+                    </svg>
+                    {{ __('Back to Home') }}
+                </a>
+            </nav>
+        @endif
+        <div @class([
+            'flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100',
+            'flex-1 pb-6' => $showHomeReturn,
+            'min-h-screen' => !$showHomeReturn,
+        ])>
             <div class="shrink-0">
                 <a href="{{ route('home') }}" class="inline-block rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-4">
                     <img

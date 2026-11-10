@@ -1091,3 +1091,88 @@ Browser verification used a separate SQLite file and fictional scholarships: log
 - **UI / user manual:** replace Programme Seeking Funding and scholarship-detail screenshots; explain how later selections refresh results. Include the blue conditions and unchanged Eligible badge.
 - **Testing / evaluation:** add the UND cases in MANUAL_TEST_CASES.md, independent/combined choices, an unrelated failing requirement, unrestricted awards and changes after saving. See docs/ACADEMIC_QUALIFICATIONS.md and docs/ELIGIBILITY_PLANNING.md for current behaviour.
 - **Limitations:** Eligible does not certify an unchecked programme restriction, provider conditions or the provider's final award decision. Include this explicitly when presenting evaluation results.
+
+## IMP-048 — Refresh homepage information and reading layout
+
+**Date:** 2026-11-10
+**Status:** Implemented and checked locally; not committed, pushed or deployed by the assistant.
+
+Replaced the fixed **20+ Scholarships** and **B40/M40/T20 Matching** labels with student benefits: **Academic & Income Matching**, **Clear Eligibility Explanations** and **Save Scholarships for Later**. The homepage no longer presents a catalogue count that becomes outdated or fixed income-category labels that administrators can change.
+
+Kept Find Scholarships That Match You as the main heading. Shortened the introduction around academic results, financial background and study plans, without implying a guaranteed scholarship award. How It Works now explains Complete Your Profile → Add Your Academic Results → Explore Your Matches, including the ability to decide field/institution later. Why ScholarMatch highlights Personalised Matching, Know What to Check, Clear Explanations and Save for Later. Removed the visitor-facing Admin Configurable/seed-data claim and replaced its icon with a bookmark. The closing invitation now says Ready to Explore Your Matches.
+
+For readability, body paragraphs use 16px text and 26px line spacing; the hero uses 18px/29.25px on phones and 20px/32.5px on larger screens. Longer step/card descriptions are left-aligned rather than justified. Paragraph widths are constrained, headings and sections have consistent spacing, feature cards use two columns at intermediate widths and four only at wide desktop widths, and benefit items stack on narrow screens. Headings/sections and the three steps use semantic labels/lists. Existing registration/login links and the How It Works anchor remain.
+
+**Verification:** Production Vite build, the existing homepage response test (1 test / 1 assertion) and whitespace checks passed. Browser DOM/computed-style checks covered the full wording, correct link targets, working How It Works anchor, equal-height desktop feature cards, and desktop/390px/320px layouts with no horizontal overflow or justified paragraphs. No browser-console errors were captured. Screenshot capture was unavailable through both documented capture methods, including a temporary visible-preview attempt; visual screenshot QA is therefore not claimed. Phone layout metrics are saved privately in storage/app/private/homepage-readability-20261110.json. The temporary server used in-memory database/session/cache settings and was stopped afterwards; no application data or Azure settings were changed. No new automated tests or full regression rerun was needed for this homepage-only presentation change.
+
+**FYP documentation:** Update the homepage screenshot and explanation in the UI design/user-manual chapter. Describe student benefits and the three setup/exploration steps, including undecided programme preferences. Replace references to a fixed homepage scholarship count or admin seed management. The recommendation algorithm, database/ERD and authentication behaviour are unchanged. The separately requested broader phone-view improvements remain for discussion.
+
+## IMP-049 — Center homepage icons and text
+
+**Date:** 2026-11-10
+
+Centered the numbered circles, headings and short descriptions in How It Works, and the icons/headings/descriptions in Why ScholarMatch. This supersedes the left-aligned step/card descriptions introduced in IMP-048. Retained the existing 16px body text and relaxed line spacing. Step headings reserve equal space at medium widths so descriptions start on the same line when a heading wraps; wide desktop and stacked phone headings use natural height.
+
+**Verification:** Production build, existing homepage response test (1 test / 1 assertion) and whitespace checks passed. Browser checks at 1280px, 1024px and 390px confirmed centered icons/text and no horizontal overflow; the three step descriptions aligned vertically in desktop/tablet rows. Screenshot capture became available again: the full desktop page and phone step layout were visually reviewed. Desktop proof: storage/app/private/homepage-alignment-preview.png (private, Git-ignored). Temporary viewport was reset and the isolated in-memory preview server stopped. No new automated tests, full regression run, real-data changes, commit, push or Azure update were needed/performed.
+
+**FYP documentation:** Use the new centered homepage screenshot in the UI/user-manual chapter. Content, matching rules and database structure are unchanged by this alignment adjustment.
+
+## IMP-050 — Add a homepage return button to Login and Register
+
+**Date:** 2026-11-10
+
+Added an outlined **Back to Home** button with a left-arrow icon above the Register/Login switch. The shared auth-card renders it once for both pages, including when switching modes without a page reload. It links directly to the existing homepage route, so it also works when Login/Register was opened directly. As a navigation link outside the forms, it does not submit or require completing the form. The button remains in the same position in both modes.
+
+**Verification:** Existing login/registration tests passed (**6 tests / 12 assertions**), production build and whitespace checks passed. Template inspection confirmed the shared homepage link and unchanged form actions/switch. No new automated tests or separate browser verification was needed for this small navigation addition. No database, authentication logic or Azure setting changes were made; not committed/pushed/deployed by the assistant.
+
+**FYP documentation:** Update Login/Register screenshots and the user-manual navigation instructions to include Back to Home. No use-case permissions, schema or matching changes are required.
+
+## IMP-051 — Move the auth return button to the page's top-left
+
+**Date:** 2026-11-10
+
+Moved **Back to Home** out of the Login/Register card into a top-left navigation area in the guest layout. This replaces IMP-050's in-card placement. The return button appears only on Login/Register, including mode switching, at 24px from the top/left on desktop and 16px on phones. The navigation area occupies its own space above the logo/form so it does not overlap the content. Existing Forgot/Reset Password navigation keeps its previous layout.
+
+**Verification:** All existing authentication tests passed (**18 tests / 38 assertions**), alongside the production build and whitespace checks. Isolated browser checks at 1280px and 390px confirmed that the button is outside the card, top-left, and clear of the logo with no horizontal overflow. Login/Register mode switching retained the return navigation, and clicking it from both modes reached the homepage without submitting the forms. Desktop screenshot: storage/app/private/auth-back-home-preview.png (private, Git-ignored). Temporary viewport was reset and the in-memory preview server stopped. No new tests, database changes, commit/push or Azure changes were made.
+
+**FYP documentation:** Replace the Login/Register screenshots with the top-left return-button placement; the earlier in-card screenshot is superseded.
+
+## IMP-052 — Responsive saved scholarships and clearer eligibility buttons
+
+**Date:** 2026-11-10
+
+Saved Scholarships now uses one card per row below the desktop breakpoint, with the full scholarship name, provider, award type, deadline and actions. The phone heading and Find More Scholarships button stack vertically. Desktop retains its table, with internal scrolling at narrower desktop widths. Added View Details alongside the existing Apply/Check Provider link. Remove is a separate small red action with the existing confirmation and a scholarship-specific accessible label. Both layouts share one action partial. Expired labels use the existing red badge style. Pagination remains ten saved scholarships per page and is shared below either layout.
+
+Replaced the recommendation page's two large count cards with compact **Eligible** / **Not Eligible** navigation buttons under Show scholarships. The selected button is solid blue, the other outlined, and counts appear in small badges. Both groups use the same selected styling, with hover/focus states and aria-current. Existing search/filter parameters, counts, decision calculations and pagination behaviour remain unchanged.
+
+**Verification:** Existing SavedScholarship, RecommendationFilters and Recommendation suites passed (**32 tests / 143 assertions**); production Vite build and whitespace checks passed. Browser checks used a separate synthetic SQLite database, with long award/provider names and fixed/provider-confirmed deadlines. Saved cards fit at 320/390/430px with no horizontal page overflow; tables remain at 1024/1280px and scroll internally when needed. View Details opened the correct award. Switching eligibility groups preserved search and displayed the correct result/count and blue selected state; recommendation layouts fit 320/390/430/1280px. No browser console errors were captured. A removal click timed out in browser automation, but the subsequent page showed one synthetic bookmark removed; cancellation of the confirmation was therefore not verified. Existing isolated backend tests cover removal and access control. No normal local/Azure records were touched. Temporary viewport was reset and preview server stopped.
+
+Private, Git-ignored proof images: storage/app/private/saved-phone-preview.png, saved-desktop-preview.png and recommendation-buttons-preview.png. No commit, push or Azure deployment was performed.
+
+**FYP documentation:** Update student UI design and user-manual screenshots for Saved Scholarships on phones/desktops and the recommendation decision buttons. Explain View Details, provider/application links, the separate Remove action and ten items per page. No ERD, database migration or recommendation-algorithm changes are needed.
+
+## IMP-053 — Use recommendation cards for Saved Scholarships on every screen
+
+**Date:** 2026-11-10
+
+Replaced Saved Scholarships' desktop table and separate phone card with the same shared card used by Dashboard/Recommendations. This supersedes IMP-052's saved-list table and small separate Remove link. Each saved award now displays its description, award/deadline chips, current eligibility badge and expandable colour-coded explanation where an evaluation is available. Replaced Save/Saved with a **red background, white text Remove button** in the same action row as View Details and Apply Now/Check Provider. Buttons wrap on phones. The existing confirmation and student-scoped DELETE action remain; removing a bookmark does not delete its scholarship or another student's bookmark. Kept ten saved items per page and the stacked phone page header.
+
+Saved-list rendering reads the existing recommendation service once and uses its current evaluations, without creating recommendation logs or changing matching rules. Expired, inactive or unconfigured saved awards remain visible/removable with an availability message instead of a misleading eligibility badge/explanation. Application actions follow the shared recommendation behaviour: only eligible evaluated awards with an application URL receive the provider/application link. Incomplete-profile evaluation errors similarly leave bookmarks readable/removable without inventing a decision. The shared card's usual Save/Saved action remains on Dashboard/Recommendations.
+
+**Verification:** SavedScholarship, RecommendationFilters, Recommendation and Dashboard suites passed (**52 tests / 233 assertions**), including four new cases for current eligibility after a result update/no log writes, unavailable saved awards, ten-per-page/other-user isolation, and safe bookmark removal. Production build, targeted PHP formatting and whitespace checks passed. Isolated synthetic SQLite browser review covered 1280px desktop and 320/390/430/1024px layouts with no horizontal page/card overflow. Confirmed red/white Remove buttons, current Eligible/Not Eligible badges, expandable met/not-met explanation and wrapped phone actions. No browser removal action was attempted in this follow-up; backend tests cover removal and the confirmation handler remains in source. No console errors captured. Preview viewport reset and temporary server stopped; no normal local/Azure data changes, commit, push or deployment.
+
+Private proof images: storage/app/private/saved-unified-desktop-preview.png and saved-unified-phone-preview.png. These replace the earlier saved-table/phone-card screenshots.
+
+**FYP documentation:** Replace desktop and phone Saved Scholarships screenshots in the UI design/user-manual chapter. Describe consistent cards, current eligibility explanations and the red Remove bookmark button; keep ten-per-page instructions. No ERD, schema or recommendation decision-rule changes are required.
+
+## IMP-054 — Remove the failed-login attempt limit
+
+**Date:** 2026-11-10
+
+At the user's request for presentation account switching, removed login attempt counting and the five-failure/60-second lockout from LoginRequest. Applies to both student and admin login, locally and after deployment to Azure. Repeated incorrect passwords still return the normal credentials error; correct credentials can be submitted immediately after any number of failed attempts. Existing cached attempt counters are no longer consulted, so no database/cache reset is needed. Successful account switching did not previously consume failed attempts.
+
+Email/password validation, credential checking, session regeneration, Remember me, logout, role access and student onboarding remain. Email-verification route throttles are separate and unchanged. This removes the application's failed-login brute-force rate protection; do not describe login throttling as an implemented security control in the FYP report.
+
+**Verification:** All authentication tests passed (**20 tests / 108 assertions**), including two new student/admin scenarios with ten consecutive failed attempts followed immediately by a successful login. Targeted PHP formatting and whitespace checks passed. No UI/assets changed, so no frontend rebuild/browser check was needed. Tests used an isolated test database; no normal local/Azure data, commit, push or deployment changes were made.
+
+**FYP documentation:** Update the authentication implementation/security discussion and login test cases to remove the five-attempt lockout/countdown claim. Retain password checking and session security descriptions. No database/ERD changes are needed. Azure receives this change only after the user's commit/push and successful deployment/startup.

@@ -449,3 +449,41 @@ Automated account/CRUD tests use SQLite memory. Browser review uses a separate s
 | UND-11 | Open details at desktop and 390px | Unchecked values are blue, clearly labelled, readable and distinct from Met/Not Met. |
 
 Automated tests and browser checks use isolated synthetic data. See improve.md IMP-047 for the exact verification scope; Azure acceptance follows the user's commit/push.
+
+## Homepage information and readability
+
+| ID | Action | Expected result |
+| --- | --- | --- |
+| HOME-01 | Open the public homepage | Student benefits replace the fixed 20+ count and B40/M40/T20 label; the introductory text matches current features. |
+| HOME-02 | Read How It Works and Why ScholarMatch | Three setup/exploration steps mention official results and deciding field/institution later; student features replace admin/seed-data marketing. |
+| HOME-03 | Open at desktop, 390px and 320px widths | Readable line spacing, centered step/card icons and text, stacked narrow layouts and no horizontal page overflow. At medium widths, wrapped step headings retain aligned description starts. |
+| HOME-04 | Select How It Works and inspect registration/sign-in links | The anchor reaches its heading; existing account links retain their destinations. |
+| HOME-05 | Open Login/Register directly or switch between them, then select Back to Home | One return button appears at the page's top-left outside the card, stays clear of the logo on phones and reaches Home without submitting the form. |
+
+Local DOM/computed-style and response/build checks passed. Screenshot capture was unavailable for IMP-048, so manually capture the final homepage for FYP visual evidence after opening it locally or deploying it.
+
+IMP-049 follow-up: screenshot capture recovered. Full desktop/phone visual review and computed alignment checks passed at 1280px, 1024px and 390px. The private desktop proof is storage/app/private/homepage-alignment-preview.png.
+
+## Responsive saved scholarships and decision navigation
+
+| ID | Action | Expected result |
+| --- | --- | --- |
+| MOBILE-01 | Open Saved Scholarships at 320px, 390px and 430px with long award/provider names | One readable card per row, full names wrap, header/button stack, actions remain inside the card and no page overflow occurs. |
+| MOBILE-02 | Open the same list at 1024px and 1280px | One full-width recommendation-style card per award, matching the phone structure; no desktop table or horizontal page overflow. |
+| MOBILE-03 | Open View Details, inspect fixed/unknown/expired deadlines and provider/application links | Correct detail route and deadline text; expired label is red; existing application label and external-link behaviour remain. |
+| MOBILE-04 | On a disposable saved item, cancel Remove, then confirm removal | Cancel preserves the bookmark; confirmation removes only that student's bookmark. Assistant browser verification did not establish cancellation; backend removal tests pass. |
+| MOBILE-05 | Save more than ten awards and navigate pages at any width | Ten items per page; pagination remains available below the cards. |
+| MOBILE-06 | Apply a search/filter, then switch Eligible / Not Eligible | Compact button becomes solid blue, count/results match the selected group, filters remain and pagination starts at page one. Keyboard focus is visible. |
+
+See improve.md IMP-052 for automated/browser scope. Preview data was isolated from normal local and Azure databases.
+
+IMP-053 supersedes the Saved Scholarships table/separate phone-card design: all widths now use the shared recommendation card, with current decision badge/explanation and red Remove replacing Save/Saved. Also check that expired/inactive/unconfigured awards remain visible/removable without an eligibility claim, profile/result changes update decisions, and Dashboard/Recommendations retain their ordinary Save/Saved buttons. Follow-up scope: 52 tests / 233 assertions, production build, PHP formatting and desktop/phone browser checks; see improve.md IMP-053. Normal local/Azure records were not changed.
+
+## Login without failed-attempt lockout
+
+| ID | Action | Expected result |
+| --- | --- | --- |
+| LOGIN-UNLIMITED-01 | For a synthetic student and admin, submit ten incorrect passwords, then the correct password immediately | Every incorrect attempt shows the normal credentials error; no attempt-limit/countdown appears; correct credentials log in successfully. |
+| LOGIN-UNLIMITED-02 | Log out, then log in to another presentation account | Previous session ends; the second account opens with its own role and onboarding destination. |
+
+See improve.md IMP-054. Authentication suite: 20 tests / 108 assertions; no real accounts were modified during verification.

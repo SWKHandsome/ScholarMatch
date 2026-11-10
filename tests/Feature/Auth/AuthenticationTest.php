@@ -39,3 +39,21 @@ test('users can logout', function () {
     $this->assertGuest();
     $response->assertRedirect('/');
 });
+
+test('repeated failed logins do not block a subsequent valid login', function (string $role) {
+    $user = User::factory()->create(['role' => $role]);
+
+    foreach (range(1, 10) as $attempt) {
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'wrong-password',
+        ])->assertSessionHasErrors(['email' => trans('auth.failed')]);
+        $this->assertGuest();
+    }
+
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ])->assertRedirect()->assertSessionHasNoErrors();
+    $this->assertAuthenticatedAs($user);
+})->with(['student' => User::ROLE_STUDENT, 'admin' => User::ROLE_ADMIN]);

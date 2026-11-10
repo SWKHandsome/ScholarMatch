@@ -2,12 +2,12 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto">
-    <div class="mb-8 flex items-center justify-between">
-        <div>
+    <div class="mb-6 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <div class="min-w-0">
             <h1 class="text-2xl font-bold text-on-surface">Saved Scholarships</h1>
             <p class="text-on-surface-variant mt-1">Scholarships you've bookmarked for later review.</p>
         </div>
-        <a href="{{ route('student.recommendations') }}" class="btn btn-primary">Find More Scholarships</a>
+        <a href="{{ route('student.recommendations') }}" class="btn btn-primary w-full sm:w-auto sm:shrink-0">Find More Scholarships</a>
     </div>
 
     @if($savedScholarships->isEmpty())
@@ -18,69 +18,29 @@
             <a href="{{ route('student.recommendations') }}" class="btn btn-primary">View Recommendations</a>
         </div>
     @else
-        <div class="card overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-surface-container-low">
-                        <tr>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider">Scholarship</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider">Provider</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider">Award Type</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider">Deadline</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-on-surface-variant uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-outline-variant/50">
-                        @foreach($savedScholarships as $saved)
-                            <tr class="hover:bg-surface-container-low transition-colors">
-                                <td class="px-4 py-4">
-                                    <div class="font-medium text-on-surface">{{ $saved->scholarship->name }}</div>
-                                    <div class="text-sm text-on-surface-variant line-clamp-1">{{ $saved->scholarship->description }}</div>
-                                </td>
-                                <td class="px-4 py-4 text-on-surface">{{ $saved->scholarship->provider }}</td>
-                                <td class="px-4 py-4">
-                                    <span class="badge badge-info">{{ $saved->scholarship->award_type }}</span>
-                                </td>
-                                <td class="px-4 py-4">
-                                    <span class="{{ $saved->scholarship->isExpired() ? 'text-error' : 'text-on-surface' }}">
-                                        {{ $saved->scholarship->deadlineLabel() }}
-                                    </span>
-                                    @if($saved->scholarship->isExpired())
-                                        <span class="ml-2 badge badge-error">Expired</span>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-4">
-                                    <div class="flex items-center gap-2">
-                                        @if($saved->scholarship->application_link)
-                                            <a href="{{ $saved->scholarship->application_link }}" target="_blank" rel="noopener noreferrer"
-                                                class="btn btn-primary text-sm px-3 py-1.5">
-                                                {{ $saved->scholarship->isDemo() || ($saved->scholarship->deadline && ! $saved->scholarship->isExpired() && $saved->scholarship->is_active) ? 'Apply' : 'Check Provider' }}
-                                            </a>
-                                        @endif
-                                        <form action="{{ route('student.saved-scholarships.destroy', $saved->scholarship) }}" method="POST" class="inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="btn btn-ghost text-sm px-3 py-1.5 text-error hover:bg-error/10"
-                                                onclick="return confirm('Remove this scholarship from your saved list?')">
-                                                Remove
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            @if($savedScholarships->hasPages())
-                <div class="px-4 py-3 border-t border-outline-variant">
-                    {{ $savedScholarships->links() }}
-                </div>
-            @endif
+        <div class="space-y-5">
+            @foreach($savedScholarships as $saved)
+                @php
+                    $scholarship = $saved->scholarship;
+                    $recommendation = $recommendations->get($scholarship->id);
+                    $unavailableMessage = $scholarship->isExpired()
+                        ? 'This scholarship has expired. Check with the provider for a new application round.'
+                        : (! $scholarship->is_active
+                            ? 'This scholarship is no longer active.'
+                            : ($evaluationError ?: 'Eligibility is unavailable while this scholarship’s requirements are being configured.'));
+                @endphp
+                @include('components.scholarship-card', [
+                    'recommendation' => $recommendation,
+                    'scholarship' => $scholarship,
+                    'showSaveButton' => false,
+                    'showRemoveButton' => true,
+                    'unavailableMessage' => $unavailableMessage,
+                ])
+            @endforeach
         </div>
+        @if($savedScholarships->hasPages())
+            <div class="mt-5">{{ $savedScholarships->onEachSide(1)->links() }}</div>
+        @endif
     @endif
 </div>
 @endsection

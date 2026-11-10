@@ -66,13 +66,22 @@
                 </form>
             </aside>
             <div class="min-w-0 scroll-mt-24" id="recommendation-results">
-                <nav class="grid grid-cols-2 gap-3 mb-5" aria-label="Eligibility decisions">
+                <p class="mb-2 text-sm font-medium" id="eligibility-decisions-heading">Show scholarships</p>
+                <nav class="mb-5 flex flex-wrap gap-3" aria-labelledby="eligibility-decisions-heading">
                     @foreach(['Eligible', 'Not Eligible'] as $status)
                         <a href="{{ route('student.recommendations', array_merge(array_filter($filters, fn ($value) => $value !== ''), ['decision' => $status])) }}"
                             @if($decision === $status) aria-current="page" @endif
-                            @class(['card p-4', 'ring-2 ring-primary' => $decision === $status])>
-                            <span class="font-semibold">{{ $status }}</span>
-                            <span class="block text-2xl font-bold mt-1">{{ $decisionCounts->get($status, 0) }}</span>
+                            @class([
+                                'btn min-h-11 gap-2 border border-primary text-sm focus:ring-primary',
+                                'bg-primary text-white hover:bg-primary/90' => $decision === $status,
+                                'bg-white text-primary hover:bg-primary/5' => $decision !== $status,
+                            ])>
+                            <span>{{ $status }}</span>
+                            <span @class([
+                                'min-w-6 rounded-full px-2 py-0.5 text-center text-xs font-semibold',
+                                'bg-white/20 text-white' => $decision === $status,
+                                'bg-primary/10 text-primary' => $decision !== $status,
+                            ])>{{ $decisionCounts->get($status, 0) }}</span>
                         </a>
                     @endforeach
                 </nav>
