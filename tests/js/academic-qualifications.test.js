@@ -92,7 +92,6 @@ test('grouped grade rows retain stable identities when the first row or another 
     const route = editor.routes[1];
     route.education_level = 'A-Level';
     editor.levelChanged(route);
-    editor.addRequirement(route);
     const condition = route.requirements[0];
     editor.addGradeRow(condition);
     const row = condition.rows[1];
@@ -111,16 +110,17 @@ test('admin qualification changes clear grade conditions, average rules and stal
     const route = editor.makeRoute({ education_level: 'UEC', study_status: 'completed', grade_requirements: [{ grade: 'A1', min_subjects: 3 }], uec_average: { subjects: 5, max_average: 3, minimum_grade: 'B6' } });
     route.education_level = 'Diploma';
     editor.levelChanged(route);
-    assert.deepEqual(route.requirements, []);
+    assert.deepEqual(route.requirements.map(condition => condition.type), ['min_cgpa']);
+    assert.equal(editor.conditionStarted(route.requirements[0]), false);
     assert.equal(route.grading_scale, '');
     route.min_year_of_study = 2;
-    editor.addRequirement(route);
     route.requirements[0].value = 3;
     route.education_level = 'SPM';
     editor.levelChanged(route);
     assert.equal(route.study_status, 'completed');
     assert.equal(route.min_year_of_study, '');
-    assert.deepEqual(route.requirements, []);
+    assert.deepEqual(route.requirements.map(condition => condition.type), ['grade']);
+    assert.equal(editor.conditionStarted(route.requirements[0]), false);
 });
 
 test('STPM retains independent official CGPA and grade counts and clears both when status changes', () => {
@@ -153,13 +153,13 @@ test('saved mixed conditions restore their exact values and stable nested submis
 test('requirement types are qualification-specific and changing type clears incompatible settings', () => {
     const editor = qualificationEditor([], config);
     const route = editor.makeRoute({ education_level: 'UEC' });
-    const condition = editor.makeCondition(route, 'uec_total', { subjects: 5, value: 11, grade: 'B6' });
+    const condition = editor.makeCondition('uec_total', { subjects: 5, value: 11, grade: 'B6' });
     route.requirements.push(condition);
     assert.match(editor.describe(route, condition), /total points must be no more than 11/);
     assert.equal(editor.conditionName(0, 0, condition), 'qualification_routes[0][uec_total][max_total]');
     const key = condition._key;
     condition.type = 'grade';
-    editor.conditionChanged(route, condition);
+    editor.conditionChanged(condition);
     assert.equal(condition._key, key);
     assert.equal(condition.value, '');
     assert.equal(condition.grade, '');
@@ -175,6 +175,10 @@ test('grade pattern preview expresses ABB correctly and scale changes clear old 
     assert.equal(editor.gradePattern(route), 'A, B');
     const igcse = editor.makeRoute({ education_level: 'IGCSE', grading_scale: 'igcse_letters', grade_requirements: [{ grade: 'C', min_subjects: 5 }] });
     igcse.grading_scale = 'igcse_9_1';
+    editor.scaleChanged(igcse);
+    assert.deepEqual(igcse.requirements.map(condition => condition.type), ['grade']);
+    assert.equal(editor.conditionStarted(igcse.requirements[0]), false);
+    igcse.grading_scale = '';
     editor.scaleChanged(igcse);
     assert.deepEqual(igcse.requirements, []);
 });
@@ -206,12 +210,12 @@ test('switching requirement type discards the entire old grade group', () => {
     assert.equal(group.rows[0].grade, 'B6');
     const key = group._key;
     group.type = 'uec_total';
-    editor.conditionChanged(route, group);
+    editor.conditionChanged(group);
     assert.equal(group._key, key);
     assert.deepEqual(group.rows, []);
     assert.equal(group.value, '');
     group.type = 'grade';
-    editor.conditionChanged(route, group);
+    editor.conditionChanged(group);
     assert.equal(group.rows.length, 1);
     assert.equal(group.rows[0].grade, '');
     assert.equal(group.rows[0].value, '');
@@ -230,13 +234,15 @@ test('removing the final grade row removes only its group and makes the type ava
     assert.equal(route.requirements[1].rows.length, 1);
 });
 
-test('combined grade preview waits for complete rows and adding rows respects the existing limit', () => {
+test('combined grade preview ignores untouched rows and waits for started rows to be completed', () => {
     const editor = qualificationEditor([], config);
     const route = editor.makeRoute({ education_level: 'A-Level', grade_requirements: [{ grade: 'A', min_subjects: 1 }] });
     const group = route.requirements[0];
     editor.addGradeRow(group);
+    assert.equal(editor.gradePattern(route), 'A');
+    group.rows[1].value = 0;
     assert.equal(editor.gradePattern(route), '');
-    assert.match(editor.describe(route, group), /Complete every grade row/);
+    assert.match(editor.describe(route, group), /Complete each started grade row/);
     for (let i = 0; i < 30; i++) editor.addGradeRow(group);
     assert.equal(group.rows.length, 20);
     const zero = editor.makeRoute({ education_level: 'SPM', grade_requirements: [{ grade: 'A', min_subjects: 0 }] });

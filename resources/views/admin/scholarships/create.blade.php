@@ -30,36 +30,17 @@
             @enderror
         </div>
 
-        <!-- Description -->
-        <div>
-            <label for="description" class="label">Description (optional)</label>
-            <textarea id="description" name="description" rows="4" class="input @error('description') input-error @enderror"
-                placeholder="Describe the scholarship, eligibility overview, benefits, etc.">{{ old('description') }}</textarea>
-            @error('description')
-                <p class="mt-1 text-sm text-error">{{ $message }}</p>
-            @enderror
-        </div>
+        @include('admin.scholarships._description')
 
         <!-- Award Type & Deadline -->
         <div class="grid sm:grid-cols-2 gap-6">
-            <div>
-                <label for="award_type" class="label">Award Type <span class="text-error">*</span></label>
-                <select id="award_type" name="award_type" class="input @error('award_type') input-error @enderror" required>
-                    <option value="">Select Award Type</option>
-                    @foreach(['Full Scholarship', 'Partial Scholarship', 'Tuition Fee Waiver', 'Living Allowance', 'Loan', 'Convertible Loan'] as $type)
-                        <option value="{{ $type }}" {{ old('award_type') === $type ? 'selected' : '' }}>{{ $type }}</option>
-                    @endforeach
-                </select>
-                @error('award_type')
-                    <p class="mt-1 text-sm text-error">{{ $message }}</p>
-                @enderror
-            </div>
+            @include('admin.scholarships._award-type')
 
             <div>
                 <label for="deadline" class="label">Application Deadline (if confirmed)</label>
                 <input type="date" id="deadline" name="deadline" class="input @error('deadline') input-error @enderror"
                     value="{{ old('deadline') }}">
-                <p class="mt-1 text-sm text-on-surface-variant">Leave blank for unknown or intake-dependent dates. Students will see “Check provider”.</p>
+                <p class="mt-1 text-sm text-on-surface-variant">Leave blank when there is no confirmed date. Students will see the Deadline Basis.</p>
                 @error('deadline')
                     <p class="mt-1 text-sm text-error">{{ $message }}</p>
                 @enderror
@@ -78,7 +59,7 @@
 
         <!-- Active Status -->
         @include('admin.scholarships._special-requirements')
-        @include('admin.scholarships._application-notes')
+        @include('admin.scholarships._deadline-basis')
 
         <div class="flex items-center gap-3">
             <input type="checkbox" id="is_active" name="is_active" value="1" class="w-4 h-4 text-primary border-outline-variant rounded focus:ring-primary" {{ old('is_active', true) ? 'checked' : '' }}>

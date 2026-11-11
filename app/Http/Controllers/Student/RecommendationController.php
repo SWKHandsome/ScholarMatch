@@ -34,6 +34,7 @@ class RecommendationController extends Controller
         foreach (['search', 'award_type', 'study_level', 'field_of_study', 'institution_type'] as $key) {
             $filters[$key] = trim($validated[$key] ?? '');
         }
+        $filters['award_type'] = Scholarship::normalizeAwardType($filters['award_type']);
         $decision = $validated['decision'] ?? 'Eligible';
         $user = Auth::user();
         $result = $this->recommendationService->getRecommendations($user);
@@ -48,7 +49,7 @@ class RecommendationController extends Controller
             if ($filters['search'] !== '' && ! Str::contains($data['name'].' '.$data['provider_name'], $filters['search'], ignoreCase: true)) {
                 return false;
             }
-            if ($filters['award_type'] !== '' && $data['award_type'] !== $filters['award_type']) {
+            if ($filters['award_type'] !== '' && Scholarship::normalizeAwardType($data['award_type']) !== $filters['award_type']) {
                 return false;
             }
 
@@ -78,7 +79,8 @@ class RecommendationController extends Controller
             'decisionCounts' => $filtered->countBy('status'),
             'decision' => $decision,
             'filters' => $filters,
-            'awardTypes' => $allRecommendations->pluck('scholarship_data.award_type')->push($filters['award_type'])->filter()->unique()->sort()->values(),
+            'awardTypes' => $allRecommendations->pluck('scholarship_data.award_type')->map(Scholarship::normalizeAwardType(...))
+                ->push($filters['award_type'])->filter()->unique()->sort()->values(),
             'educationLevels' => AcademicResult::EDUCATION_LEVELS,
             'unconfiguredCount' => $result['unconfigured_count'] ?? 0,
         ]);

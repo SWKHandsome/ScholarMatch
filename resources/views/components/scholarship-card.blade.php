@@ -27,7 +27,7 @@
     </div>
     <p class="text-sm text-on-surface-variant mb-4 line-clamp-2">{{ $data['description'] }}</p>
     <div class="mb-4 flex flex-wrap items-center gap-2 text-sm">
-        <span class="rounded-md bg-primary/5 px-2.5 py-1 font-semibold text-primary">{{ $data['award_type'] }}</span>
+        <span class="rounded-md bg-primary/5 px-2.5 py-1 font-semibold text-primary">{{ \App\Models\Scholarship::normalizeAwardType($data['award_type']) }}</span>
         <span class="rounded-md bg-surface-container-low px-2.5 py-1 text-on-surface-variant">Deadline: <strong class="font-semibold text-on-surface">{{ $data['deadline_label'] ?? ($data['deadline'] ? \Carbon\Carbon::parse($data['deadline'])->format('M d, Y') : 'Check provider') }}</strong></span>
     </div>
     @if(!empty($data['application_notes']))

@@ -11,6 +11,8 @@ class Scholarship extends Model
 {
     use HasFactory;
 
+    public const AWARD_TYPES = ['Scholarship', 'Tuition Fee Waiver', 'Living Allowance', 'Loan', 'Convertible Loan'];
+
     public const DEADLINE_TYPES = [
         'unconfirmed' => 'Check provider',
         'fixed' => 'Published scholarship deadline',
@@ -66,6 +68,19 @@ class Scholarship extends Model
     public function isDemo(): bool
     {
         return str_starts_with($this->catalog_key ?? '', 'demo-');
+    }
+
+    public static function normalizeAwardType(string $type): string
+    {
+        return match ($type) {
+            'Full Scholarship', 'Partial Scholarship' => 'Scholarship',
+            default => $type,
+        };
+    }
+
+    public function awardTypeLabel(): string
+    {
+        return self::normalizeAwardType($this->award_type);
     }
 
     public function deadlineLabel(): string

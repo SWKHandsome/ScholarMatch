@@ -62,7 +62,7 @@
                             <legend class="px-2 text-sm font-semibold" x-text="'Requirement ' + (conditionIndex + 1)"></legend>
                             <div>
                                 <label class="label" :for="'condition-' + condition._key + '-type'">Requirement Type <span class="text-error">*</span></label>
-                                <select class="input" :id="'condition-' + condition._key + '-type'" x-model="condition.type" @change="conditionChanged(route, condition)" required>
+                                <select class="input" :id="'condition-' + condition._key + '-type'" x-model="condition.type" @change="conditionChanged(condition)" required>
                                     <template x-for="type in availableTypes(route, condition)" :key="type.value">
                                         <option :value="type.value" :selected="condition.type === type.value" x-text="type.label"></option>
                                     </template>
@@ -73,15 +73,15 @@
                                 <template x-for="(gradeRow, rowIndex) in condition.rows" :key="gradeRow._key">
                                     <div class="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-3 items-end" data-grade-row>
                                         <div>
-                                            <label :class="rowIndex === 0 ? 'label' : 'sr-only'" :for="'grade-row-' + gradeRow._key + '-count'">Minimum Subjects <span class="text-error">*</span></label>
+                                            <label :class="rowIndex === 0 ? 'label' : 'sr-only'" :for="'grade-row-' + gradeRow._key + '-count'">Minimum Subjects <span class="text-error" x-show="gradeRowStarted(gradeRow)">*</span></label>
                                             <input class="input" type="number" min="0" :max="maxSubjects(route)" step="1"
-                                                :id="'grade-row-' + gradeRow._key + '-count'" :name="gradeRowName(index, rowIndex, 'value')" x-model="gradeRow.value"
-                                                :disabled="condition.type !== 'grade'" :required="condition.type === 'grade'">
+                                                :id="'grade-row-' + gradeRow._key + '-count'" :name="gradeRowStarted(gradeRow) ? gradeRowName(index, rowIndex, 'value') : null" x-model="gradeRow.value"
+                                                :disabled="condition.type !== 'grade'" :required="condition.type === 'grade' && gradeRowStarted(gradeRow)">
                                         </div>
                                         <div>
-                                            <label :class="rowIndex === 0 ? 'label' : 'sr-only'" :for="'grade-row-' + gradeRow._key + '-grade'">At Grade or Better <span class="text-error">*</span></label>
-                                            <select class="input" :id="'grade-row-' + gradeRow._key + '-grade'" :name="gradeRowName(index, rowIndex, 'grade')" x-model="gradeRow.grade"
-                                                :disabled="condition.type !== 'grade'" :required="condition.type === 'grade'">
+                                            <label :class="rowIndex === 0 ? 'label' : 'sr-only'" :for="'grade-row-' + gradeRow._key + '-grade'">At Grade or Better <span class="text-error" x-show="gradeRowStarted(gradeRow)">*</span></label>
+                                            <select class="input" :id="'grade-row-' + gradeRow._key + '-grade'" :name="gradeRowStarted(gradeRow) ? gradeRowName(index, rowIndex, 'grade') : null" x-model="gradeRow.grade"
+                                                :disabled="condition.type !== 'grade'" :required="condition.type === 'grade' && gradeRowStarted(gradeRow)">
                                                 <option value="">Select grade</option>
                                                 <template x-for="grade in grades(route)" :key="grade"><option :value="grade" :selected="gradeRow.grade === grade" x-text="grade"></option></template>
                                             </select>
@@ -95,32 +95,32 @@
                             </div>
                             <div class="grid sm:grid-cols-2 gap-3" x-show="condition.type !== 'grade'">
                                 <div x-show="condition.type !== 'min_stam_rank' && condition.type !== 'grade'">
-                                    <label class="label" :for="'condition-' + condition._key + '-value'"><span x-text="valueLabel(condition)"></span> <span class="text-error">*</span></label>
+                                    <label class="label" :for="'condition-' + condition._key + '-value'"><span x-text="valueLabel(condition)"></span> <span class="text-error" x-show="isPoints(condition) && conditionStarted(condition)">*</span></label>
                                     <input class="input" type="number" :id="'condition-' + condition._key + '-value'"
-                                        :name="conditionName(index, conditionIndex, condition)" x-model="condition.value"
+                                        :name="conditionStarted(condition) ? conditionName(index, conditionIndex, condition) : null" x-model="condition.value"
                                         :min="valueMin(condition)" :max="valueMax(route, condition)" :step="valueStep(condition)"
-                                        :disabled="condition.type === 'min_stam_rank' || condition.type === 'grade'" :required="condition.type !== 'min_stam_rank' && condition.type !== 'grade'">
+                                        :disabled="condition.type === 'min_stam_rank' || condition.type === 'grade'" :required="isPoints(condition) && conditionStarted(condition)">
                                 </div>
                                 <div x-show="condition.type === 'min_stam_rank'">
-                                    <label class="label" :for="'condition-' + condition._key + '-rank'">Minimum Overall STAM Pangkat <span class="text-error">*</span></label>
+                                    <label class="label" :for="'condition-' + condition._key + '-rank'">Minimum Overall STAM Pangkat</label>
                                     <select class="input" :id="'condition-' + condition._key + '-rank'"
-                                        :name="conditionName(index, conditionIndex, condition)" x-model="condition.value"
-                                        :disabled="condition.type !== 'min_stam_rank'" :required="condition.type === 'min_stam_rank'">
+                                        :name="conditionStarted(condition) ? conditionName(index, conditionIndex, condition) : null" x-model="condition.value"
+                                        :disabled="condition.type !== 'min_stam_rank'">
                                         <option value="">Select minimum pangkat</option>
                                         @foreach(\App\Support\AcademicQualifications::RANKS as $rank)<option value="{{ $rank }}">{{ $rank }}</option>@endforeach
                                     </select>
                                 </div>
                                 <div x-show="isPoints(condition)">
-                                    <label class="label" :for="'condition-' + condition._key + '-subjects'">Best Number of Subjects <span class="text-error">*</span></label>
+                                    <label class="label" :for="'condition-' + condition._key + '-subjects'">Best Number of Subjects <span class="text-error" x-show="conditionStarted(condition)">*</span></label>
                                     <input class="input" type="number" min="1" :max="maxSubjects(route)" step="1"
-                                        :id="'condition-' + condition._key + '-subjects'" :name="conditionName(index, conditionIndex, condition, 'subjects')"
-                                        x-model="condition.subjects" :disabled="!isPoints(condition)" :required="isPoints(condition)">
+                                        :id="'condition-' + condition._key + '-subjects'" :name="conditionStarted(condition) ? conditionName(index, conditionIndex, condition, 'subjects') : null"
+                                        x-model="condition.subjects" :disabled="!isPoints(condition)" :required="isPoints(condition) && conditionStarted(condition)">
                                 </div>
                                 <div x-show="isPoints(condition)">
-                                    <label class="label" :for="'condition-' + condition._key + '-grade'">Include Grades at or Above <span class="text-error">*</span></label>
+                                    <label class="label" :for="'condition-' + condition._key + '-grade'">Include Grades at or Above <span class="text-error" x-show="conditionStarted(condition)">*</span></label>
                                     <select class="input" :id="'condition-' + condition._key + '-grade'"
-                                        :name="conditionName(index, conditionIndex, condition, 'grade')" x-model="condition.grade"
-                                        :disabled="!isPoints(condition)" :required="isPoints(condition)">
+                                        :name="conditionStarted(condition) ? conditionName(index, conditionIndex, condition, 'grade') : null" x-model="condition.grade"
+                                        :disabled="!isPoints(condition)" :required="isPoints(condition) && conditionStarted(condition)">
                                         <option value="">Select grade</option>
                                         <template x-for="grade in grades(route)" :key="grade"><option :value="grade" :selected="condition.grade === grade" x-text="grade"></option></template>
                                     </select>
@@ -136,7 +136,7 @@
                     <p class="text-sm text-on-surface-variant" x-show="route.education_level === 'A-Level'">For ABB, add 1 subject at A or better AND 3 subjects at B or better; the A counts towards the three. This represents one A and two additional B-or-better subjects. Provider-specific CGPA conversions belong in Special Requirements unless a formula is supported.</p>
                     <p class="text-sm text-on-surface-variant" x-show="route.education_level === 'UEC'">For 2 As including A1/A2, require 2 subjects at A2 or better. For 11 total points or below across the best 5 subjects, choose Maximum total points, enter 11 and 5, and use the provider's grade cutoff.</p>
                     <p class="text-sm text-on-surface-variant" x-show="route.education_level === 'STPM'">For 1 A, select A (or A- only if the provider includes it). An average of 3.00 across three subjects differs from requiring three subjects each at B / 3.00 or better. Confirm the provider's meaning before choosing a type.</p>
-                    <button type="button" class="btn btn-outline text-sm" @click="addRequirement(route)" :disabled="!route.education_level || !availableTypes(route).length || route.requirements.length >= 20">+ Add Another Requirement</button>
+                    <button type="button" class="btn btn-outline text-sm" @click="addRequirement(route)" :disabled="!route.education_level || !availableTypes(route).length || route.requirements.length >= 20" x-text="route.requirements.length ? '+ Add Another Requirement' : '+ Add Requirement'"></button>
                 </div>
                 <div class="grid sm:grid-cols-2 gap-4" x-show="cgpaBased(route) && route.study_status === 'studying'" x-cloak>
                     @foreach(['min_year_of_study' => 'Minimum Year of Study', 'max_year_of_study' => 'Maximum Year of Study'] as $field => $label)

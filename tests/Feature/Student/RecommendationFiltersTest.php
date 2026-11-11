@@ -29,17 +29,20 @@ test('recommendations paginate ten cards in deadline order and keep complete eva
     expect(RecommendationLog::count())->toBe(13);
 });
 
-test('search matches names and providers without case sensitivity and combines with award type', function () {
+test('search combines with a Scholarship filter covering both old types and new records', function () {
     $user = makeStudent();
     makeScholarship(['name' => 'Engineering Grant', 'provider' => 'Future Trust', 'award_type' => 'Full Scholarship']);
     makeScholarship(['name' => 'Future Leaders Award', 'provider' => 'Another Foundation', 'award_type' => 'Full Scholarship']);
     makeScholarship(['name' => 'Partial Grant', 'provider' => 'Future Trust', 'award_type' => 'Partial Scholarship']);
+    makeScholarship(['name' => 'New Funding Award', 'provider' => 'Future Trust', 'award_type' => 'Scholarship']);
+    makeScholarship(['name' => 'Separate Waiver', 'provider' => 'Future Trust', 'award_type' => 'Tuition Fee Waiver']);
     makeScholarship(['name' => 'Other Grant', 'provider' => 'Other Foundation']);
 
-    $this->actingAs($user)->get(route('student.recommendations', ['search' => '  FUTURE  ', 'award_type' => 'Full Scholarship']))
+    $this->actingAs($user)->get(route('student.recommendations', ['search' => '  FUTURE  ', 'award_type' => 'Scholarship']))
         ->assertOk()->assertSee('Engineering Grant')->assertSee('Future Leaders Award')
-        ->assertDontSee('Partial Grant')->assertDontSee('Other Grant')
-        ->assertViewHas('recommendations', fn ($items) => $items->total() === 2)
+        ->assertSee('Partial Grant')->assertSee('New Funding Award')->assertDontSee('Other Grant')->assertDontSee('Separate Waiver')
+        ->assertViewHas('recommendations', fn ($items) => $items->total() === 4)
+        ->assertViewHas('awardTypes', fn ($types) => $types->all() === ['Scholarship', 'Tuition Fee Waiver'])
         ->assertViewHas('filters', fn ($filters) => $filters['search'] === 'FUTURE');
 });
 

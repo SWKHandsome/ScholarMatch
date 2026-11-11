@@ -51,6 +51,7 @@ class ScholarshipController extends Controller
         ]);
 
         $rules = $request->boolean('rules_submitted') ? $editor->validate($request) : null;
+        $validated['award_type'] = Scholarship::normalizeAwardType($validated['award_type']);
         $validated['is_active'] = $request->boolean('is_active');
         DB::transaction(function () use ($validated, $rules, $editor) {
             $scholarship = Scholarship::create($validated);
@@ -85,6 +86,7 @@ class ScholarshipController extends Controller
         ]);
 
         $rules = $request->boolean('rules_submitted') ? $editor->validate($request, $scholarship->rule?->supportedFieldsOfStudy() ?? []) : null;
+        $validated['award_type'] = Scholarship::normalizeAwardType($validated['award_type']);
         $validated['is_active'] = $request->boolean('is_active');
         DB::transaction(function () use ($scholarship, $validated, $rules, $editor) {
             $scholarship->update($validated);

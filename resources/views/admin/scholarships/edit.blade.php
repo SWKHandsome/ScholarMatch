@@ -2,29 +2,9 @@
 
 @section('content')
 <div class="max-w-3xl mx-auto">
-    <div class="mb-6 flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-on-surface">Edit Scholarship</h1>
-            <p class="text-on-surface-variant mt-1">{{ $scholarship->name }}</p>
-        </div>
-        @if($scholarship->rule)
-            <a href="{{ route('admin.scholarships.rules.index', $scholarship) }}"
-                class="btn btn-outline text-sm">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-                Manage Rules
-            </a>
-        @else
-            <a href="{{ route('admin.scholarships.rules.create', $scholarship) }}"
-                class="btn btn-primary text-sm">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Add Rules
-            </a>
-        @endif
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-on-surface">Edit Scholarship</h1>
+        <p class="text-on-surface-variant mt-1">{{ $scholarship->name }}</p>
     </div>
 
     <form method="POST" action="{{ route('admin.scholarships.update', $scholarship) }}" class="card p-6 space-y-6">
@@ -51,36 +31,17 @@
             @enderror
         </div>
 
-        <!-- Description -->
-        <div>
-            <label for="description" class="label">Description (optional)</label>
-            <textarea id="description" name="description" rows="4" class="input @error('description') input-error @enderror"
-                placeholder="Describe the scholarship, eligibility overview, benefits, etc.">{{ old('description', $scholarship->description) }}</textarea>
-            @error('description')
-                <p class="mt-1 text-sm text-error">{{ $message }}</p>
-            @enderror
-        </div>
+        @include('admin.scholarships._description')
 
         <!-- Award Type & Deadline -->
         <div class="grid sm:grid-cols-2 gap-6">
-            <div>
-                <label for="award_type" class="label">Award Type <span class="text-error">*</span></label>
-                <select id="award_type" name="award_type" class="input @error('award_type') input-error @enderror" required>
-                    <option value="">Select Award Type</option>
-                    @foreach(['Full Scholarship', 'Partial Scholarship', 'Tuition Fee Waiver', 'Living Allowance', 'Loan', 'Convertible Loan'] as $type)
-                        <option value="{{ $type }}" {{ old('award_type', $scholarship->award_type) === $type ? 'selected' : '' }}>{{ $type }}</option>
-                    @endforeach
-                </select>
-                @error('award_type')
-                    <p class="mt-1 text-sm text-error">{{ $message }}</p>
-                @enderror
-            </div>
+            @include('admin.scholarships._award-type')
 
             <div>
                 <label for="deadline" class="label">Application Deadline (if confirmed)</label>
                 <input type="date" id="deadline" name="deadline" class="input @error('deadline') input-error @enderror"
                     value="{{ old('deadline', $scholarship->deadline?->format('Y-m-d')) }}">
-                <p class="mt-1 text-sm text-on-surface-variant">Leave blank for unknown or intake-dependent dates. Students will see “Check provider”.</p>
+                <p class="mt-1 text-sm text-on-surface-variant">Leave blank when there is no confirmed date. Students will see the Deadline Basis.</p>
                 @error('deadline')
                     <p class="mt-1 text-sm text-error">{{ $message }}</p>
                 @enderror
@@ -99,7 +60,7 @@
 
         <!-- Active Status -->
         @include('admin.scholarships._special-requirements')
-        @include('admin.scholarships._application-notes')
+        @include('admin.scholarships._deadline-basis')
         @include('components.scholarship-source', ['scholarship' => $scholarship])
 
         <div class="flex items-center gap-3">

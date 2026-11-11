@@ -1176,3 +1176,18 @@ Email/password validation, credential checking, session regeneration, Remember m
 **Verification:** All authentication tests passed (**20 tests / 108 assertions**), including two new student/admin scenarios with ten consecutive failed attempts followed immediately by a successful login. Targeted PHP formatting and whitespace checks passed. No UI/assets changed, so no frontend rebuild/browser check was needed. Tests used an isolated test database; no normal local/Azure data, commit, push or deployment changes were made.
 
 **FYP documentation:** Update the authentication implementation/security discussion and login test cases to remove the five-attempt lockout/countdown claim. Retain password checking and session security descriptions. No database/ERD changes are needed. Azure receives this change only after the user's commit/push and successful deployment/startup.
+
+## IMP-055 — Simplify the admin scholarship forms
+
+**Date** 2026-11-11
+
+1. **Description** expands for existing, typed, and pasted text and shrinks when lines are removed. It adjusts to line wrapping at different screen widths.
+2. **Award Type** groups Full Scholarship and Partial Scholarship under Scholarship across admin screens, student cards, award details, and recommendation filters. Tuition Fee Waiver has its own option. The application recognises both legacy values on read and saves Scholarship when the combined option is selected. Older filter links resolve to Scholarship.
+3. **Award Type badges** use one line in the admin table. Narrow screens scroll the table within its container.
+4. **Application / Intake Notes** is removed from Add and Edit. The forms still include Deadline Basis. New intake or application guidance goes in Description. The combined form preserves existing notes and the application continues to display them with award information.
+5. **Edit** opens one form from the scholarship list for details, eligibility requirements, and the sample eligibility preview. Update Scholarship saves the details and rules together.
+6. **Requirement 1** opens when the admin chooses a qualification level. For IGCSE, grade inputs open after a grading scale is chosen. Completely blank inputs are omitted from the submitted rules. Started grade rows and best-subject conditions require all associated inputs. Existing rules load with their saved values.
+
+**Verification** The production build and all 27 JavaScript tests passed. The Laravel suite passed 535 tests with 7 MySQL-only tests skipped. After the final form adjustments, all 67 targeted tests passed. The isolated browser preview verified description growth and shrinkage, an existing description at desktop and phone widths, a blank A-Level route, a completed IGCSE grade rule, and saving changed award details and rules together. At 390px, the Tuition Fee Waiver badge occupied one line and the table scrolled within the page. Browser evidence is saved privately at storage/app/private/admin-scholarship-description-preview.png.
+
+**FYP documentation** Update the admin Add/Edit Scholarship screenshots and steps, award type table and recommendation filter examples. Describe how to enter application details in Description, when Requirement 1 opens, and how to save a qualification without a result minimum.

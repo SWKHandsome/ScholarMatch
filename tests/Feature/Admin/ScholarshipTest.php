@@ -59,6 +59,7 @@ test('admin can view create scholarship page', function () {
     $response->assertSee('Award Type');
     $response->assertSee('Deadline');
     $response->assertSee('Application Link');
+    $response->assertSee('Deadline Basis')->assertDontSee('Application / Intake Notes (optional)');
 });
 
 test('admin can create scholarship', function () {
@@ -77,22 +78,28 @@ test('admin can create scholarship', function () {
     $response->assertRedirect(route('admin.scholarships.index'));
     $response->assertSessionHas('success');
 
-    expect(Scholarship::where('name', 'New Scholarship')->exists())->toBeTrue();
+    expect(Scholarship::where('name', 'New Scholarship')->value('award_type'))->toBe('Scholarship');
 });
 
 test('admin can view edit scholarship page', function () {
     $admin = makeAdmin();
-    $scholarship = Scholarship::factory()->create(['name' => 'Edit Test']);
+    $scholarship = makeScholarship(['name' => 'Edit Test']);
 
     $response = $this->actingAs($admin)->get(route('admin.scholarships.edit', $scholarship));
 
     $response->assertOk();
     $response->assertSee('Edit Test');
+    $response->assertSee('Test these rules with a sample student')
+        ->assertDontSee('Manage Rules')
+        ->assertDontSee('Application / Intake Notes (optional)');
 });
 
 test('admin can update scholarship', function () {
     $admin = makeAdmin();
-    $scholarship = Scholarship::factory()->create(['name' => 'Old Name']);
+    $scholarship = Scholarship::factory()->create([
+        'name' => 'Old Name',
+        'application_notes' => 'Confirm the October intake with the provider.',
+    ]);
 
     $response = $this->actingAs($admin)->put(route('admin.scholarships.update', $scholarship), [
         'name' => 'Updated Name',
@@ -110,6 +117,7 @@ test('admin can update scholarship', function () {
     $scholarship->refresh();
     expect($scholarship->name)->toBe('Updated Name');
     expect($scholarship->provider)->toBe('Updated Provider');
+    expect($scholarship->application_notes)->toBe('Confirm the October intake with the provider.');
 });
 
 test('admin can save and clear special requirements and refresh the student warning', function () {

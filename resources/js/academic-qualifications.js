@@ -127,27 +127,27 @@ export function qualificationEditor(initialRoutes = [], config) {
             };
             for (const type of ['min_cgpa', 'min_spm_as', 'min_spm_credits', 'min_stam_rank']) {
                 if (source[type] !== null && source[type] !== undefined && source[type] !== '') {
-                    route.requirements.push(this.makeCondition(route, type, { value: source[type] }));
+                    route.requirements.push(this.makeCondition(type, { value: source[type] }));
                 }
             }
             if (Array.isArray(source.grade_requirements) && source.grade_requirements.length) {
-                route.requirements.push(this.makeCondition(route, 'grade', { rows: source.grade_requirements }));
+                route.requirements.push(this.makeCondition('grade', { rows: source.grade_requirements }));
             }
             for (const type of ['stpm_average', 'uec_average', 'uec_total']) {
                 if (source[type]) {
                     const settings = source[type];
-                    route.requirements.push(this.makeCondition(route, type, {
+                    route.requirements.push(this.makeCondition(type, {
                         value: settings[this.thresholdField(type)], subjects: settings.subjects, grade: settings.minimum_grade,
                     }));
                 }
             }
             return route;
         },
-        makeCondition(route, type, values = {}) {
+        makeCondition(type, values = {}) {
             return {
                 _key: this.nextConditionKey++, type, value: values.value ?? '',
-                subjects: values.subjects ?? (route.education_level === 'STPM' ? 3 : 5),
-                grade: values.grade ?? (type === 'grade' ? '' : this.grades(route).at(-1) ?? ''),
+                subjects: values.subjects ?? '',
+                grade: values.grade ?? '',
                 rows: type === 'grade'
                     ? (Array.isArray(values.rows) ? values.rows : [{}]).map(row => this.makeGradeRow(row)) : [],
             };
@@ -172,7 +172,9 @@ export function qualificationEditor(initialRoutes = [], config) {
         types(route) {
             const types = [];
             if (this.cgpaBased(route)) types.push({ value: 'min_cgpa', label: 'Minimum overall CGPA' });
-            if (this.gradeBased(route)) types.push({ value: 'grade', label: 'Number of subjects at a grade or better' });
+            if (this.gradeBased(route) && route.grading_scale) {
+                types.push({ value: 'grade', label: 'Number of subjects at a grade or better' });
+            }
             if (route.education_level === 'SPM') types.push(
                 { value: 'min_spm_as', label: 'Minimum SPM As (A+, A, A-)' },
                 { value: 'min_spm_credits', label: 'Minimum SPM credits (C or better)' },
@@ -188,6 +190,13 @@ export function qualificationEditor(initialRoutes = [], config) {
         availableTypes(route, condition = null) {
             return this.types(route).filter(type => !route.requirements.some(item => item._key !== condition?._key && item.type === type.value));
         },
+        hasInput(value) { return value !== '' && value !== null && value !== undefined; },
+        gradeRowStarted(row) { return this.hasInput(row.value) || this.hasInput(row.grade); },
+        conditionStarted(condition) {
+            if (condition.type === 'grade') return condition.rows.some(row => this.gradeRowStarted(row));
+            if (this.isPoints(condition)) return [condition.value, condition.subjects, condition.grade].some(value => this.hasInput(value));
+            return this.hasInput(condition.value);
+        },
         addRoute() {
             if (this.routes.length >= 50) return;
             this.routes.push(this.makeRoute());
@@ -199,8 +208,12 @@ export function qualificationEditor(initialRoutes = [], config) {
             route.study_status = this.cgpaBased(route) ? '' : 'completed';
             route.min_year_of_study = '';
             route.max_year_of_study = '';
+            this.addRequirement(route);
         },
-        scaleChanged(route) { route.requirements = route.requirements.filter(condition => condition.type !== 'grade'); },
+        scaleChanged(route) {
+            route.requirements = route.requirements.filter(condition => condition.type !== 'grade');
+            if (route.grading_scale && !route.requirements.length) this.addRequirement(route);
+        },
         statusChanged(route) {
             if (!this.cgpaBased(route) || route.study_status !== 'studying') {
                 route.min_year_of_study = '';
@@ -210,11 +223,11 @@ export function qualificationEditor(initialRoutes = [], config) {
         addRequirement(route) {
             if (route.requirements.length >= 20) return;
             const type = this.availableTypes(route)[0]?.value;
-            if (type) route.requirements.push(this.makeCondition(route, type));
+            if (type) route.requirements.push(this.makeCondition(type));
         },
-        conditionChanged(route, condition) {
+        conditionChanged(condition) {
             const key = condition._key;
-            Object.assign(condition, this.makeCondition(route, condition.type), { _key: key });
+            Object.assign(condition, this.makeCondition(condition.type), { _key: key });
         },
         isPoints(condition) { return ['stpm_average', 'uec_average', 'uec_total'].includes(condition.type); },
         thresholdField(type) { return { stpm_average: 'min_average', uec_average: 'max_average', uec_total: 'max_total' }[type]; },
@@ -246,25 +259,28 @@ export function qualificationEditor(initialRoutes = [], config) {
         },
         valueStep(condition) { return ['min_cgpa', 'stpm_average', 'uec_average'].includes(condition.type) ? '0.01' : '1'; },
         describe(route, condition) {
+            if (!this.conditionStarted(condition)) return 'Leave these fields blank if there is no result minimum.';
             const label = this.config.labels?.[route.education_level] ?? route.education_level;
             if (condition.type === 'grade') {
                 const pattern = this.gradePattern(route);
                 if (pattern) return `Minimum grade pattern: ${pattern} (or better). Every row must pass; stronger grades count towards lower thresholds.`;
-                const complete = condition.rows.every(row => this.grades(route).includes(row.grade) && row.value !== '' && Number(row.value) === 0);
-                return complete ? 'All grade minima are zero; no subject-count minimum applies.' : 'Complete every grade row to see the combined minimum pattern.';
+                const enteredRows = condition.rows.filter(row => this.gradeRowStarted(row));
+                const complete = enteredRows.every(row => this.grades(route).includes(row.grade) && this.hasInput(row.value) && Number(row.value) === 0);
+                return complete ? 'All grade minima are zero; no subject-count minimum applies.' : 'Complete each started grade row to see the combined minimum pattern.';
             }
             if (condition.value === '' || condition.value === null) return 'Complete this condition to see its meaning.';
             if (condition.type === 'min_cgpa') return `Official overall CGPA must be at least ${condition.value}; this is separate from a best-subject average.`;
             if (condition.type === 'min_stam_rank') return `Overall STAM pangkat must be ${condition.value} or better.`;
             if (condition.type === 'min_spm_as') return `At least ${condition.value} SPM As, counting A+, A and A-.`;
             if (condition.type === 'min_spm_credits') return `At least ${condition.value} SPM credits, counting C and all stronger grades.`;
+            if (!this.hasInput(condition.subjects) || !this.hasInput(condition.grade)) return 'Complete the subject count and grade cutoff to see this condition.';
             const comparison = condition.type === 'stpm_average' ? 'at least' : 'no more than';
             const calculation = condition.type === 'uec_total' ? 'total points' : 'average points';
             return `Best ${condition.subjects} ${label} subjects at ${condition.grade} or better: ${calculation} must be ${comparison} ${condition.value}.`;
         },
         gradePattern(route) {
-            const rows = route.requirements.find(item => item.type === 'grade')?.rows ?? [];
-            if (rows.some(row => !this.grades(route).includes(row.grade) || row.value === '')) return '';
+            const rows = (route.requirements.find(item => item.type === 'grade')?.rows ?? []).filter(row => this.gradeRowStarted(row));
+            if (rows.some(row => !this.grades(route).includes(row.grade) || !this.hasInput(row.value))) return '';
             const ordered = [...rows]
                 .sort((a, b) => this.grades(route).indexOf(a.grade) - this.grades(route).indexOf(b.grade));
             let used = 0;
