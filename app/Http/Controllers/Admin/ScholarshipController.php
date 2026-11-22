@@ -7,6 +7,7 @@ use App\Models\Scholarship;
 use App\Models\ScholarshipRule;
 use App\Services\ScholarshipRecommendationService;
 use App\Services\ScholarshipRuleEditor;
+use App\Support\ScholarshipText;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -41,7 +42,7 @@ class ScholarshipController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'provider' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'special_requirements' => ['nullable', 'string', 'max:5000'],
+            'special_requirements' => ['nullable', 'string', 'max:200000'],
             'award_type' => ['required', 'string', 'max:255'],
             'deadline' => ['nullable', 'date'],
             'deadline_type' => ['sometimes', 'required', 'in:'.implode(',', array_keys(Scholarship::DEADLINE_TYPES))],
@@ -51,6 +52,11 @@ class ScholarshipController extends Controller
         ]);
 
         $rules = $request->boolean('rules_submitted') ? $editor->validate($request) : null;
+        foreach (['description' => null, 'special_requirements' => 5000] as $field => $maximum) {
+            if (array_key_exists($field, $validated)) {
+                $validated[$field] = ScholarshipText::forStorage($validated[$field], $field, $maximum);
+            }
+        }
         $validated['award_type'] = Scholarship::normalizeAwardType($validated['award_type']);
         $validated['is_active'] = $request->boolean('is_active');
         DB::transaction(function () use ($validated, $rules, $editor) {
@@ -76,7 +82,7 @@ class ScholarshipController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'provider' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'special_requirements' => ['nullable', 'string', 'max:5000'],
+            'special_requirements' => ['nullable', 'string', 'max:200000'],
             'award_type' => ['required', 'string', 'max:255'],
             'deadline' => ['nullable', 'date'],
             'deadline_type' => ['sometimes', 'required', 'in:'.implode(',', array_keys(Scholarship::DEADLINE_TYPES))],
@@ -86,6 +92,11 @@ class ScholarshipController extends Controller
         ]);
 
         $rules = $request->boolean('rules_submitted') ? $editor->validate($request, $scholarship->rule?->supportedFieldsOfStudy() ?? []) : null;
+        foreach (['description' => null, 'special_requirements' => 5000] as $field => $maximum) {
+            if (array_key_exists($field, $validated)) {
+                $validated[$field] = ScholarshipText::forStorage($validated[$field], $field, $maximum);
+            }
+        }
         $validated['award_type'] = Scholarship::normalizeAwardType($validated['award_type']);
         $validated['is_active'] = $request->boolean('is_active');
         DB::transaction(function () use ($scholarship, $validated, $rules, $editor) {

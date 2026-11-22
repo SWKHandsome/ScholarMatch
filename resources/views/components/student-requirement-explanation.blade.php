@@ -77,7 +77,7 @@
             @endif
             @if($providerText !== '')
                 <p class="mt-3 font-semibold">Special conditions</p>
-                <p class="mt-1 whitespace-pre-line text-sm">{{ $providerText }}</p>
+                <div class="scholarship-rich-text mt-1 text-sm">{!! \App\Support\ScholarshipText::html($providerText) !!}</div>
                 <p class="mt-2 text-sm">Confirm these conditions with the scholarship provider.</p>
             @endif
         </section>

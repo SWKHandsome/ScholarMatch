@@ -7,7 +7,7 @@
         <h1 class="text-2xl font-bold mb-1">{{ $scholarship->name }}</h1>
         <p class="text-on-surface-variant mb-4">{{ $scholarship->provider }}</p>
         @include('components.decision-badge', ['status' => $recommendation['status'], 'requiresVerification' => $recommendation['requires_verification'], 'specialRequirements' => $recommendation['special_requirements']])
-        <p class="mt-5 whitespace-pre-line">{{ $scholarship->description }}</p>
+        <div class="scholarship-rich-text mt-5">{!! \App\Support\ScholarshipText::html($scholarship->description) !!}</div>
         <dl class="grid sm:grid-cols-2 gap-4 mt-5">
             <div class="rounded-lg bg-primary/5 p-3"><dt class="text-sm text-on-surface-variant">Award Type</dt><dd class="mt-1 font-semibold text-primary">{{ $scholarship->awardTypeLabel() }}</dd></div>
             <div class="rounded-lg bg-surface-container-low p-3"><dt class="text-sm text-on-surface-variant">Deadline</dt><dd class="mt-1 font-semibold">{{ $scholarship->deadlineLabel() }}</dd></div>

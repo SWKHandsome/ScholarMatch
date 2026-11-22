@@ -88,7 +88,7 @@
                 <p class="text-sm text-on-surface-variant">Hypothetical sample only. Nothing has been saved.</p>
                 <p x-show="result.sample_cgpa !== null" class="text-sm" x-text="'Sample overall CGPA: ' + result.sample_cgpa"></p>
                 <ul class="divide-y divide-outline-variant text-sm"><template x-for="check in result.checks" :key="check.key"><li class="py-3"><p class="font-medium" :class="check.outcome === 'met' ? 'text-emerald-800' : (check.outcome === 'not_checked' ? 'text-blue-800' : 'text-rose-800')" x-text="(check.outcome === 'met' ? '✓ ' : (check.outcome === 'not_checked' ? '— Not checked · ' : '✕ ')) + check.label"></p><p class="mt-1 break-words" x-text="'Required: ' + check.required + ' · Sample: ' + check.actual"></p><p class="mt-1 text-blue-800" x-show="check.outcome === 'not_checked'" x-text="check.message"></p><p class="mt-1" x-show="check.gap" x-text="check.gap"></p></li></template></ul>
-                <div x-show="result.provider_checks" class="rounded-md bg-amber-50 p-3 text-sm text-amber-900"><strong>Provider checks remain</strong><p class="mt-1 whitespace-pre-line" x-text="result.provider_checks"></p></div>
+                <div x-show="result.provider_checks" class="rounded-md bg-amber-50 p-3 text-sm text-amber-900"><strong>Provider checks remain</strong><div class="scholarship-rich-text mt-1" x-html="result.provider_checks_html"></div></div>
             </section>
         </template>
     </div>

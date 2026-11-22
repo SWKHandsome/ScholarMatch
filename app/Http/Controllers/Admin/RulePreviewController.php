@@ -13,6 +13,7 @@ use App\Models\StudyField;
 use App\Services\AcademicResultInput;
 use App\Services\ScholarshipEligibilityEvaluator;
 use App\Services\ScholarshipRuleEditor;
+use App\Support\ScholarshipText;
 use App\Support\StudentRequirementExplanation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -30,10 +31,11 @@ class RulePreviewController extends Controller
             'sample.household_income' => ['required', 'numeric', 'between:0,999999999'],
             'deadline' => ['nullable', 'date'],
             'deadline_type' => ['nullable', Rule::in(array_keys(Scholarship::DEADLINE_TYPES))],
-            'special_requirements' => ['nullable', 'string', 'max:5000'],
+            'special_requirements' => ['nullable', 'string', 'max:200000'],
             'application_notes' => ['nullable', 'string', 'max:2000'],
         ]);
         // Reuse the official form's data-shape validation on unsaved synthetic models.
+        $data['special_requirements'] = ScholarshipText::forStorage($data['special_requirements'] ?? null, 'special_requirements', 5000);
         $sample = $data['sample'];
         $validatedAcademic = $academicInput->validate(new Request(array_merge($sample, ['result_status' => 'official', 'stpm_cgpa_confirmed' => '1'])), is_string($sample['field_of_study'] ?? null) ? $sample['field_of_study'] : null);
         $academic = new AcademicResult($validatedAcademic);
@@ -56,7 +58,8 @@ class RulePreviewController extends Controller
             'passed' => $evaluation['status'] === 'Eligible',
             'message' => $evaluation['status'] === 'Eligible' ? 'Passes checked automatic requirements' : 'Does not pass all checked automatic requirements',
             'checks' => array_merge($display['failed'], $display['unchecked'], $display['academic'], $display['general']),
-            'provider_checks' => $evaluation['special_requirements'],
+            'provider_checks' => ScholarshipText::plain($evaluation['special_requirements']),
+            'provider_checks_html' => ScholarshipText::html($evaluation['special_requirements']),
             'sample_cgpa' => $academic->cgpa,
             'selected_route' => $display['selected']['label'] ?? 'No qualification restriction',
         ]);

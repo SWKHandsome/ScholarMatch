@@ -1191,3 +1191,33 @@ Email/password validation, credential checking, session regeneration, Remember m
 **Verification** The production build and all 27 JavaScript tests passed. The Laravel suite passed 535 tests with 7 MySQL-only tests skipped. After the final form adjustments, all 67 targeted tests passed. The isolated browser preview verified description growth and shrinkage, an existing description at desktop and phone widths, a blank A-Level route, a completed IGCSE grade rule, and saving changed award details and rules together. At 390px, the Tuition Fee Waiver badge occupied one line and the table scrolled within the page. Browser evidence is saved privately at storage/app/private/admin-scholarship-description-preview.png.
 
 **FYP documentation** Update the admin Add/Edit Scholarship screenshots and steps, award type table and recommendation filter examples. Describe how to enter application details in Description, when Requirement 1 opens, and how to save a qualification without a result minimum.
+
+## IMP-056 — Add simple formatting and expanding scholarship text editors
+
+**Date:** 2026-11-22
+
+Description and Special Requirements on Add/Edit Scholarship now have a shared editor with **Bold**, **• Bullets** and **– Dashes** controls. Administrators can select existing words to make them bold, create multiple list items with Enter, and end a list with Enter twice. Bullet and dash lists can appear consecutively in the same field. Both fields grow with content and wrapped lines and shrink when text is removed, with a minimum editing height of 112px. This extends and replaces the previous Description-only textarea resizing.
+
+The implementation uses Tiptap 3.35.0 with pinned npm dependencies. Editor packages load on demand when the admin form opens. Existing plain-text entries open with their line breaks intact. Formatted content is stored as a versioned document in the existing text columns. The server keeps supported text, bold, paragraphs, line breaks and list structures, discards arbitrary attributes/marks, and escapes text when generating HTML. Student cards/details, provider-warning popovers and the requirement explanation display the supported formatting. The admin list uses a plain-text description preview and the sample eligibility preview receives safe formatted provider checks.
+
+Saving empty formatted Special Requirements clears the field, so empty editor markup cannot create a provider-verification warning. The special text limit remains 5,000 text characters. Additional byte validation prevents formatted data overflowing the existing MySQL TEXT columns. Application-date confirmation guidance is appended as a paragraph while preserving the administrator's formatting.
+
+**Verification:** Production build and PHP formatting passed. The full isolated Laravel suite passed **541 tests / 2,784 assertions**, with **7 MySQL-only tests skipped**. All **27 existing JavaScript tests** passed. Six new unit/integration cases cover legacy plain text, escaped content and discarded attributes, both list styles, empty formatting, deadline-guidance appending, MySQL storage size and formatted save/student display. Browser checks on a separate synthetic SQLite copy verified selecting a word and clicking Bold, multiple bullet items, Enter twice to finish, a following dash list, saving/reopening both list styles, and student rendering. At 320px and 390px, editor content wrapped without horizontal page overflow. A long Special Requirements entry grew to its content height and returned to 112px after shortening. No browser-console errors were captured. The temporary viewport was reset and preview server stopped. All preview edits affected synthetic data.
+
+Private screenshot evidence is stored at storage/app/private/scholarship-formatting-admin-preview.png and scholarship-formatting-student-preview.png.
+
+**FYP documentation:** Update the admin Add/Edit form screenshots and user-manual steps for selecting text, bold formatting, bullet/dash lists, Enter behavior and expanding fields. Update student screenshots showing formatted descriptions and special conditions. In the implementation/data dictionary, explain that the existing text columns support versioned formatted documents and that rendered text passes through the supported-format renderer. The deployment build uses npm ci and the committed package-lock.json to install the editor dependencies.
+
+## IMP-057 — Apply the pending Scholarship award-type migration locally
+
+**Date:** 2026-11-22
+
+The user reported MySQL error 1265 when creating a scholarship with formatted text. The failing column was award_type. The application submitted Scholarship, while the local MySQL enum still accepted only the previous six award labels. Migration 2026_11_22_000000_add_scholarship_award_type already existed in the repository and was pending on the local scholarmatch database.
+
+Created and verified a private data backup, then applied only that migration to local MySQL. The migration adds Scholarship to the allowed enum values. Compared hashes and row counts before/after for users, student profiles, academic results, income categories, study fields, scholarships, rules, qualification routes, bookmarks and recommendation logs. All existing rows were identical.
+
+**Verification:** All **14 MySQL scholarship create/edit/formatting tests passed, with 70 assertions**, using a newly created isolated test database. That test database was removed afterwards. The prior SQLite suite could validate the application code but did not establish whether the migration had been applied to the user's local MySQL installation.
+
+Private backup: storage/app/private/backups/before-demo-refresh-20261122-153631-GyfaolvN.json. The data/schema verification receipt is storage/app/private/award-type-migration-receipt-20261122-153631.json.
+
+**FYP documentation:** Include the award-type migration in installation/upgrade instructions. Existing MySQL installations must run pending migrations after updating code. For Azure, run php artisan migrate --force in the deployed application's environment as a release step, because the current startup script does not apply migrations. This troubleshooting session applied the update locally.

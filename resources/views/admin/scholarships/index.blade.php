@@ -64,7 +64,7 @@
                             <tr class="hover:bg-surface-container-low transition-colors">
                                 <td class="px-4 py-4">
                                     <div class="font-medium text-on-surface">{{ $scholarship->name }}</div>
-                                    <div class="text-sm text-on-surface-variant line-clamp-1">{{ $scholarship->description }}</div>
+                                    <div class="text-sm text-on-surface-variant line-clamp-1">{{ \App\Support\ScholarshipText::plain($scholarship->description) }}</div>
                                 </td>
                                 <td class="px-4 py-4 text-on-surface">{{ $scholarship->provider }}</td>
                                 <td class="px-4 py-4">

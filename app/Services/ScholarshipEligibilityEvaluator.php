@@ -7,6 +7,7 @@ use App\Models\Scholarship;
 use App\Models\StudentProfile;
 use App\Support\AcademicQualifications;
 use App\Support\ProgrammeChoices;
+use App\Support\ScholarshipText;
 
 class ScholarshipEligibilityEvaluator
 {
@@ -70,9 +71,9 @@ class ScholarshipEligibilityEvaluator
         $failed = array_values(array_map(fn ($check) => $check['key'],
             array_filter($checks, fn ($check) => $check['outcome'] === 'not_met')));
         $eligible = empty($failed);
-        $special = trim((string) $scholarship->special_requirements);
+        $special = ScholarshipText::forStorage($scholarship->special_requirements, 'special_requirements') ?? '';
         if ($scholarship->deadline === null && ! in_array($scholarship->deadline_type, ['rolling', 'automatic'], true)) {
-            $special = trim($special."\n\nApplication dates must be confirmed with the provider.");
+            $special = ScholarshipText::appendParagraph($special, 'Application dates must be confirmed with the provider.');
         }
 
         return [
