@@ -79,7 +79,8 @@ test('dashboard marks failed requirement explanations as failed', function () {
 
     $response->assertOk();
     $response->assertSee('Not Eligible');
-    $response->assertSee('Supported fields: Engineering; your field: Business.');
+    $response->assertSee('Field of study');
+    $response->assertDontSee('Supported fields: Engineering; your field: Business.');
     $response->assertSee('data-explanation-status="failed"', false);
 });
 

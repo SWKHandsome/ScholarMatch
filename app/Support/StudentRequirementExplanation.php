@@ -4,6 +4,29 @@ namespace App\Support;
 
 class StudentRequirementExplanation
 {
+    public static function summary(array $checks): array
+    {
+        $route = collect($checks)->firstWhere('key', 'academic_route');
+        $academicKeys = [];
+        foreach ($route['routes'] ?? [] as $alternative) {
+            $academicKeys = array_merge($academicKeys, array_column($alternative['checks'], 'key'));
+        }
+
+        $summary = [];
+        foreach ($checks as $check) {
+            if ($check['outcome'] === 'not_applicable' || in_array($check['key'], $academicKeys, true)) {
+                continue;
+            }
+            $summary[] = [
+                'key' => $check['key'],
+                'label' => $check['key'] === 'academic_route' ? 'Academic requirements' : $check['label'],
+                'outcome' => $check['outcome'],
+            ];
+        }
+
+        return $summary;
+    }
+
     public static function prepare(array $checks): array
     {
         $byKey = array_column($checks, null, 'key');
@@ -81,6 +104,7 @@ class StudentRequirementExplanation
         };
 
         return array_merge($check, [
+            'supported_fields' => $check['key'] === 'field_of_study' && is_array($check['required']) ? $check['required'] : [],
             'gap' => $check['gap'] ?? EligibilityGap::describe($check),
             'label' => match (true) {
                 str_starts_with($check['key'], 'min_grade_count_') => 'At least '.$check['required'].' '.preg_replace('/^Subjects /', (int) $check['required'] === 1 ? 'subject ' : 'subjects ', $check['label']),

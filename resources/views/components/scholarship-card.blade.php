@@ -37,14 +37,13 @@
     <details class="mb-4 border-t border-outline-variant pt-3">
         <summary class="cursor-pointer text-sm font-medium text-primary">View Explanation</summary>
         <ul class="mt-3 space-y-2 text-sm">
-            @foreach($recommendation['requirement_results'] as $check)
-                @if($check['outcome'] !== 'not_applicable')
-                    <li data-explanation-status="{{ match ($check['outcome']) { 'not_met' => 'failed', 'not_checked' => 'not-checked', default => 'passed' } }}" class="leading-relaxed {{ match ($check['outcome']) { 'not_met' => 'text-rose-800', 'not_checked' => 'text-blue-800', default => 'text-emerald-800' } }}">
-                        @if($check['outcome'] !== 'not_checked')<span class="font-semibold">{{ $check['outcome'] === 'not_met' ? 'Not Met:' : 'Met:' }}</span>@endif {{ $check['message'] }}
-                    </li>
-                @endif
+            @foreach(\App\Support\StudentRequirementExplanation::summary($recommendation['requirement_results']) as $check)
+                <li data-explanation-status="{{ match ($check['outcome']) { 'not_met' => 'failed', 'not_checked' => 'not-checked', default => 'passed' } }}" class="leading-relaxed {{ match ($check['outcome']) { 'not_met' => 'text-rose-800', 'not_checked' => 'text-blue-800', default => 'text-emerald-800' } }}">
+                    <span class="font-semibold">{{ match ($check['outcome']) { 'not_met' => 'Not Met:', 'not_checked' => 'Not checked:', default => 'Met:' } }}</span> {{ $check['label'] }}
+                </li>
             @endforeach
         </ul>
+        <p class="mt-3 text-sm text-on-surface-variant">See View Details for the full comparison.</p>
     </details>
     @elseif(!empty($unavailableMessage))
         <p class="mb-4 text-sm text-on-surface-variant">{{ $unavailableMessage }}</p>

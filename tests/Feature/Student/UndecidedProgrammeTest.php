@@ -103,8 +103,9 @@ test('unchecked details retain all supported fields and provider warnings remain
     expect($display['unchecked'])->toHaveCount(2);
     expect(array_column($display['general'], 'key'))->not->toContain('field_of_study', 'institution_type');
     $this->actingAs($student)->get(route('student.recommendations.show', $award))->assertOk()
-        ->assertSee('Not checked — choose one of these fields to meet this condition: Engineering, Business.')
-        ->assertSee('Not checked — choose Public University to meet this condition.')
+        ->assertSee('View supported fields (2)')->assertSee('Engineering')->assertSee('Business')->assertSee('Public University')
+        ->assertDontSee('Not checked — choose one of these fields to meet this condition: Engineering, Business.')
+        ->assertDontSee('Not checked — choose Public University to meet this condition.')
         ->assertSee('Attend an interview.');
 });
 
@@ -128,7 +129,8 @@ test('programme filters still use scholarship restrictions and logs distinguish 
     $award = makeScholarship();
     $other = makeScholarship(['name' => 'Business Award'], ['required_field_of_study' => 'Business', 'required_institution_type' => 'Private University']);
     $this->actingAs($student)->get(route('student.recommendations', ['field_of_study' => 'Engineering', 'institution_type' => 'Public University']))
-        ->assertOk()->assertSee($award->name)->assertDontSee($other->name)->assertSee('Not checked — choose Engineering to meet this condition.');
+        ->assertOk()->assertSee($award->name)->assertDontSee($other->name)->assertSee('Not checked')
+        ->assertDontSee('Not checked — choose Engineering to meet this condition.');
     $log = RecommendationLog::where('user_id', $student->id)->where('scholarship_id', $award->id)->firstOrFail();
     expect($log->status)->toBe('Eligible');
     expect($log->isCurrentEvaluation())->toBeTrue();

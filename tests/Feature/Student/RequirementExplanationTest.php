@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\ScholarshipRecommendationService;
+use App\Support\ProgrammeChoices;
 use App\Support\StudentRequirementExplanation;
 use Illuminate\Support\Facades\Route;
 
@@ -11,7 +12,9 @@ test('student pages retain official recommendations without the removed simulato
     $award = makeScholarship([], ['min_cgpa' => 3.50]);
     $this->actingAs($student)->get(route('student.dashboard'))->assertOk()->assertSee('0 eligible')->assertDontSee('simulator')->assertDontSee('Explore a future CGPA');
     $this->get(route('student.recommendations'))->assertOk()->assertDontSee('Explore a future CGPA');
-    $this->get(route('student.recommendations.show', $award))->assertOk()->assertSee('Your CGPA is 0.30 below this requirement.')->assertSee('3.20')->assertSee('3.50');
+    $this->get(route('student.recommendations.show', $award))->assertOk()
+        ->assertSee('Required')->assertSee('Your information')->assertSee('3.20')->assertSee('3.50')
+        ->assertDontSee('Your CGPA is 0.30 below this requirement.');
     expect(Route::has('student.simulator'))->toBeFalse();
     $this->get('/student/simulator')->assertNotFound();
     $this->post('/student/simulator', ['simulated_cgpa' => 4])->assertNotFound();
@@ -41,10 +44,33 @@ test('student explanation uses the evaluator selected route without treating fai
     expect($display['alternatives'])->toHaveCount(1);
     expect($display['alternatives'][0]['passed'])->toBeFalse();
     expect(array_column($display['academic'], 'key'))->toBe(['qualification', 'min_grade_count_0', 'min_grade_count_1']);
+    $summary = StudentRequirementExplanation::summary($decision['requirement_results']);
+    expect(collect($summary)->firstWhere('key', 'academic_route'))->toBe([
+        'key' => 'academic_route', 'label' => 'Academic requirements', 'outcome' => 'met',
+    ]);
+    expect(array_column($summary, 'key'))->not->toContain('qualification', 'study_status', 'min_grade_count_0', 'min_grade_count_1');
     $this->actingAs($student)->get(route('student.recommendations.show', $award))->assertOk()
         ->assertSee('Your accepted qualification route:')->assertSee('View other accepted qualification routes (1)')
         ->assertDontSee('Not Eligible - Failed Requirements')->assertSee('View criteria with no restrictions');
 });
+
+test('supported fields expand without repeated prose and highlight only a confirmed match', function (string $field, string $outcome) {
+    $student = makeStudent([], ['field_of_study' => $field]);
+    $award = makeScholarship([], ['required_fields_of_study' => ['Engineering', 'Business']]);
+    $decision = app(ScholarshipRecommendationService::class)->getRecommendations($student)['recommendations'][0];
+    $check = collect($decision['requirement_results'])->firstWhere('key', 'field_of_study');
+    expect($check['outcome'])->toBe($outcome);
+    $row = view('components.student-requirement-row', ['item' => StudentRequirementExplanation::row($check)])->render();
+    expect($row)->toContain('One of 2 supported fields', 'View supported fields (2)', 'Engineering', 'Business')
+        ->not->toContain($check['message'], '<details open');
+    expect(str_contains($row, 'aria-label="Your matching field"'))->toBe($outcome === 'met');
+    $this->actingAs($student)->get(route('student.recommendations.show', $award))->assertOk()
+        ->assertSee('View supported fields (2)')->assertSee('Your information')->assertDontSee($check['message']);
+})->with([
+    'met' => ['Engineering', 'met'],
+    'not met' => ['Science', 'not_met'],
+    'not checked' => [ProgrammeChoices::UNDECIDED, 'not_checked'],
+]);
 
 test('failed academic and general checks appear first without hiding applicable restrictions', function () {
     [$student, $award] = detailExplanationFixture(['B' => 3]);
