@@ -26,7 +26,7 @@ class AcademicResultInput
             'education_level' => ['required', 'string', Rule::in(AcademicResult::EDUCATION_LEVELS)],
             'study_status' => ['required', 'string', Rule::in($cgpaBased ? ['studying', 'completed'] : ['completed'])],
             'year_of_study' => [Rule::excludeIf(! $cgpaBased || $request->input('study_status') !== 'studying'), 'required', 'integer', 'between:1,10'],
-            'funding_study_level' => ['required', Rule::in(AcademicResult::EDUCATION_LEVELS)],
+            'funding_study_level' => ['required', Rule::in(AcademicResult::FUNDING_LEVELS)],
             'institution_type' => ['required', 'string', Rule::in([ProgrammeChoices::UNDECIDED, ...config('scholarship.institution_types')])],
             'field_of_study' => ['required', 'string', Rule::in([ProgrammeChoices::UNDECIDED, ...StudyField::selectableNames($retainedField === null ? [] : [$retainedField])])],
             'grading_scale' => [Rule::excludeIf(! $gradeBased), 'required', 'string', Rule::in(AcademicQualifications::allowedScales($level))],
@@ -38,6 +38,7 @@ class AcademicResultInput
             'stpm_cgpa_confirmed' => [Rule::excludeIf(! $automaticStpm), 'required', 'accepted'],
             'result_status' => ['required', Rule::in(['official'])],
         ], [
+            'funding_study_level.in' => 'Choose a supported funding level. Secondary qualifications are available for academic results only.',
             'study_status.in' => $cgpaBased ? 'Choose Currently Studying or Completed.' : 'This qualification requires completed exams and official final results. AS-Level, forecast and expected results are not accepted as full A-Level results.',
             'result_status.in' => 'Official results are required before recommendations can be generated.',
             'stpm_cgpa_confirmed.required' => 'Confirm that the calculated CGPA matches your official STPM result slip.',

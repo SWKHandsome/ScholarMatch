@@ -6,6 +6,8 @@ class AcademicQualifications
 {
     public const LEVELS = ['SPM', 'IGCSE', 'O-Level', 'STPM', 'STAM', 'A-Level', 'UEC', 'Matriculation', 'Foundation', 'Diploma', 'Undergraduate'];
 
+    public const FUNDING_LEVELS = ['STPM', 'STAM', 'A-Level', 'UEC', 'Matriculation', 'Foundation', 'Diploma', 'Undergraduate'];
+
     public const LEGACY_LEVELS = ['SPM', 'STPM', 'Foundation', 'Matriculation', 'Diploma', 'Undergraduate'];
 
     public const CGPA_LEVELS = ['STPM', 'Foundation', 'Matriculation', 'Diploma', 'Undergraduate'];

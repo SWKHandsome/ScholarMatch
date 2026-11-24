@@ -14,6 +14,8 @@ class AcademicResult extends Model
 
     public const EDUCATION_LEVELS = AcademicQualifications::LEVELS;
 
+    public const FUNDING_LEVELS = AcademicQualifications::FUNDING_LEVELS;
+
     protected $fillable = [
         'user_id', 'education_level', 'study_status', 'year_of_study', 'funding_study_level',
         'spm_as', 'spm_credits', 'cgpa', 'result_status', 'institution_type', 'field_of_study',
@@ -29,6 +31,7 @@ class AcademicResult extends Model
     {
         if ($this->result_status !== 'official'
             || ! in_array($this->education_level, self::EDUCATION_LEVELS, true)
+            // Previously saved secondary funding choices remain readable until the student updates them.
             || ! in_array($this->funding_study_level, self::EDUCATION_LEVELS, true)
             || ! in_array($this->study_status, ['studying', 'completed'], true)
             || ($this->institution_type !== ProgrammeChoices::UNDECIDED && ! in_array($this->institution_type, config('scholarship.institution_types'), true))

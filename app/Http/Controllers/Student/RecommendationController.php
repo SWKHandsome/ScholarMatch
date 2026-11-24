@@ -24,7 +24,7 @@ class RecommendationController extends Controller
         $validated = $request->validate([
             'search' => ['nullable', 'string', 'max:255'],
             'award_type' => ['nullable', 'string', 'max:255'],
-            'study_level' => ['nullable', 'string', Rule::in(AcademicResult::EDUCATION_LEVELS)],
+            'study_level' => ['nullable', 'string', Rule::in(AcademicResult::FUNDING_LEVELS)],
             'field_of_study' => ['nullable', 'string', Rule::in(StudyField::names())],
             'institution_type' => ['nullable', 'string', Rule::in(config('scholarship.institution_types'))],
             'decision' => ['nullable', 'string', Rule::in(['Eligible', 'Not Eligible'])],
@@ -81,7 +81,7 @@ class RecommendationController extends Controller
             'filters' => $filters,
             'awardTypes' => $allRecommendations->pluck('scholarship_data.award_type')->map(Scholarship::normalizeAwardType(...))
                 ->push($filters['award_type'])->filter()->unique()->sort()->values(),
-            'educationLevels' => AcademicResult::EDUCATION_LEVELS,
+            'fundingLevels' => AcademicResult::FUNDING_LEVELS,
             'unconfiguredCount' => $result['unconfigured_count'] ?? 0,
         ]);
     }

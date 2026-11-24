@@ -19,7 +19,7 @@ class ScholarshipRuleEditor
         $validator = Validator::make($request->all(), [
             'qualification_routes_submitted' => $request->boolean('rules_submitted') ? ['required', 'accepted'] : ['sometimes', 'accepted'],
             'required_nationality' => ['nullable', 'string', Rule::in(config('scholarship.nationalities'))],
-            'required_study_level' => ['nullable', Rule::in(AcademicResult::EDUCATION_LEVELS)],
+            'required_study_level' => ['nullable', Rule::in(AcademicResult::FUNDING_LEVELS)],
             'required_income_category' => ['nullable', Rule::in(['B40', 'M40', 'T20'])],
             'max_household_income' => ['nullable', 'numeric', 'min:0'],
             'required_fields_of_study' => ['nullable', 'array'],
@@ -53,6 +53,7 @@ class ScholarshipRuleEditor
             'qualification_routes.*.uec_total.max_total' => ['required_with:qualification_routes.*.uec_total', 'integer', 'between:1,180'],
             'qualification_routes.*.uec_total.minimum_grade' => ['required_with:qualification_routes.*.uec_total', 'string', Rule::in(AcademicQualifications::scales()['uec']['grades'])],
         ], [
+            'required_study_level.in' => 'Choose a supported funded study level or Any funding level. Secondary qualifications can still be accepted qualification routes.',
             'qualification_routes_submitted.required' => 'The qualification editor did not load. Reload this page with JavaScript enabled before saving.',
             'qualification_routes_submitted.accepted' => 'The qualification editor did not load. Reload this page with JavaScript enabled before saving.',
         ]);

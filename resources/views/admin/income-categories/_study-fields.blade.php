@@ -36,8 +36,15 @@
                             <td class="px-4 py-3 font-medium text-on-surface break-words">{{ $studyField->name }}</td>
                             <td class="px-4 py-3"><span class="inline-flex rounded-full px-2 py-1 text-xs font-medium {{ $studyField->is_active ? 'bg-success/10 text-success' : 'bg-surface-container text-on-surface-variant' }}">{{ $studyField->is_active ? 'Active' : 'Inactive' }}</span></td>
                             <td class="px-4 py-3 text-right">
-                                <button type="button" class="btn btn-outline px-3 py-1.5" aria-label="Edit {{ $studyField->name }}"
-                                    @click="editor = @js(['id' => $studyField->id, 'name' => $studyField->name, 'is_active' => $studyField->is_active, 'method' => 'PATCH', 'action' => route('admin.study-fields.update', $studyField)]); open = true; $nextTick(() => $refs.fieldName.focus())">Edit</button>
+                                <div class="flex justify-end gap-2">
+                                    <button type="button" class="btn btn-outline px-3 py-1.5" aria-label="Edit {{ $studyField->name }}"
+                                        @click="editor = @js(['id' => $studyField->id, 'name' => $studyField->name, 'is_active' => $studyField->is_active, 'method' => 'PATCH', 'action' => route('admin.study-fields.update', $studyField)]); open = true; $nextTick(() => $refs.fieldName.focus())">Edit</button>
+                                    <form method="POST" action="{{ route('admin.study-fields.destroy', $studyField) }}" onsubmit="return confirm('Delete this field of study? This cannot be undone.')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger px-3 py-1.5" aria-label="Delete {{ $studyField->name }}">Delete</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -46,7 +53,7 @@
                 </tbody>
             </table>
         </div>
-        <p class="border-t border-outline-variant px-4 py-3 text-xs text-on-surface-variant">Inactive fields are hidden from new selections. Existing records keep their field; renaming updates linked student and scholarship information.</p>
+        <p class="border-t border-outline-variant px-4 py-3 text-xs text-on-surface-variant">Inactive fields are hidden from new selections. Existing records keep their field; renaming updates linked student and scholarship information. Only unused fields can be deleted.</p>
     </div>
 
     <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="open = false">

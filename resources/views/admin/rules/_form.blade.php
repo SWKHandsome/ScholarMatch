@@ -26,8 +26,12 @@
     <div>
         <label class="label" for="required_study_level">Funded Study Level</label>
         <select class="input" name="required_study_level" id="required_study_level">
+            @php($selectedFundingLevel = old('required_study_level', $rule->required_study_level))
+            @if(is_string($selectedFundingLevel) && $selectedFundingLevel !== '' && !in_array($selectedFundingLevel, \App\Models\AcademicResult::FUNDING_LEVELS, true))
+                <option value="__select_funding_level__" selected>Select a supported level (previously {{ \App\Support\AcademicQualifications::label($rule->required_study_level) }})</option>
+            @endif
             <option value="">Any funding level</option>
-            @foreach(\App\Models\AcademicResult::EDUCATION_LEVELS as $value)
+            @foreach(\App\Models\AcademicResult::FUNDING_LEVELS as $value)
                 <option value="{{ $value }}" @selected(old('required_study_level', $rule->required_study_level) === $value)>{{ \App\Support\AcademicQualifications::label($value) }}</option>
             @endforeach
         </select>

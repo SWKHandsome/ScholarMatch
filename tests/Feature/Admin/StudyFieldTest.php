@@ -90,13 +90,47 @@ test('field edits reject duplicate empty overlong and malformed labels', functio
     expect(StudyField::count())->toBe(21);
 })->with(['Engineering', 'engineering', '', str_repeat('x', 256), [['bad']]]);
 
-test('field settings are administrator-only and have no destructive delete endpoint', function () {
+test('field settings including deletion are administrator-only', function () {
     $field = StudyField::firstOrFail();
     $this->actingAs(makeStudent())->get(route('admin.matching-settings'))->assertForbidden();
     $this->post(route('admin.study-fields.store'), ['name' => 'Forbidden', 'is_active' => 1])->assertForbidden();
     $this->patch(route('admin.study-fields.update', $field), ['name' => 'Forbidden', 'is_active' => 0])->assertForbidden();
-    $this->actingAs(makeAdmin())->delete(route('admin.study-fields.update', $field))->assertStatus(405);
+    $this->delete(route('admin.study-fields.destroy', $field))->assertForbidden();
+    $this->assertDatabaseHas('study_fields', ['id' => $field->id]);
 });
+
+test('an administrator can delete an unused field and refresh the catalog choices', function () {
+    $field = StudyField::create(['name' => 'Unused Demo Field', 'is_active' => true]);
+    $version = Cache::get('recommendation_catalog_version');
+    $this->actingAs(makeAdmin())->get(route('admin.matching-settings'))->assertOk()
+        ->assertSee(route('admin.study-fields.destroy', $field), false)->assertSee('Delete Unused Demo Field');
+    $this->delete(route('admin.study-fields.destroy', $field))
+        ->assertRedirect(route('admin.matching-settings').'#fields-of-study')->assertSessionHas('success');
+    $this->assertDatabaseMissing('study_fields', ['id' => $field->id]);
+    expect(StudyField::selectableNames())->not->toContain('Unused Demo Field');
+    expect(Cache::get('recommendation_catalog_version'))->not->toBe($version);
+});
+
+test('deletion preserves fields referenced by students or scholarship restrictions', function (string $reference) {
+    $name = 'Referenced Demo Field';
+    $field = StudyField::create(['name' => $name, 'is_active' => true]);
+    if ($reference === 'academic') {
+        makeStudent([], ['field_of_study' => $name]);
+    } elseif ($reference === 'profile') {
+        $student = makeStudent();
+        DB::table('student_profiles')->where('user_id', $student->id)->update(['field_of_study' => $name]);
+    } elseif ($reference === 'legacy rule') {
+        makeScholarship([], ['required_field_of_study' => $name]);
+    } else {
+        makeScholarship([], ['required_field_of_study' => null, 'required_fields_of_study' => ['Business', $name]]);
+    }
+    $version = Cache::get('recommendation_catalog_version');
+    $this->actingAs(makeAdmin())->delete(route('admin.study-fields.destroy', $field))
+        ->assertRedirect(route('admin.matching-settings').'#fields-of-study')
+        ->assertSessionHas('error', 'This field of study is used by a student or scholarship and cannot be deleted. Edit the field and make it inactive instead.');
+    $this->assertDatabaseHas('study_fields', ['id' => $field->id, 'name' => $name, 'is_active' => true]);
+    expect(Cache::get('recommendation_catalog_version'))->toBe($version);
+})->with(['academic', 'profile', 'legacy rule', 'multiple fields rule']);
 
 test('repeated seeding preserves renamed inactive fields and maps bundled demo restrictions to them', function () {
     $this->seed(ScholarshipCatalogSeeder::class);

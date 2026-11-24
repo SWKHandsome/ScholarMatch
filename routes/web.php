@@ -61,6 +61,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('matching-settings', [AdminIncomeCategoryController::class, 'index'])->name('matching-settings');
     Route::post('matching-settings/fields', [StudyFieldController::class, 'store'])->name('study-fields.store');
     Route::patch('matching-settings/fields/{studyField}', [StudyFieldController::class, 'update'])->name('study-fields.update');
+    Route::delete('matching-settings/fields/{studyField}', [StudyFieldController::class, 'destroy'])->name('study-fields.destroy');
     Route::get('recommendation-logs', [AdminRecommendationLogController::class, 'index'])->name('recommendation-logs.index');
 Route::get('recommendation-logs/{recommendationLog}', [AdminRecommendationLogController::class, 'show'])->name('recommendation-logs.show');
 });

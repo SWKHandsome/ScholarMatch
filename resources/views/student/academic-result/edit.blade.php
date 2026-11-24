@@ -168,10 +168,13 @@
                     <label class="label" for="funding_study_level">Study Level Seeking Funding <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>
                     <select class="input" id="funding_study_level" name="funding_study_level" required>
                         <option value="">Select the level you want funded</option>
-                        @foreach($educationLevels as $level)
+                        @foreach(\App\Models\AcademicResult::FUNDING_LEVELS as $level)
                             <option value="{{ $level }}" @selected(old('funding_study_level', $academicResult->funding_study_level) === $level)>{{ \App\Support\AcademicQualifications::label($level) }}</option>
                         @endforeach
                     </select>
+                    @if($academicResult->funding_study_level && !in_array($academicResult->funding_study_level, \App\Models\AcademicResult::FUNDING_LEVELS, true))
+                        <p class="mt-1 text-sm text-on-surface-variant">Your saved funding level is {{ \App\Support\AcademicQualifications::label($academicResult->funding_study_level) }}. Choose a supported level before saving; your academic qualification stays available.</p>
+                    @endif
                 </div>
                 <div>
                     <label class="label" for="institution_type">Institution Type <span class="text-error" aria-hidden="true">*</span><span class="sr-only"> (required)</span></label>

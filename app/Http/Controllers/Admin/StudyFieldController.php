@@ -49,6 +49,26 @@ class StudyFieldController extends Controller
         return redirect(route('admin.matching-settings').'#fields-of-study')->with('success', 'Field of study updated successfully.');
     }
 
+    public function destroy(StudyField $studyField)
+    {
+        $name = $studyField->name;
+        $inUse = AcademicResult::where('field_of_study', $name)->exists()
+            || StudentProfile::where('field_of_study', $name)->exists()
+            || ScholarshipRule::where('required_field_of_study', $name)
+                ->orWhereJsonContains('required_fields_of_study', $name)->exists();
+
+        if ($inUse) {
+            return redirect(route('admin.matching-settings').'#fields-of-study')
+                ->with('error', 'This field of study is used by a student or scholarship and cannot be deleted. Edit the field and make it inactive instead.');
+        }
+
+        $studyField->delete();
+        ScholarshipRecommendationService::invalidateCatalogCache();
+
+        return redirect(route('admin.matching-settings').'#fields-of-study')
+            ->with('success', 'Field of study deleted successfully.');
+    }
+
     private function validated(Request $request, ?StudyField $field = null): array
     {
         return $request->validateWithBag('studyField', [

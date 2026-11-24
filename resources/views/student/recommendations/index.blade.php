@@ -35,7 +35,7 @@
                         <label class="label" for="study_level">Study Level Funded</label>
                         <select class="input" id="study_level" name="study_level">
                             <option value="">All study levels</option>
-                            @foreach($educationLevels as $level)
+                            @foreach($fundingLevels as $level)
                                 <option value="{{ $level }}" @selected($filters['study_level'] === $level)>{{ \App\Support\AcademicQualifications::label($level) }}</option>
                             @endforeach
                         </select>
